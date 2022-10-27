@@ -29,7 +29,7 @@
 <meta property="og:locale">
 <meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202210270948039.png">
 <meta property="article:published_time" content="2022-10-27T01:40:43.000Z">
-<meta property="article:modified_time" content="2022-10-27T03:13:43.619Z">
+<meta property="article:modified_time" content="2022-10-27T04:42:01.205Z">
 <meta property="article:author" content="foursevenlove">
 <meta property="article:tag" content="leetcode">
 <meta property="article:tag" content="offer">
@@ -216,7 +216,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2022-10-27 09:40:43 / Modified: 11:13:43" itemprop="dateCreated datePublished" datetime="2022-10-27T09:40:43+08:00">2022-10-27</time>
+              <time title="Created: 2022-10-27 09:40:43 / Modified: 12:42:01" itemprop="dateCreated datePublished" datetime="2022-10-27T09:40:43+08:00">2022-10-27</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -239,8 +239,8 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/shu-zu-zhong-zhong-fu-de-shu-zi-lcof/?favorite=xb9nqhhg">原题点这里</a><br><span id="more"></span></p>
-<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202210270948039.png" alt=""></p>
+        <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/shu-zu-zhong-zhong-fu-de-shu-zi-lcof/?favorite=xb9nqhhg">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202210270948039.png" alt=""><br><span id="more"></span></p>
 <h2 id="思路1"><a href="#思路1" class="headerlink" title="思路1"></a>思路1</h2><p>直接采用HashMap的思想：</p>
 <figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">findRepeatNumber</span><span class="params">(nums []<span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	exists := <span class="built_in">make</span>([]<span class="type">bool</span>, <span class="built_in">len</span>(nums))</span><br><span class="line">	<span class="keyword">for</span> _, num := <span class="keyword">range</span> nums &#123;</span><br><span class="line">		<span class="keyword">if</span> exists[num] &#123;</span><br><span class="line">			<span class="keyword">return</span> num</span><br><span class="line">		&#125;</span><br><span class="line">		exists[num] = <span class="literal">true</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="number">-1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 <h2 id="思路2"><a href="#思路2" class="headerlink" title="思路2"></a>思路2</h2><p>因为n个数字的的大小范围都在0～n-1之间，那么就可以把数字num1放到数组中下标为num1的地方。这样假设数字num1出现了重复，那么可以根据数组下标nums1位置上的数字是否等于数字num1来判断。</p>
@@ -263,11 +263,11 @@
 
         
     <div class="post-nav">
-      <div class="post-nav-item">
-    <a href="/2022/10/26/test/" rel="prev" title="Deep Reinforcement Learning - Overview">
-      <i class="fa fa-chevron-left"></i> Deep Reinforcement Learning - Overview
-    </a></div>
       <div class="post-nav-item"></div>
+      <div class="post-nav-item">
+    <a href="/2022/10/27/%E5%89%91%E6%8C%87offer-v2-04-%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9F%A5%E6%89%BE/" rel="next" title="剑指offer-V2-04-二维数组中的查找">
+      剑指offer-V2-04-二维数组中的查找 <i class="fa fa-chevron-right"></i>
+    </a></div>
     </div>
       </footer>
     
@@ -342,14 +342,14 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">2</span>
+          <span class="site-state-item-count">4</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">1</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
