@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"foursevenlove.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="15. Mechanism: Address Translation 提供即高效又能保持OS控制的虚拟化内存方法。 高效需要硬件的支持；控制意味着OS必须保证一个程序不能访问别的程序的内存空间，也不能访问OS的内存空间；最后还要灵活，也就是说一个程序想怎么使用地址空间都可以。 那么问题来了，对于虚拟化内存：如何高效？如何提供灵活性？如何控制程序不访问别的程序内存空间？如何高效地完成这一切？  采用">
+<meta property="og:type" content="article">
+<meta property="og:title" content="15. Mechanism: Address Translation">
+<meta property="og:url" content="https://foursevenlove.github.io/2022/10/27/15-Mechanism-Address-Translation/index.html">
+<meta property="og:site_name" content="foursevenlove">
+<meta property="og:description" content="15. Mechanism: Address Translation 提供即高效又能保持OS控制的虚拟化内存方法。 高效需要硬件的支持；控制意味着OS必须保证一个程序不能访问别的程序的内存空间，也不能访问OS的内存空间；最后还要灵活，也就是说一个程序想怎么使用地址空间都可以。 那么问题来了，对于虚拟化内存：如何高效？如何提供灵活性？如何控制程序不访问别的程序内存空间？如何高效地完成这一切？  采用">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405184720.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405184832.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405185030.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405190107.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405190426.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405190530.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405191924.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405193608.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405195345.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405195523.png">
+<meta property="article:published_time" content="2022-10-27T07:31:31.000Z">
+<meta property="article:modified_time" content="2022-10-27T07:32:43.872Z">
+<meta property="article:author" content="foursevenlove">
+<meta property="article:tag" content="Operating System">
+<meta property="article:tag" content="Virtualization">
+<meta property="article:tag" content="Memory">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405184720.png">
+
+<link rel="canonical" href="https://foursevenlove.github.io/2022/10/27/15-Mechanism-Address-Translation/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>15. Mechanism: Address Translation | foursevenlove</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">foursevenlove</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/aboutMe/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/15-Mechanism-Address-Translation/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          15. Mechanism: Address Translation
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-27 15:31:31 / Modified: 15:32:43" itemprop="dateCreated datePublished" datetime="2022-10-27T15:31:31+08:00">2022-10-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/" itemprop="url" rel="index"><span itemprop="name">Virtualization</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/Memory/" itemprop="url" rel="index"><span itemprop="name">Memory</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="15-Mechanism-Address-Translation"><a href="#15-Mechanism-Address-Translation" class="headerlink" title="15. Mechanism: Address Translation"></a>15. Mechanism: Address Translation</h1><ul>
+<li>提供即高效又能保持OS控制的虚拟化内存方法。</li>
+<li>高效需要硬件的支持；控制意味着OS必须保证一个程序不能访问别的程序的内存空间，也不能访问OS的内存空间；最后还要灵活，也就是说一个程序想怎么使用地址空间都可以。</li>
+<li><p>那么问题来了，对于虚拟化内存：如何高效？如何提供灵活性？如何控制程序不访问别的程序内存空间？如何高效地完成这一切？</p>
+</li>
+<li><p>采用一种叫做<strong>hardware-based address translation</strong>或者简称<strong>address translation</strong>。该方法的作用就是把虚拟地址转换成物理实际地址。这样，程序就好像拥有了私人内存一样，但其实是所有程序共享内存。</p>
+<span id="more"></span>
+<h2 id="15-1-Assumptions"><a href="#15-1-Assumptions" class="headerlink" title="15.1 Assumptions"></a>15.1 Assumptions</h2></li>
+<li><p>第一，愚蠢的假设：假设用户的地址空间是连续放在物理内存中的。</p>
+</li>
+<li>第二，假设地址空间的大小小于物理内存的大小</li>
+<li><p>第三，假设每个地址空间的大小都相等。</p>
+</li>
+<li><p>这些假设会随着学习的深入被逐个打破，因为每个都是不现实的。</p>
+</li>
+</ul>
+<h2 id="15-2-An-Example"><a href="#15-2-An-Example" class="headerlink" title="15.2 An Example"></a>15.2 An Example</h2><ul>
+<li>一个进程的地址空间如下图所示：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405184720.png" style="zoom:80%;" /></p>
+<p>它的三条指令可以等价于以下C语言代码：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405184832.png" style="zoom:80%;" /></p>
+<p>当这些指令运行时，从进程层面来说，发生了以下内存的读写：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405185030.png" style="zoom:80%;" /></p>
+<p>从程序的角度来看，地址空间时从地址0开始一直到地址16KB的，所有用到的内存地址都应该在这个范围里面。但是从虚拟化内存的角度来看，OS要把该进程放在物理内存中，那么问题来了：如何<strong>透明地</strong>在内存中重定位该进程？如何提供一种假象，虽然该进程在物理内存中可能是任意位置开始，但是使得该进程好像在物理内存中真的是从地址0开始的？</p>
+<ul>
+<li>一个物理内存实际的样子：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405190107.png" style="zoom: 67%;" /></p>
+<h2 id="15-3-Dynamic-Hardware-based-Relocation"><a href="#15-3-Dynamic-Hardware-based-Relocation" class="headerlink" title="15.3 Dynamic (Hardware-based) Relocation"></a>15.3 Dynamic (Hardware-based) Relocation</h2><ul>
+<li>为了解决上述问题，采用一种叫做<strong>base and bounds</strong>或者<strong>dynamic relocation</strong>的方法。</li>
+<li>具体做法是，每一个CPU中设置两个硬件寄存器，一个是<strong>base</strong>寄存器，一个是<strong>bounds</strong>寄存器(或者叫<strong>limit</strong>寄存器)。有了这两个寄存器就可以让我们把进程放在内存的任意位置，并且保证一个进程不会访问别的进程的物理内存空间。</li>
+<li>当一个程序开始运行时，OS决定该进程应该放在物理内存的什么位置，并且把base寄存器的值设置为该进程在内存中的起始位置。在上述例子中，该进程在物理内存中实际是从32KB开始的，那么当该进程上CPU的时候，就应该把base寄存器设置为32KB。</li>
+<li>当该进程运行时需要访问内存，产生了一个地址时，实际该地址是一个虚拟地址，是相对该进程的地址空间来的，那么如何将其转换为物理内存的实际地址呢？</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405190426.png" style="zoom:80%;" /></p>
+<p>也就是说，实际地址等于虚拟地址加上base寄存器中的地址。</p>
+<p>对于上述进程的第一条指令：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405190530.png" style="zoom:80%;" /></p>
+<p>取该指令，PC值为128，那么这时候取该指令的物理内存实际地址为128+32KB(32768)=32896。这样PC就从物理内存中32896的位置取到了该指令，接下来执行该指令。该指令是说取15KB地址的值，注意这个15KB是虚拟地址，那么同理加上base的值，实际是从15+32=47KB的物理内存地址中取得该值的。</p>
+<ul>
+<li>把虚拟地址转换为物理地址的过程就是<strong>address translation</strong>也叫<strong>dynamic relocation</strong>。</li>
+<li>别忘了我们还提到了一个bound寄存器，它的作用是啥？别小瞧他，OS最看重的就是protection，而bound寄存器就是用来实现不让一个进程访问别的进程的内存以及操作系统的内存的。bound寄存器中存的值，代表该进程的地址空间最大有多少，也就是说每一个虚拟地址不能超过bound寄存器中的值。这样久确保了这个进程访问不了其他进程的内存。</li>
+<li>关于bound寄存器的定义可以有两种，一种是保存地址空间的大小，也就是说虚拟地址不能超过bound；还有一种是保存该进程的物理内存地址的最大值，也就是说translation后的地址不能超过bound。这里我们采用第一种。</li>
+<li>举个栗子，一个进程的地址空间大小4KB，它在物理内存中从16KB开始，那么：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405191924.png" style="zoom:80%;" /></p>
+<h2 id="15-4-Hardware-Support-A-Summary"><a href="#15-4-Hardware-Support-A-Summary" class="headerlink" title="15.4 Hardware Support: A Summary"></a>15.4 Hardware Support: A Summary</h2><ul>
+<li>总结一下从硬件获得的支持：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405193608.png" style="zoom: 67%;" /></p>
+<h2 id="15-5-Operating-System-Issues"><a href="#15-5-Operating-System-Issues" class="headerlink" title="15.5 Operating System Issues"></a>15.5 Operating System Issues</h2><ul>
+<li>不能光硬件做事，OS总归也要做点事吧，别忘了这门课是在学什么。</li>
+<li>第一，当创建一个进程时，要在内存中找到一个位置存放该进程了，也就是确定该进程的地址空间在内存中的实际位置。别忘了我们之前还做过假设，那就是所有进程的地址空间是连续存放的，那么就简单了，只要找到第一个空闲的内存地址即可。当创建进程时，OS需要从一个叫<strong>free list</strong>的数据结构中找到该内存地址，然后把它标记为已使用。</li>
+<li>第二，当终止一个进程时，要将该进程的地址空间释放以便其他进程或者OS使用。也就是说OS把该内存放回free list，然后清理相关的数据结构。</li>
+<li>第三，当做context switch的时候OS保存一些信息。因为一个CPU只有一对base and bound，所以当做context switch的时候需要保存base and bound的信息。也就是说，让一个进程先下CPU的时候，需要把base and bound寄存器的信息放在内存中，通常是某种数据结构，比如PCB。同样，当恢复改进程时，需要恢复寄存器信息。</li>
+<li>第四，OS必须提供<strong>exception handlers</strong>或者可以调用的函数，和之前讨论的一样，这些是在启动时设置的。比如说，当一个进程访问的虚拟地址越界时要发起异常，交给handler来处理，handler就会终止该进程。</li>
+<li>下图展示了硬件和OS的交互：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405195345.png" style="zoom: 67%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405195523.png" style="zoom:80%;" /></p>
+<h2 id="15-6-Summary"><a href="#15-6-Summary" class="headerlink" title="15.6 Summary"></a>15.6 Summary</h2><ul>
+<li><p>主要讲的就是<strong>address translation</strong>。</p>
+</li>
+<li><p><strong>base and bounds</strong> 或者<strong>dynamic relocation</strong>。</p>
+</li>
+<li>当然这种做法是有不足的，比如图15.2中，进程的地址空间中是有很多浪费的空间，这些空间被叫做<strong>internal fragmentation</strong>，下面的章节我们就来看看如何充分使用内存空间。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Operating-System/" rel="tag"># Operating System</a>
+              <a href="/tags/Virtualization/" rel="tag"># Virtualization</a>
+              <a href="/tags/Memory/" rel="tag"># Memory</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/10/27/13-The-Abstraction-Address-Spaces/" rel="prev" title="13. The Abstraction: Address Spaces">
+      <i class="fa fa-chevron-left"></i> 13. The Abstraction: Address Spaces
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/10/27/16-Segmentation/" rel="next" title="16. Segmentation">
+      16. Segmentation <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#15-Mechanism-Address-Translation"><span class="nav-text">15. Mechanism: Address Translation</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#15-1-Assumptions"><span class="nav-text">15.1 Assumptions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-2-An-Example"><span class="nav-text">15.2 An Example</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-3-Dynamic-Hardware-based-Relocation"><span class="nav-text">15.3 Dynamic (Hardware-based) Relocation</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-4-Hardware-Support-A-Summary"><span class="nav-text">15.4 Hardware Support: A Summary</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-5-Operating-System-Issues"><span class="nav-text">15.5 Operating System Issues</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#15-6-Summary"><span class="nav-text">15.6 Summary</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="foursevenlove"
+      src="/uploads/funs.jpg">
+  <p class="site-author-name" itemprop="name">foursevenlove</p>
+  <div class="site-description" itemprop="description">Keep on going never give up!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/foursevenlove" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;foursevenlove" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:foursevenlove@gmail.com" title="E-Mail → mailto:foursevenlove@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.foursevenlove.top/" title="http:&#x2F;&#x2F;blog.foursevenlove.top" rel="noopener" target="_blank">Another Blog</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">foursevenlove</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>

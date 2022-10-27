@@ -1,0 +1,626 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"foursevenlove.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="17. Free-Space Management 这节就接着上节来讲讲怎么进行内存管理。具体来说，我们要讨论的就是paging的概念。简单点的话，把内存分成固定大小的块，管理这些块即可。复杂点来说，当这些块的大小不固定时，变长时该如何管理？比如一个进程可能通过malloc()和free()来分配或销毁内存。还可能存在外部碎片的问题。 问题来了：如何在满足变长内存块的情况下进行内存管理？有什么策略">
+<meta property="og:type" content="article">
+<meta property="og:title" content="17. Free-Space Management">
+<meta property="og:url" content="https://foursevenlove.github.io/2022/10/27/17-Free-Space-Management/index.html">
+<meta property="og:site_name" content="foursevenlove">
+<meta property="og:description" content="17. Free-Space Management 这节就接着上节来讲讲怎么进行内存管理。具体来说，我们要讨论的就是paging的概念。简单点的话，把内存分成固定大小的块，管理这些块即可。复杂点来说，当这些块的大小不固定时，变长时该如何管理？比如一个进程可能通过malloc()和free()来分配或销毁内存。还可能存在外部碎片的问题。 问题来了：如何在满足变长内存块的情况下进行内存管理？有什么策略">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409093933.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409093947.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409094520.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409094759.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409095214.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409095743.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409100131.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409100259.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409100536.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409104900.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409134613.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409134906.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409134958.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409135320.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409135640.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409135812.png">
+<meta property="article:published_time" content="2022-10-27T07:34:12.000Z">
+<meta property="article:modified_time" content="2022-10-27T07:34:42.693Z">
+<meta property="article:author" content="foursevenlove">
+<meta property="article:tag" content="Operating System">
+<meta property="article:tag" content="Virtualization">
+<meta property="article:tag" content="Memory">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409093933.png">
+
+<link rel="canonical" href="https://foursevenlove.github.io/2022/10/27/17-Free-Space-Management/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>17. Free-Space Management | foursevenlove</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">foursevenlove</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/aboutMe/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/17-Free-Space-Management/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          17. Free-Space Management
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-27 15:34:12 / Modified: 15:34:42" itemprop="dateCreated datePublished" datetime="2022-10-27T15:34:12+08:00">2022-10-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/" itemprop="url" rel="index"><span itemprop="name">Virtualization</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/Memory/" itemprop="url" rel="index"><span itemprop="name">Memory</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="17-Free-Space-Management"><a href="#17-Free-Space-Management" class="headerlink" title="17. Free-Space Management"></a>17. Free-Space Management</h1><ul>
+<li>这节就接着上节来讲讲怎么进行内存管理。具体来说，我们要讨论的就是<strong>paging</strong>的概念。简单点的话，把内存分成固定大小的块，管理这些块即可。复杂点来说，当这些块的大小不固定时，变长时该如何管理？比如一个进程可能通过malloc()和free()来分配或销毁内存。还可能存在<strong>外部碎片</strong>的问题。</li>
+<li><p>问题来了：如何在满足变长内存块的情况下进行内存管理？有什么策略可以用来最小化外部碎片？这些可用方法的时间和空间开销是多少？</p>
+<span id="more"></span>
+<h2 id="17-1-Assumptions"><a href="#17-1-Assumptions" class="headerlink" title="17.1 Assumptions"></a>17.1 Assumptions</h2></li>
+<li><p>假设我们通过malloc()和free()来对内存进行分配和销毁：</p>
+</li>
+</ul>
+<p>对于malloc()，接收一个size参数，用来代表需要分配多少字节的内存。</p>
+<p>对于free()，接收一个指针作为参数，释放相关内存。那么free()怎么知道要释放多少的内存呢？稍后就知道了。</p>
+<p>用<strong>free list</strong>，一种数据结构来管理空闲内存。</p>
+<ul>
+<li>再假设，我们只考虑外部碎片，不考虑内部碎片。</li>
+<li>再假设，一旦内存分配给客户端了，就不再重定位到内存中别的位置，也就是说哦我们不考虑<strong>compaction</strong>。（虽然它很有用）</li>
+<li>最后假设，分配器管理的都是连续的字节空间，并且我们假设该空间固定大小。</li>
+</ul>
+<h2 id="17-2-Low-level-Mechanisms"><a href="#17-2-Low-level-Mechanisms" class="headerlink" title="17.2 Low-level Mechanisms"></a>17.2 Low-level Mechanisms</h2><ul>
+<li><strong>Splitting and Coalescing</strong></li>
+</ul>
+<p>有一个30字节的heap，它和free list 的对应关系如下：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409093933.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409093947.png" style="zoom:80%;" /></p>
+<p>假设我们请求分配1个字节的空间，这是分配器就会采取<strong>splitting</strong>：找到满足要求的chunk，并且把它分成两块，第一块用于返回给caller，第二块继续保存在list中。那么就会变成这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409094520.png" style="zoom:80%;" /></p>
+<p>还是对于上述初始情况，假设我们调用free(10)会怎么样呢？如果简单的把10开始这个chunk加到list里去就是这种情况：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409094759.png" style="zoom:80%;" /></p>
+<p>这时，虽然总和可用是30字节，但是任何一个超过10字节的请求都会被拒绝，因为一个chunk最大可用是10。所以采用<strong>coalescing</strong>的方法，变成下面这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409095214.png" style="zoom:80%;" /></p>
+<p>有了coalescing，就可以保证最大程度利用内存。</p>
+<ul>
+<li><strong>Tracking The Size Of Allocated Regions</strong></li>
+</ul>
+<p>就像之前说的，free()函数只接收了一个指针参数，但是系统也可以知道该chunk有多大，然后把它加到free list中去，那么是如何做到的？</p>
+<p>为了满足上述目的，分配器需要额外保存一点信息在<strong>header</strong>中。看个图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409095743.png" style="zoom: 67%;" /></p>
+<p>假设malloc(20)，那么下面的20字节是分配用的空间，上面的header是为了加速释放内存用的，具体来说，header中包括：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409100131.png" style="zoom: 67%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409100259.png" style="zoom:80%;" /></p>
+<p>magic是用于提供额外的integrity和其他信息。当调用free时：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409100536.png" style="zoom:80%;" /></p>
+<p>在获得指向头部的指针后，就可以通过magic number来检查 assert(hptr-&gt;magic == 1234567) ，并且计算出要释放的区域的大小（20字节+header）。因此当用户申请N字节的内存时，不是找大小满足N的chunk，而是找大小满足N+header大小的chunk。</p>
+<ul>
+<li><strong>Embedding A Free List</strong></li>
+</ul>
+<p>假设内存空间一共4096字节，也就是4KB。对于free list，首先初始化，list中只有一个元素大小4096（减去header尺寸），list中的node：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409104900.png" style="zoom:80%;" /></p>
+<p>我们通过系统调用mmap()来构建heap，</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409134613.png" style="zoom:80%;" /></p>
+<p>运行代码之后，list中就有了一个元素，size是4096-8=4088。我们假设heap的虚拟地址是从16KB开始的，那么就像：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409134906.png" style="zoom:80%;" /></p>
+<p>假设用户请求分配100字节内存：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409134958.png" style="zoom:80%;" /></p>
+<p>注意每个header是8个字节，因为包含了两个整数，每个整数是4字节。也就是说，lib实际分配的是100+8=106字节。</p>
+<p>假设heap的分配情况是这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409135320.png" style="zoom:80%;" /></p>
+<p>这时如果我们要释放中间那块chunk会发生什么？free(16500)也就是物理地址，free(16K+108+8)，也就是sptr指向的地方。free后就会把该chunk加到free list中去：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409135640.png" style="zoom:80%;" /></p>
+<p>现在list中就有两个chunk。</p>
+<p>现在我们再释放剩下两个chunk：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409135812.png" style="zoom:80%;" /></p>
+<p>这种还没有合并，遍历list对相邻chunk进行合并，那么就是一个完整的heap了。</p>
+<ul>
+<li><strong>Growing The Heap</strong></li>
+</ul>
+<p>如果heap空间用完了咋办？可以通过系统效用，比如UNIX中sbrk来申请更多内存。</p>
+<h2 id="17-3-Basic-Strategies"><a href="#17-3-Basic-Strategies" class="headerlink" title="17.3 Basic Strategies"></a>17.3 Basic Strategies</h2><ul>
+<li>没有最好的策略，只能尽量采取合适的策略来减少外部碎片。</li>
+<li><strong>Best Fit</strong>：找到大小最合适chunk分配。优点简单，缺点时间复杂度较高。</li>
+<li><strong>Worst Fit</strong>：找到最大的chunk分配。优点可能减少了外部best fit带来的小的chunk，缺点时间复杂度较高。</li>
+<li><strong>First Fit</strong>：找到第一个满足要求的chunk分配。优点速度快，缺点可能污染free list的开头。比如说一个很大的chunk分配给很小的内存申请。</li>
+<li><strong>Next Fit</strong>：找到第二个满足要求的chunk分配。和first fit很像，避免污染开头。</li>
+</ul>
+<h2 id="17-4-Other-Approaches"><a href="#17-4-Other-Approaches" class="headerlink" title="17.4 Other Approaches"></a>17.4 Other Approaches</h2><ul>
+<li><p>Segregated Lists</p>
+</li>
+<li><p>Buddy Allocation</p>
+</li>
+<li>Other Ideas</li>
+</ul>
+<h2 id="17-5-Summary"><a href="#17-5-Summary" class="headerlink" title="17.5 Summary"></a>17.5 Summary</h2><ul>
+<li>介绍了很初级的内存分配器。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Operating-System/" rel="tag"># Operating System</a>
+              <a href="/tags/Virtualization/" rel="tag"># Virtualization</a>
+              <a href="/tags/Memory/" rel="tag"># Memory</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/10/27/16-Segmentation/" rel="prev" title="16. Segmentation">
+      <i class="fa fa-chevron-left"></i> 16. Segmentation
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/10/27/18-Paging-Introduction/" rel="next" title="18. Paging: Introduction">
+      18. Paging: Introduction <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#17-Free-Space-Management"><span class="nav-text">17. Free-Space Management</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#17-1-Assumptions"><span class="nav-text">17.1 Assumptions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#17-2-Low-level-Mechanisms"><span class="nav-text">17.2 Low-level Mechanisms</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#17-3-Basic-Strategies"><span class="nav-text">17.3 Basic Strategies</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#17-4-Other-Approaches"><span class="nav-text">17.4 Other Approaches</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#17-5-Summary"><span class="nav-text">17.5 Summary</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="foursevenlove"
+      src="/uploads/funs.jpg">
+  <p class="site-author-name" itemprop="name">foursevenlove</p>
+  <div class="site-description" itemprop="description">Keep on going never give up!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/foursevenlove" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;foursevenlove" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:foursevenlove@gmail.com" title="E-Mail → mailto:foursevenlove@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.foursevenlove.top/" title="http:&#x2F;&#x2F;blog.foursevenlove.top" rel="noopener" target="_blank">Another Blog</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">foursevenlove</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>

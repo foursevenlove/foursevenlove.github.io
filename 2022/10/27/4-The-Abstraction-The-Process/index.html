@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"foursevenlove.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="4.The Abstraction: The Process 线程的定义：正在运行的程序。 问题来了：如何提供有许多CPU的假象？ 答：通过虚拟化的技术来制造有许多CPU的假象。即通过time sharing的方式。 为了实现虚拟化，OS提供了低层和高层的一些机制。 低层上主要是提供用来实现功能的方法和协议。比如，提供了如何实现context switch来使OS停止运行一个程序从而运行另外一个程">
+<meta property="og:type" content="article">
+<meta property="og:title" content="4.The Abstraction:The Process">
+<meta property="og:url" content="https://foursevenlove.github.io/2022/10/27/4-The-Abstraction-The-Process/index.html">
+<meta property="og:site_name" content="foursevenlove">
+<meta property="og:description" content="4.The Abstraction: The Process 线程的定义：正在运行的程序。 问题来了：如何提供有许多CPU的假象？ 答：通过虚拟化的技术来制造有许多CPU的假象。即通过time sharing的方式。 为了实现虚拟化，OS提供了低层和高层的一些机制。 低层上主要是提供用来实现功能的方法和协议。比如，提供了如何实现context switch来使OS停止运行一个程序从而运行另外一个程">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220322212127.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220322212315.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220322213001.png">
+<meta property="article:published_time" content="2022-10-27T07:15:35.000Z">
+<meta property="article:modified_time" content="2022-10-27T07:21:13.880Z">
+<meta property="article:author" content="foursevenlove">
+<meta property="article:tag" content="Operating System">
+<meta property="article:tag" content="Virtualization">
+<meta property="article:tag" content="Cpu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220322212127.png">
+
+<link rel="canonical" href="https://foursevenlove.github.io/2022/10/27/4-The-Abstraction-The-Process/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>4.The Abstraction:The Process | foursevenlove</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">foursevenlove</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/aboutMe/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/4-The-Abstraction-The-Process/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          4.The Abstraction:The Process
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-27 15:15:35 / Modified: 15:21:13" itemprop="dateCreated datePublished" datetime="2022-10-27T15:15:35+08:00">2022-10-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/" itemprop="url" rel="index"><span itemprop="name">Virtualization</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/Cpu/" itemprop="url" rel="index"><span itemprop="name">Cpu</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="4-The-Abstraction-The-Process"><a href="#4-The-Abstraction-The-Process" class="headerlink" title="4.The Abstraction: The Process"></a>4.The Abstraction: The Process</h2><ul>
+<li>线程的定义：正在运行的程序。</li>
+<li>问题来了：如何提供有许多CPU的假象？</li>
+<li>答：通过虚拟化的技术来制造有许多CPU的假象。即通过<strong>time sharing</strong>的方式。</li>
+<li>为了实现虚拟化，OS提供了低层和高层的一些机制。</li>
+<li>低层上主要是提供用来实现功能的方法和协议。比如，提供了如何实现<strong>context switch</strong>来使OS停止运行一个程序从而运行另外一个程序。</li>
+<li>高层上主要是提供了一些智能的policies。policies其实就是一些OS用于做决定的算法。比如说现在有一堆程序，先让哪个程序上CPU运行？在OS上有一系列的算法来决定这些事情。</li>
+</ul>
+<span id="more"></span>
+<h3 id="4-1-什么是线程？"><a href="#4-1-什么是线程？" class="headerlink" title="4.1 什么是线程？"></a>4.1 什么是线程？</h3><ul>
+<li>操作系统提供一种抽象被称为线程，用于运行程序。</li>
+<li>为了明白线程是有什么组成的，我们必须先谈谈<strong>machine state</strong>：即当一个程序处于运行时，它可以读取或者更新什么？</li>
+<li>第一个组成线程的<strong>machine state</strong>就是内存(<strong>memory</strong>)。指令存在内存中，程序读写的数据存在内存中。</li>
+<li>第二个组成线程的<strong>machine state</strong>是寄存器(<strong>registers</strong>)。许多指令都读取或者更新寄存器，因此寄存器很重要。<ul>
+<li>有许多特殊的寄存器，比如<strong>program counter(PC)</strong>，用于表明程序的下一条指令在哪里；<strong>stack pointer</strong>和<strong>frame pointer</strong>用于管理函数的参数、变量和返回值的地址。</li>
+</ul>
+</li>
+<li>第三个组成线程的<strong>machine state</strong>是<strong>I/O information</strong>。其中包含了一系列的进程正在打开的文件。</li>
+</ul>
+<h3 id="4-2-进程的接口"><a href="#4-2-进程的接口" class="headerlink" title="4.2 进程的接口"></a>4.2 进程的接口</h3><ul>
+<li>以下接口为OS必须为进程提供的一些接口：</li>
+<li><strong>Create</strong>：OS必须提供一些方法来创建新的进程。</li>
+<li><strong>Destory</strong>：既然我们可以创建，那必须可以强制销毁一个进程。正常情况下，进程应该主动退出，但是一旦有异常发生，我们需要强制销毁一个进程。</li>
+<li><strong>Wait</strong>：当一个进程停止运行的时候，OS应该提供wait接口。</li>
+<li><strong>Miscellaneous Control</strong>：相当于是一些操作的结合体，比如先停止一个进程，等待一会后再将其恢复运行。</li>
+<li><strong>Status</strong>：用于查看一个进程的信息，比如运行了多久或者出于什么状态。</li>
+</ul>
+<h3 id="4-3-进程创建的细节"><a href="#4-3-进程创建的细节" class="headerlink" title="4.3 进程创建的细节"></a>4.3 进程创建的细节</h3><ul>
+<li>提问：如何将一个程序转变为进程？更明确的问，OS如何启动或停止一个进程？进程创建是如何工作的？</li>
+<li>第一，在OS运行一个程序前需要从磁盘（或者固态）中，加载源代码和静态数据到内存中（或者叫进程的地址空间）。<ul>
+<li>早期OS中，加载线程是热加载，在运行前全部加载进来；现代OS一般是懒加载，只加载程序运行需要的部分。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220322212127.png" style="zoom: 50%;" /></p>
+<ul>
+<li>第二，在加载完源代码和静态数据后，OS需要将一部分内存分配给进程的<strong>stack</strong>。比如在C中，局部变量，函数参数，返回值的地址都是在stack中。</li>
+<li>第三，除了要给程序分配<strong>stack</strong>，还要给程序分配<strong>heap</strong>，<strong>heap</strong>用于动态分配的数据。比如通过malloc()函数分配、free()函数销毁的空间，列表、哈希表、树之类的数据结构。因为是动态分配的，所以heap一开始可能很小。</li>
+<li>第四，OS还需要做一些和I/O有关的初始化。比如在Unix中，每个进程默认都有三个打开文件描述符，用于标准输入、输出、错误。</li>
+<li>在经历过加载源代码和静态数据、分配stack、分配heap以及I/O初始化之后，finally OS把执行程序的环境搞好了。但是还有最后一件事，让程序在entry point处开始运行，也就是main()。在跳到main()入口后，OS终于让这个程序上了CPU，开始其进程的一生。</li>
+</ul>
+<h3 id="4-4-进程的状态"><a href="#4-4-进程的状态" class="headerlink" title="4.4 进程的状态"></a>4.4 进程的状态</h3><ul>
+<li>一般来说有以下三种最基础的状态：</li>
+<li>Running：进程正在处理器上运行。</li>
+<li>Ready：进程已经准备好上CPU，但是OS还允许它上。</li>
+<li><p>Blocked：由于进程需要完成某些操作，导致它还没有Ready。比如在等待I/O操作。</p>
+</li>
+<li><p>状态之间的转换：</p>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220322212315.png" style="zoom:67%;" /></p>
+<h3 id="4-5-数据结构"><a href="#4-5-数据结构" class="headerlink" title="4.5 数据结构"></a>4.5 数据结构</h3><ul>
+<li>OS也是程序，因此它有一些数据结构。比如，为了追踪进程的状态，OS会保存running、ready、blocked的process list。</li>
+<li>比如在xv6中，OS需要追踪的数据结构：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220322213001.png" style="zoom:67%;" /></p>
+<ul>
+<li><p>其中保存了 <strong>register context</strong>，用于保存一个停止进程的寄存器内容。当一个进程停止时，其寄存器信息会保存在内存中，只要将寄存器恢复，那么进程就能回复继续运行，也就是后面会说的<strong>context switch</strong>。</p>
+</li>
+<li><p>Process list用于保存正在运行的进程的信息，是一种比较简单的数据结构。还有别的比如说<strong>PCB</strong>(Process Control Block)。</p>
+</li>
+</ul>
+<h3 id="4-6-总结"><a href="#4-6-总结" class="headerlink" title="4.6 总结"></a>4.6 总结</h3><ul>
+<li>我们知道了OS最基本的抽象：进程，它是运行着的程序。</li>
+<li>知道了进程，再来看看本质：低层的mechanisms和高层的policies，mechanisms用于怎么实现，policies用于如何规划。二者结合在一起我们才能理解OS如何虚拟化CPU。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Operating-System/" rel="tag"># Operating System</a>
+              <a href="/tags/Virtualization/" rel="tag"># Virtualization</a>
+              <a href="/tags/Cpu/" rel="tag"># Cpu</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/10/27/%E5%89%91%E6%8C%87offer-V2-06-%E4%BB%8E%E5%A4%B4%E5%88%B0%E5%B0%BE%E6%89%93%E5%8D%B0%E9%93%BE%E8%A1%A8/" rel="prev" title="剑指offer-V2-06-从头到尾打印链表">
+      <i class="fa fa-chevron-left"></i> 剑指offer-V2-06-从头到尾打印链表
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/10/27/6-Mechanism-Limited-Direct-Execution/" rel="next" title="6.Mechanism: Limited Direct Execution">
+      6.Mechanism: Limited Direct Execution <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#4-The-Abstraction-The-Process"><span class="nav-text">4.The Abstraction: The Process</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#4-1-%E4%BB%80%E4%B9%88%E6%98%AF%E7%BA%BF%E7%A8%8B%EF%BC%9F"><span class="nav-text">4.1 什么是线程？</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-2-%E8%BF%9B%E7%A8%8B%E7%9A%84%E6%8E%A5%E5%8F%A3"><span class="nav-text">4.2 进程的接口</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-3-%E8%BF%9B%E7%A8%8B%E5%88%9B%E5%BB%BA%E7%9A%84%E7%BB%86%E8%8A%82"><span class="nav-text">4.3 进程创建的细节</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-4-%E8%BF%9B%E7%A8%8B%E7%9A%84%E7%8A%B6%E6%80%81"><span class="nav-text">4.4 进程的状态</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-5-%E6%95%B0%E6%8D%AE%E7%BB%93%E6%9E%84"><span class="nav-text">4.5 数据结构</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#4-6-%E6%80%BB%E7%BB%93"><span class="nav-text">4.6 总结</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="foursevenlove"
+      src="/uploads/funs.jpg">
+  <p class="site-author-name" itemprop="name">foursevenlove</p>
+  <div class="site-description" itemprop="description">Keep on going never give up!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/foursevenlove" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;foursevenlove" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:foursevenlove@gmail.com" title="E-Mail → mailto:foursevenlove@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.foursevenlove.top/" title="http:&#x2F;&#x2F;blog.foursevenlove.top" rel="noopener" target="_blank">Another Blog</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">foursevenlove</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>

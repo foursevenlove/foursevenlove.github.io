@@ -1,0 +1,631 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"foursevenlove.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="7.Scheduling: Introduction 前面我们了解了低层的用于运行进程的机制，现在该来谈一谈高层的policy来决定如何调度进程上CPU了。这章就来学习下调度进程的算法。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="7.Scheduling: Introduction">
+<meta property="og:url" content="https://foursevenlove.github.io/2022/10/27/7-Scheduling-Introduction/index.html">
+<meta property="og:site_name" content="foursevenlove">
+<meta property="og:description" content="7.Scheduling: Introduction 前面我们了解了低层的用于运行进程的机制，现在该来谈一谈高层的policy来决定如何调度进程上CPU了。这章就来学习下调度进程的算法。">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328161849.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328162231.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328211902.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328213101.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328213624.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328215527.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220329000554.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220329000716.png">
+<meta property="article:published_time" content="2022-10-27T07:23:51.000Z">
+<meta property="article:modified_time" content="2022-10-27T07:24:24.080Z">
+<meta property="article:author" content="foursevenlove">
+<meta property="article:tag" content="Operating System">
+<meta property="article:tag" content="Virtualization">
+<meta property="article:tag" content="Cpu">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328161849.png">
+
+<link rel="canonical" href="https://foursevenlove.github.io/2022/10/27/7-Scheduling-Introduction/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>7.Scheduling: Introduction | foursevenlove</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">foursevenlove</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/aboutMe/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/7-Scheduling-Introduction/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          7.Scheduling: Introduction
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-27 15:23:51 / Modified: 15:24:24" itemprop="dateCreated datePublished" datetime="2022-10-27T15:23:51+08:00">2022-10-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/" itemprop="url" rel="index"><span itemprop="name">Virtualization</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/Cpu/" itemprop="url" rel="index"><span itemprop="name">Cpu</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h2 id="7-Scheduling-Introduction"><a href="#7-Scheduling-Introduction" class="headerlink" title="7.Scheduling: Introduction"></a>7.Scheduling: Introduction</h2><ul>
+<li>前面我们了解了低层的用于运行进程的机制，现在该来谈一谈高层的policy来决定如何调度进程上CPU了。这章就来学习下调度进程的算法。</li>
+</ul>
+<span id="more"></span>
+<h3 id="7-1-Workload-Assumptions"><a href="#7-1-Workload-Assumptions" class="headerlink" title="7.1 Workload Assumptions"></a>7.1 Workload Assumptions</h3><ul>
+<li>在往下走之前，我们先做一些假设，有关于在系统中运行的进程的假设，这些假设我们叫做<strong>workload</strong>。当然我们做的这些假设其实在OS中是不切实际不现实的，但是随着深入下去，我们会逐渐接近实际情况，逐渐打破这些假设。</li>
+<li>我们也经常把进程叫做<strong>job</strong>，对job我们做出如下五个假设：<ul>
+<li>1.每个job运行时间相等</li>
+<li>2.所有job都在同一时间到达</li>
+<li>3.一旦job开始运行，就运行到job完成</li>
+<li>4.所有的job都只使用CPU（也就是说没有I/O请求）</li>
+<li>5.Job的运行时长已知</li>
+</ul>
+</li>
+</ul>
+<h3 id="7-2-Scheduling-Metrics"><a href="#7-2-Scheduling-Metrics" class="headerlink" title="7.2 Scheduling Metrics"></a>7.2 Scheduling Metrics</h3><ul>
+<li>既然是调度算法，那么就要有一个调度指标，根据这个调度指标来决定让哪个进程上CPU。</li>
+<li>首先我们使用一个最简单的调度指标：<strong>turnaround time</strong>（周转时间）。周转时间的定义为，job的完成时间减去job到达系统的时间：<script type="math/tex">T_{turnaround}=T_{completion} - T_{arrival}</script>。因为我们假设所有job同时到达系统，也就是说<script type="math/tex">T_{arrival}=0</script>，因此 <script type="math/tex">T_{turnaround}=T_{completion}</script>。</li>
+<li>注意，周转时间是一种<strong>performance</strong>的指标，是我们这一章首要考虑的。另一种指标考虑的是<strong>fairness</strong>。这两种指标好比鱼与熊掌，不可得兼。</li>
+</ul>
+<h3 id="7-3-First-In-First-Out-FIFO"><a href="#7-3-First-In-First-Out-FIFO" class="headerlink" title="7.3 First In, First Out (FIFO)"></a>7.3 First In, First Out (FIFO)</h3><ul>
+<li>最基本的算法<strong>First In, First Out (FIFO)</strong>，有时也叫 <strong>First Come, First Served (FCFS)</strong>。过于简单不多赘述。优点是简单易实现。</li>
+<li>假设A、B、C几乎同时到达，但是FIFO是挑一个先到达的，所以假设A比B先一点，B比C先一点。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328161849.png" style="zoom:80%;" /></p>
+<ul>
+<li>此种情况下，计算每个job的平均周转时间：<script type="math/tex">\frac{10+20+30}{3}=20</script>。</li>
+<li>现在让我们打破第一个假设，即不再认为所有job都运行相同的时间，这种情况下FIFO的性能有时就不是很好。例如以下情况：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328162231.png" style="zoom:80%;" /></p>
+<ul>
+<li>此种情况下，计算每个job的平均周转时间：<script type="math/tex">\frac{100+110+120}{3}=110</script>。</li>
+<li>这种问题叫 <strong>convoy effect</strong>（护航效应），就是说对资源占用较少的job排在了对资源占用较多的job后面。那咋办呢？且看下一种算法。</li>
+</ul>
+<h3 id="7-4-Shortest-Job-First-SJF"><a href="#7-4-Shortest-Job-First-SJF" class="headerlink" title="7.4 Shortest Job First (SJF)"></a>7.4 Shortest Job First (SJF)</h3><ul>
+<li>短作业优先，顾名思义，运行时间短的job先上CPU运行。</li>
+<li>在之前的例子上，可得到如下图运行顺序：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328211902.png" style="zoom:80%;" /></p>
+<ul>
+<li><p>计算每个job的平均周转时间：<script type="math/tex">\frac{10+20+120}{3}=50</script>。</p>
+</li>
+<li><p>在我们假设所有job同时到达的情况下，SJF是一个优化的调度策略。但实际情况下往往不是所有job同时到达的。</p>
+</li>
+<li>现在让我们打破假设2，即job有可能在任何时刻到达，这种情况下应该怎么办？如果用SJF可能会出现以下情况，A先到，B、C在10s到，且A运行100s，B、C分别运行10s：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328213101.png" style="zoom:80%;" /></p>
+<ul>
+<li>这时每个job的平均周转时间：<script type="math/tex">\frac{100+(110-10)+(120-10)}{3}=103.33</script>。</li>
+</ul>
+<h3 id="7-5-Shortest-Time-to-Completion-First-STCF"><a href="#7-5-Shortest-Time-to-Completion-First-STCF" class="headerlink" title="7.5 Shortest Time-to-Completion First (STCF)"></a>7.5 Shortest Time-to-Completion First (STCF)</h3><ul>
+<li>为了解决上面这种情况，考虑到我们之前学过的timer interrupt和context switch我们采用新的算法<strong>Shortest Time-to-Completion First (STCF)</strong>或者叫<strong>Preemptive Shortest Job First (PSJF)</strong> 。也就是抢占式的SJF，即当一个job到达时，如果它的运行时间短，那可以抢占当前job正在使用的CPU。</li>
+<li>在之前的例子上，如下图：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328213624.png" style="zoom:80%;" /></p>
+<ul>
+<li>这时每个job的平均周转时间：<script type="math/tex">\frac{(120-0)+(20-10)+(30-10)}{3}=50</script>。</li>
+</ul>
+<h3 id="7-6-A-New-Metric-Response-Time"><a href="#7-6-A-New-Metric-Response-Time" class="headerlink" title="7.6 A New Metric: Response Time"></a>7.6 A New Metric: Response Time</h3><ul>
+<li>如果我们知道job的运行时间并且job仅仅使用CPU的话，那么周转时间是我们唯一的指标，STCF是一个很好的策略。但事实上，坐在终端前的用户希望能够和系统进行交互，因此我们必须考虑另一个指标：<strong>response time</strong>（响应时间）。</li>
+<li>响应时间的定义为job第一次上CPU的时间减去job到达系统的时间：<script type="math/tex">T_{response}=T_{firstrun} - T_{arrival}</script>。</li>
+<li>对图7.5，A的响应时间为0，B为0，C为10。</li>
+<li>之前的STCF对于考虑周转时间的情况下是很好的，但是却不利用响应时间，你想想你要是C的用户，你的程序要10s才能得到响应，你急不急？所以我们应该使用一种对于响应时间敏感的算法。</li>
+</ul>
+<h3 id="7-7-Round-Robin"><a href="#7-7-Round-Robin" class="headerlink" title="7.7  Round Robin"></a>7.7  Round Robin</h3><ul>
+<li>为了解决上述问题，采用 <strong>Round Robin（RR）</strong>的算法。基本思想就是不让每个job运行到它技术，每个job在CPU上都只能运行一个时间片（<strong>time slice</strong>有时也叫<strong>scheduling quantum</strong>），然后换下一个job上来运行。重复以上直到所有job运行结束。注意，时间片的长度必须是timer interrupt的倍数。</li>
+<li>举个栗子，A、B、C同时到达，每个都要运行5s。SJF算法运行图如7.6，RR算法运行图如7.7：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328215527.png" style="zoom:80%;" /></p>
+<ul>
+<li>RR算法每个job的平均响应时间：<script type="math/tex">\frac{0+1+2}{3}=1</script>，SJF算法每个job的平均响应时间：<script type="math/tex">\frac{0+5+10}{3}=5</script>，只能说高下立判。</li>
+<li>RR算法中，时间片的长度太长或者太短都不行。<ul>
+<li>如果太短了，那么context switch的代价会影响整个性能。</li>
+<li>如果太长了，那么回到了老问题，响应时间太长。</li>
+</ul>
+</li>
+<li>举个栗子，还是上面的ABC，看图7.7，A在13s结束，B在14s结束，C在15s结束，其实很差劲。如果考虑周转时间的话，RR真的拉跨。又回到了那句话，performance和fairness不能得兼。</li>
+</ul>
+<h3 id="7-8-Incorporating-I-O"><a href="#7-8-Incorporating-I-O" class="headerlink" title="7.8 Incorporating I/O"></a>7.8 Incorporating I/O</h3><ul>
+<li>现在该打破第四个假设了，也就是说程序是需要I/O操作的。</li>
+<li>那么程序在等待I/O的时候，其实CPU是空闲的，进程是blocked的。那么这时就应该安排别的进程上CPU，等待I/O的进程等到I/O结果了，再恢复该进程。</li>
+<li>举个栗子，A、B各需要50msCPU，区别在于，A每10ms就发起一次I/O请求，B不需要I/O。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220329000554.png" style="zoom:80%;" /></p>
+<ul>
+<li>假设我们用的是STCF，很明显，这时CPU的利用率是很低的。所以应该充分利用CPU，像下面这样：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220329000716.png" style="zoom:80%;" /></p>
+<h3 id="7-9-No-More-Oracle"><a href="#7-9-No-More-Oracle" class="headerlink" title="7.9 No More Oracle"></a>7.9 No More Oracle</h3><ul>
+<li>现在该打破最后一个假设了，也就是说调度器不知道每个job需要运行时长。这个时候SJF/STCF都不好用了，RR也是一样。别着急后续会讲。</li>
+</ul>
+<h3 id="7-10-Summary"><a href="#7-10-Summary" class="headerlink" title="7.10 Summary"></a>7.10 Summary</h3><ul>
+<li>两个调度指标周转时间和响应时间，不可得兼。</li>
+<li>针对两者，对应有不同的算法。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Operating-System/" rel="tag"># Operating System</a>
+              <a href="/tags/Virtualization/" rel="tag"># Virtualization</a>
+              <a href="/tags/Cpu/" rel="tag"># Cpu</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/10/27/6-Mechanism-Limited-Direct-Execution/" rel="prev" title="6.Mechanism: Limited Direct Execution">
+      <i class="fa fa-chevron-left"></i> 6.Mechanism: Limited Direct Execution
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/10/27/8-Scheduling-The-Multi-Level-Feedback-Queue/" rel="next" title="8.Scheduling: The Multi-Level Feedback Queue">
+      8.Scheduling: The Multi-Level Feedback Queue <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-2"><a class="nav-link" href="#7-Scheduling-Introduction"><span class="nav-text">7.Scheduling: Introduction</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#7-1-Workload-Assumptions"><span class="nav-text">7.1 Workload Assumptions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-2-Scheduling-Metrics"><span class="nav-text">7.2 Scheduling Metrics</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-3-First-In-First-Out-FIFO"><span class="nav-text">7.3 First In, First Out (FIFO)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-4-Shortest-Job-First-SJF"><span class="nav-text">7.4 Shortest Job First (SJF)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-5-Shortest-Time-to-Completion-First-STCF"><span class="nav-text">7.5 Shortest Time-to-Completion First (STCF)</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-6-A-New-Metric-Response-Time"><span class="nav-text">7.6 A New Metric: Response Time</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-7-Round-Robin"><span class="nav-text">7.7  Round Robin</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-8-Incorporating-I-O"><span class="nav-text">7.8 Incorporating I&#x2F;O</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-9-No-More-Oracle"><span class="nav-text">7.9 No More Oracle</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#7-10-Summary"><span class="nav-text">7.10 Summary</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="foursevenlove"
+      src="/uploads/funs.jpg">
+  <p class="site-author-name" itemprop="name">foursevenlove</p>
+  <div class="site-description" itemprop="description">Keep on going never give up!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/foursevenlove" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;foursevenlove" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:foursevenlove@gmail.com" title="E-Mail → mailto:foursevenlove@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.foursevenlove.top/" title="http:&#x2F;&#x2F;blog.foursevenlove.top" rel="noopener" target="_blank">Another Blog</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">foursevenlove</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>

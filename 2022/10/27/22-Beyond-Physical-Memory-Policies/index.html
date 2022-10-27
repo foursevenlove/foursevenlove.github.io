@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"foursevenlove.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="22. Beyond Physical Memory: Policies 接着上一节的内容来学习replacement policy，问题：OS如何决定从内存中替换哪些page？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="22. Beyond Physical Memory: Policies">
+<meta property="og:url" content="https://foursevenlove.github.io/2022/10/27/22-Beyond-Physical-Memory-Policies/index.html">
+<meta property="og:site_name" content="foursevenlove">
+<meta property="og:description" content="22. Beyond Physical Memory: Policies 接着上一节的内容来学习replacement policy，问题：OS如何决定从内存中替换哪些page？">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424093204.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424094011.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424094555.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424094845.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424100404.png">
+<meta property="article:published_time" content="2022-10-27T07:41:55.000Z">
+<meta property="article:modified_time" content="2022-10-27T07:42:14.987Z">
+<meta property="article:author" content="foursevenlove">
+<meta property="article:tag" content="Operating System">
+<meta property="article:tag" content="Virtualization">
+<meta property="article:tag" content="Memory">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424093204.png">
+
+<link rel="canonical" href="https://foursevenlove.github.io/2022/10/27/22-Beyond-Physical-Memory-Policies/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>22. Beyond Physical Memory: Policies | foursevenlove</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">foursevenlove</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/aboutMe/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/22-Beyond-Physical-Memory-Policies/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          22. Beyond Physical Memory: Policies
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-27 15:41:55 / Modified: 15:42:14" itemprop="dateCreated datePublished" datetime="2022-10-27T15:41:55+08:00">2022-10-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/" itemprop="url" rel="index"><span itemprop="name">Virtualization</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/Memory/" itemprop="url" rel="index"><span itemprop="name">Memory</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="22-Beyond-Physical-Memory-Policies"><a href="#22-Beyond-Physical-Memory-Policies" class="headerlink" title="22. Beyond Physical Memory: Policies"></a>22. Beyond Physical Memory: Policies</h1><ul>
+<li>接着上一节的内容来学习replacement policy，问题：OS如何决定从内存中替换哪些page？<span id="more"></span>
+</li>
+</ul>
+<h2 id="22-1-Cache-Management"><a href="#22-1-Cache-Management" class="headerlink" title="22.1 Cache Management"></a>22.1 Cache Management</h2><ul>
+<li>内存中保存了所有page的一部分，因此内存可以看作虚拟内存page的<strong>cache</strong>。因此在做replacement的时候的目标就是降低<strong>cache misses</strong>或者提高<strong>cache hits</strong>。</li>
+<li>有了cache misses和cache hits就可以计算<strong>average memory access time (AMAT)</strong>，<script type="math/tex">AMAT=T_{M}+(P_{Miss}*T_{D})</script>，其中<script type="math/tex">T_{M}</script>内存访问时间，<script type="math/tex">T_{D}</script>代表磁盘访问时间，<script type="math/tex">P_{Miss}</script>代表一次miss的概率。</li>
+<li>由于<script type="math/tex">T_D</script>通常比<script type="math/tex">T_M</script>大非常多，因此要尽可能地减少访问磁盘的时间，也就是降低<script type="math/tex">P_{Miss}</script>。</li>
+</ul>
+<h2 id="22-2-The-Optimal-Replacement-Policy"><a href="#22-2-The-Optimal-Replacement-Policy" class="headerlink" title="22.2 The Optimal Replacement Policy"></a>22.2 The Optimal Replacement Policy</h2><ul>
+<li>Belady提出的MIN可能是最好的替换策略（但是非常难实现），思路是每次替换都替换在将来，离现在时间最远处会被访问的page。</li>
+</ul>
+<p>举个栗子来看看，假设程序需要依次访问如下page： 0, 1, 2, 0, 1, 3, 0, 3, 1, 2, 1，并且内存最多只能加载进三个page，采用上述方法是会发生这种情况：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424093204.png" style="zoom:80%;" /></p>
+<p>可以看到前三次访问都是miss，这是正常的，因为刚开始所有的page都还没有被加载进内存，这种现象称为<strong>cold-start miss</strong>或者<strong>compulsory miss</strong>。在首次访问page 3时发生miss，这时看一下访问page的顺序，发现page是最远才会访问到的（在倒数第二位），因此替换page 2装入page 3。</p>
+<p>在倒数第二次访问page 2时又发生miss，根据这个策略，选择page 0或者page 3是一样的。</p>
+<p>可以计算这种方法的命中率为<script type="math/tex">\frac{Hits}{Hits+Misses}=\frac{6}{6+5}=54.5\%</script>，如果不算前三次compulsory miss的话，命中率可以达到85.7%。</p>
+<ul>
+<li>这种方法可以有效提高命中率，但是通常情况下，未来是未知的，一般不知道程序要访问的page顺序，因此这种方法只能作为理想情况，用于和其他策略进行对比。</li>
+</ul>
+<h2 id="22-3-A-Simple-Policy-FIFO"><a href="#22-3-A-Simple-Policy-FIFO" class="headerlink" title="22.3 A Simple Policy: FIFO"></a>22.3 A Simple Policy: FIFO</h2><ul>
+<li>这种策略比较简单，先进先出，<strong>FIFO</strong> (first-in, first-out) 。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424094011.png" style="zoom:80%;" /></p>
+<p>可以计算出命中率为36.4%，不算compulsory miss的话是57.1%。</p>
+<p>FIFO的特点就在于比较简单容易实现，但是问题在于性能较差，很有可能会替换出即将要访问的page。这种现象也叫做<strong>Belady’s Anomaly</strong>。</p>
+<h2 id="22-4-Another-Simple-Policy-Random"><a href="#22-4-Another-Simple-Policy-Random" class="headerlink" title="22.4 Another Simple Policy: Random"></a>22.4 Another Simple Policy: <strong>Random</strong></h2><ul>
+<li>这种策略更简单，每次替换是随机替换。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424094555.png" style="zoom:80%;" /></p>
+<p>重复进行10000次实验，可得到结果：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424094845.png" style="zoom:80%;" /></p>
+<h2 id="22-5-Using-History-LRU"><a href="#22-5-Using-History-LRU" class="headerlink" title="22.5 Using History: LRU"></a>22.5 Using History: LRU</h2><ul>
+<li>FIFO和Random存在的问题就是它们很可能会替换出一些重要的page，也就是可能即将要访问的page。以史为鉴，可知兴替，因此我们必须要考虑history。比如，如果程序在不久前刚访问了一个page，那么很有可能在不远的将来还会继续访问这个page。有两种历史信息可以用来做参考：</li>
+</ul>
+<p>第一是frequency，如果一个page在过去多次被访问到，那么在做替换时也许就不该考虑这个page；</p>
+<p>第二是recency，如果一个page刚刚才被访问到，那么也不应该考虑替换这个page。</p>
+<ul>
+<li>因此就有两种策略可以使用了：</li>
+</ul>
+<p><strong>Least-Frequently-Used (LFU)</strong>：淘汰一段时间内，使用次数最少的page。</p>
+<p><strong>Least-Recently-Used (LRU)</strong> ：淘汰最长时间没有被使用的page。</p>
+<p>以LRU为例，康康效果：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424100404.png" style="zoom:80%;" /></p>
+<p>首次访问page 3时miss，往前看，page 0和page 1都是最近被访问到的，因此选择page 2做替换。</p>
+<p>同理倒数第二行访问page 2时miss，往前看，page 1和page 3都是最近访问到的，因此选择page 0做替换。</p>
+<h2 id="22-7-Implementing-Historical-Algorithms"><a href="#22-7-Implementing-Historical-Algorithms" class="headerlink" title="22.7 Implementing Historical Algorithms"></a>22.7 Implementing Historical Algorithms</h2><ul>
+<li>要想实现LRU是需要硬件的帮助的，硬件需要记录每一个page的上次访问时间，这样在做page替换的时候，就可以扫描page的访问时间，找到最近没有被访问的page。</li>
+<li>但是这么做的开销也是很大的，假设内存4GB，page 4KB，也就是说有一百万个page，那么就需要对这么多的page进行扫描。问题来了，有没有一种方法可以减少开销但是性能和LRU差不多呢？</li>
+</ul>
+<h2 id="22-8-Approximating-LRU"><a href="#22-8-Approximating-LRU" class="headerlink" title="22.8 Approximating LRU"></a>22.8 Approximating LRU</h2><ul>
+<li>上述问题的答案是肯定的，可以采用Approximating LRU。思想是，通过硬件的支持，加一个<strong>use bit</strong>（或者叫<strong>reference bit</strong>），每个page都有一个use bit，use bit保存在内存中。当一个page被访问时，硬件就将其use bit设为1，但是硬件从不将use bit设为0，因为那是OS需要做的事情。</li>
+<li>如何利用这个use bit来实现Approximating LRU呢？下面介绍<strong>clock algorithm</strong> ：</li>
+</ul>
+<p>假设所有page的信息都以循环列表的形式记录，算法开始时，clock hand指向某一个page。当发生page替换时，检查clock hand指向的page，如果该page的use bit为1，那么将该page的use bit设为0，并且将clock hand向后移动一位；如果该page的use bit为0，那么就是用该page作为替换出去的page。</p>
+<ul>
+<li>尽管时钟算法的性能比不了LRU，但是肯定比考虑所有page的上次访问时间要快，并且性能比完全不考虑过去的傻子算法要好。</li>
+</ul>
+<h2 id="22-9-Considering-Dirty-Pages"><a href="#22-9-Considering-Dirty-Pages" class="headerlink" title="22.9 Considering Dirty Pages"></a>22.9 Considering Dirty Pages</h2><ul>
+<li>对时钟算法还可以在做一点改进，那就是考虑page是否修改过。因为如果一个在内存中的page最近被修改过，那在将这个page替换出内存的时候，还需要将修改内容写入磁盘，那肯定是很耗时的；如果没有修改过的话，直接将这个page替换出内存就好了。因此，假设上次访问时间相同的两个page，应当优先考虑替换出没有被修改过的page。</li>
+<li>因此再加一位，<strong>modified bit</strong>（或者叫<strong>dirty bit</strong>）。</li>
+</ul>
+<p>时钟算法做相应调整，当发生page替换时，首先选择最近没有被访问并且没有被修改的，也就是use bit为0并且dirty bit为0；其次选择最近没有被访问过但是修改过的，也就是use bit为0并且dirty bit为1；如果use bit为1，那就设为0，向后移动clock hand。</p>
+<h2 id="22-12-Summary"><a href="#22-12-Summary" class="headerlink" title="22.12 Summary"></a>22.12 Summary</h2><ul>
+<li>本节学习了不同的page置换算法，现代OS有的选用时钟算法。</li>
+<li>不管采用多完美的算法，总是会发生cache miss，因此设计更好的算法还不如买一块更大的内存！</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Operating-System/" rel="tag"># Operating System</a>
+              <a href="/tags/Virtualization/" rel="tag"># Virtualization</a>
+              <a href="/tags/Memory/" rel="tag"># Memory</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/10/27/21-Beyond-Physical-Memory-Mechanisms/" rel="prev" title="21. Beyond Physical Memory: Mechanisms">
+      <i class="fa fa-chevron-left"></i> 21. Beyond Physical Memory: Mechanisms
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/10/27/26-Concurrency-An-Introduction/" rel="next" title="26. Concurrency: An Introduction">
+      26. Concurrency: An Introduction <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#22-Beyond-Physical-Memory-Policies"><span class="nav-text">22. Beyond Physical Memory: Policies</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#22-1-Cache-Management"><span class="nav-text">22.1 Cache Management</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-2-The-Optimal-Replacement-Policy"><span class="nav-text">22.2 The Optimal Replacement Policy</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-3-A-Simple-Policy-FIFO"><span class="nav-text">22.3 A Simple Policy: FIFO</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-4-Another-Simple-Policy-Random"><span class="nav-text">22.4 Another Simple Policy: Random</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-5-Using-History-LRU"><span class="nav-text">22.5 Using History: LRU</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-7-Implementing-Historical-Algorithms"><span class="nav-text">22.7 Implementing Historical Algorithms</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-8-Approximating-LRU"><span class="nav-text">22.8 Approximating LRU</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-9-Considering-Dirty-Pages"><span class="nav-text">22.9 Considering Dirty Pages</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#22-12-Summary"><span class="nav-text">22.12 Summary</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="foursevenlove"
+      src="/uploads/funs.jpg">
+  <p class="site-author-name" itemprop="name">foursevenlove</p>
+  <div class="site-description" itemprop="description">Keep on going never give up!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/foursevenlove" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;foursevenlove" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:foursevenlove@gmail.com" title="E-Mail → mailto:foursevenlove@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.foursevenlove.top/" title="http:&#x2F;&#x2F;blog.foursevenlove.top" rel="noopener" target="_blank">Another Blog</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">foursevenlove</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>

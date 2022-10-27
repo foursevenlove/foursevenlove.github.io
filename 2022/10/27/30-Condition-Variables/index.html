@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"foursevenlove.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="30. Condition Variables 之前介绍了lock，以及使用lock构建的一些线程安全的数据结构。但是那并不是所有并发的内容，说到并发，怎么能不谈谈同步呢？并发中，一个线程等待另一个线程是很常见的事情。举个栗子，父线程要等待子线程结束才能结束：   我们希望看到的结果是这样：  那要怎么做才能实现上述目的呢？首先尝试使用一个共享变量：  这种做法基本可以达到我们的目的，但是效率很低">
+<meta property="og:type" content="article">
+<meta property="og:title" content="30. Condition Variables">
+<meta property="og:url" content="https://foursevenlove.github.io/2022/10/27/30-Condition-Variables/index.html">
+<meta property="og:site_name" content="foursevenlove">
+<meta property="og:description" content="30. Condition Variables 之前介绍了lock，以及使用lock构建的一些线程安全的数据结构。但是那并不是所有并发的内容，说到并发，怎么能不谈谈同步呢？并发中，一个线程等待另一个线程是很常见的事情。举个栗子，父线程要等待子线程结束才能结束：   我们希望看到的结果是这样：  那要怎么做才能实现上述目的呢？首先尝试使用一个共享变量：  这种做法基本可以达到我们的目的，但是效率很低">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510092947.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510093145.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510094817.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510104332.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510110338.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510142913.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510143939.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510144719.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510150448.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510151019.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510152646.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510153007.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510153019.png">
+<meta property="article:published_time" content="2022-10-27T08:53:41.000Z">
+<meta property="article:modified_time" content="2022-10-27T08:54:08.715Z">
+<meta property="article:author" content="foursevenlove">
+<meta property="article:tag" content="Operating System">
+<meta property="article:tag" content="Concurrency">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510092947.png">
+
+<link rel="canonical" href="https://foursevenlove.github.io/2022/10/27/30-Condition-Variables/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>30. Condition Variables | foursevenlove</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">foursevenlove</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/aboutMe/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/30-Condition-Variables/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          30. Condition Variables
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-27 16:53:41 / Modified: 16:54:08" itemprop="dateCreated datePublished" datetime="2022-10-27T16:53:41+08:00">2022-10-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Concurrency/" itemprop="url" rel="index"><span itemprop="name">Concurrency</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="30-Condition-Variables"><a href="#30-Condition-Variables" class="headerlink" title="30. Condition Variables"></a>30. Condition Variables</h1><ul>
+<li>之前介绍了lock，以及使用lock构建的一些线程安全的数据结构。但是那并不是所有并发的内容，说到并发，怎么能不谈谈同步呢？并发中，一个线程等待另一个线程是很常见的事情。举个栗子，父线程要等待子线程结束才能结束：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510092947.png" style="zoom:80%;" /></p>
+<p>我们希望看到的结果是这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510093145.png" style="zoom:80%;" /></p>
+<p>那要怎么做才能实现上述目的呢？首先尝试使用一个共享变量：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510094817.png" style="zoom:80%;" /></p>
+<p>这种做法基本可以达到我们的目的，但是效率很低，因为父线程一直在spin。实际上，我们应该将父线程sleep，当子线程结束时，再awake父线程。那么问题来了：在多线程程序中，经常出现一个线程要等待另一个线程的。简单的做法就像上面这样，在条件满足前一直spin，但是很低效。那应该用什么方法来代替呢？<br><span id="more"></span></p>
+<h2 id="30-1-Definition-and-Routines"><a href="#30-1-Definition-and-Routines" class="headerlink" title="30.1 Definition and Routines"></a>30.1 Definition and Routines</h2><ul>
+<li>为了实现同步等待的目的，线程用到的叫做<strong>condition variable</strong>。condition variable是一个队列，当一些条件不满足时线程可以将自己放到这个队列中（wait）。当由于其他线程的操作使得其他该条件成立时，可以将在队列中的一个或多个线程唤醒（signal），允许他们继续运行。</li>
+<li>声明condition variable，简单点可以直接pthread_cond_t c，每个condition variable都有两个原语：wait()和signal()。wait()原语将线程自己sleep；signal()原语可以将一个sleeping的线程唤醒，一般用于某个线程改变了某个条件后。特别的。POSIX库中长这样：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510104332.png" style="zoom:80%;" /></p>
+<p>​    你可能发现，在wait()中还传入了lock作为参数，wait()的作用就是<strong>原子地</strong>先将锁释放，然后将线程sleep。当线程被唤醒时，在wait()中必须重新申请占用lock，才能进行接下来的操作。这样可以避免race condition。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510110338.png" style="zoom:80%;" /></p>
+<p>这样有两种情况：</p>
+<p>第一种是父线程需要等待子线程，那么父线程就会被sleep。当子线程结束时，由于done=1，父线程会从wait()处被唤醒，这时父线程需要先的申请lock，如果子线程还没有释放lock，父线程无法进行下面的操作。</p>
+<p>第二种情况，父线程无须等待子线程，那就没什么好说的了，按照流程进行下去。</p>
+<p>下面来看一种更复杂的情况：生产者消费者模型。</p>
+<h2 id="30-2-The-Producer-Consumer-Bounded-Buffer-Problem"><a href="#30-2-The-Producer-Consumer-Bounded-Buffer-Problem" class="headerlink" title="30.2 The Producer/Consumer (Bounded Buffer) Problem"></a>30.2 The Producer/Consumer (Bounded Buffer) Problem</h2><ul>
+<li>一个或多个生产者以及一个或多个消费者，生产者向buffer中生产数据，消费者从buffer中取出数据消费。这种模型在实际系统中很常见，比如多线程的web服务器，生产者线程生产HTTP请求，消费者线程处理HTTP请求。等等。</li>
+<li>因为有界buffer是共享资源，因此必须保证对其的同步操作，要避免race condition。</li>
+</ul>
+<p>首先来看简单的生产者和消费者，这里简单起见buffer只是一个整数值，后面会扩展的：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510142913.png" style="zoom:80%;" /></p>
+<p>生产者不停的生产数据，消费者不停的取出数据。其中put()，假设buffer是空的，然后将数据放进去后通过将count设置为1表明buffer已满；get()从buffer中取数据，然后将count设置为0，返回数据值。</p>
+<p>对于这个模型，条件是这样：只有当count是0时，才能put()；只有count是1时，才能get()。因为你不能向已经满了的buffer在放数据，也不能从空的buffer中取数据。</p>
+<ul>
+<li>A Broken Solution</li>
+</ul>
+<p>现在假设只有一个生产者和一个消费者，现在要想实现生产者和消费者的同步该怎么做呢？也就是说实现，只有在生产者向buffer中生产数据后，消费者才能从buffer中取数据？只有lock是不够的，还需要用到condition variable。先来看一次失败的尝试：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510143939.png" style="zoom:80%;" /></p>
+<p>这种做法在只有一个生产者和一个消费者的时候是可行的，如果是多线程时，就会有两个问题。</p>
+<p>第一，在判断count状态时使用了if语句。假设有两个消费者<script type="math/tex">T_{c1}、T_{c2}</script>，一个生产者<script type="math/tex">T_{p}</script>。考虑下面这种情况：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510144719.png" style="zoom:80%;" /></p>
+<p>问题在于，当<script type="math/tex">T_{p}</script>向buffer中put数据后，本应该让Ready的<script type="math/tex">T_{c1}</script>运行，但是被<script type="math/tex">T_{c2}</script>抢占了先机，当<script type="math/tex">T_{c2}</script>把数据取完之后，<script type="math/tex">T_{c1}</script>开始运行了，但这是已经没有数据了，ops。</p>
+<p>问题的原因在于，当<script type="math/tex">T_{c1}</script>被唤醒成Ready状态后，没有立刻运行使其成为Run，在其真正Run之前，buffer的状态又发生了改变。</p>
+<p>对于这种情况，可以将if改为while，那么可以解决第一个问题。变成这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510150448.png" style="zoom:80%;" /></p>
+<p>当判断语句是while时，现在<script type="math/tex">T_{c1}</script>被唤醒，然后由于while循环立即检查count的状态。如果Buffer为空，<script type="math/tex">T_{c1}</script>又会sleep。记住，在condition varivable中永远使用while循环，可能并不一定真的要重新检查条件，但是加上总没错的。</p>
+<p>这虽然解决了第一个问题，但是第二个问题还没有解决。考虑下面这种情况：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510151019.png" style="zoom:80%;" /></p>
+<p>问题在于，一开始<script type="math/tex">T_{c1}、T_{c2}</script>都在sleep，接着<script type="math/tex">T_{p}</script>放入数据，接着<script type="math/tex">T_{p}</script>也sleep。<script type="math/tex">T_{c1}</script>被唤醒消费数据，然后试图去唤醒<script type="math/tex">T_{p}</script>，但是由于并不能控制唤醒哪个进程，完全有可能唤醒<script type="math/tex">T_{c2}</script>，ops，搞错了，<script type="math/tex">T_{c2}</script>醒来一看没有数据于是接着睡，<script type="math/tex">T_{c1}</script>认为自己唤醒了<script type="math/tex">T_{p}</script>，也开始睡，<script type="math/tex">T_{p}</script>自始至终都在睡，好嘛大家都在睡！</p>
+<p>要想解决这个问题，就要让signal唤醒的线程正确。所以在这里要使用两个condition variable，代码长这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510152646.png" style="zoom:80%;" /></p>
+<p>对于生产者和消费者各分配一个condition variable，生产者生产数据后唤醒消费者的cv，消费者消费数据后唤醒生产者的cv。</p>
+<ul>
+<li><strong>The Correct Producer/Consumer Solution</strong></li>
+</ul>
+<p>上面的做法已经可以基本满足需求了，现在要做最后一点改变，将Buffer的大小扩大，这样就能够减小context switch以减少开销：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510153007.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510153019.png" style="zoom:80%;" /></p>
+<h2 id="30-3-Covering-Conditions"><a href="#30-3-Covering-Conditions" class="headerlink" title="30.3 Covering Conditions"></a>30.3 Covering Conditions</h2><ul>
+<li>还有一个问题：唤醒线程的时候，应该唤醒哪一个？</li>
+</ul>
+<p>考虑这种情况，线程A申请100字节空间，线程B申请10字节空间，但是由于内存空间不足，两个线程依次sleep。不久后有线程释放了50字节空间，那么这时应该唤醒哪一个线程呢？很明显时线程B因为B只要求10字节的空间，唤醒它可能让他运行。但是往往很有可能就唤醒了A，A被唤醒后还是没有足够的内存空间。</p>
+<p>因此解决方法是：不要pthread_cond_signal()，用pthread_cond_broadcast()。signal只是唤醒单个线程，而broadcast唤醒所有线程。那么这种做法是可以满足需求的，所有应该被唤醒的线程都被唤醒了，但是缺点是可能会唤醒那些不该被唤醒的线程，因此性能会变差。这种情况叫做<strong>covering condition</strong>。</p>
+<h2 id="30-4-Summary"><a href="#30-4-Summary" class="headerlink" title="30.4 Summary"></a>30.4 Summary</h2><ul>
+<li>采用condition variable实现了线程间的同步，并且介绍了经典问题生产者消费者模型。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Operating-System/" rel="tag"># Operating System</a>
+              <a href="/tags/Concurrency/" rel="tag"># Concurrency</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/10/27/29-Lock-based-Concurrent-Data-Structures/" rel="prev" title="29. Lock-based Concurrent Data Structures">
+      <i class="fa fa-chevron-left"></i> 29. Lock-based Concurrent Data Structures
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/10/27/31-Semaphores/" rel="next" title="31. Semaphores">
+      31. Semaphores <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#30-Condition-Variables"><span class="nav-text">30. Condition Variables</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#30-1-Definition-and-Routines"><span class="nav-text">30.1 Definition and Routines</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#30-2-The-Producer-Consumer-Bounded-Buffer-Problem"><span class="nav-text">30.2 The Producer&#x2F;Consumer (Bounded Buffer) Problem</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#30-3-Covering-Conditions"><span class="nav-text">30.3 Covering Conditions</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#30-4-Summary"><span class="nav-text">30.4 Summary</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="foursevenlove"
+      src="/uploads/funs.jpg">
+  <p class="site-author-name" itemprop="name">foursevenlove</p>
+  <div class="site-description" itemprop="description">Keep on going never give up!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/foursevenlove" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;foursevenlove" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:foursevenlove@gmail.com" title="E-Mail → mailto:foursevenlove@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.foursevenlove.top/" title="http:&#x2F;&#x2F;blog.foursevenlove.top" rel="noopener" target="_blank">Another Blog</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">foursevenlove</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>

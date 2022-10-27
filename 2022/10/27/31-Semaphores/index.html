@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"foursevenlove.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="31. Semaphores 前面已经学习了使用lock和condition varivable来实现并发，这一节学习semaphore信号量。有了semaphore，就只有统一的原语操作了，可以用semaphore来实现lock和condition variavle的功能。问题来了：如何使用semaphore来代替lock和condition variable？semaphore的定义是怎样的？">
+<meta property="og:type" content="article">
+<meta property="og:title" content="31. Semaphores">
+<meta property="og:url" content="https://foursevenlove.github.io/2022/10/27/31-Semaphores/index.html">
+<meta property="og:site_name" content="foursevenlove">
+<meta property="og:description" content="31. Semaphores 前面已经学习了使用lock和condition varivable来实现并发，这一节学习semaphore信号量。有了semaphore，就只有统一的原语操作了，可以用semaphore来实现lock和condition variavle的功能。问题来了：如何使用semaphore来代替lock和condition variable？semaphore的定义是怎样的？">
+<meta property="og:locale">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512092452.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512092745.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512105434.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512105641.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512112731.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512112821.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512113059.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512113125.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512113603.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512113635.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512140612.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512141008.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512141332.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512142407.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512143357.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512143941.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512144133.png">
+<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512145035.png">
+<meta property="article:published_time" content="2022-10-27T08:54:25.000Z">
+<meta property="article:modified_time" content="2022-10-27T08:54:48.041Z">
+<meta property="article:author" content="foursevenlove">
+<meta property="article:tag" content="Operating System">
+<meta property="article:tag" content="Concurrency">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512092452.png">
+
+<link rel="canonical" href="https://foursevenlove.github.io/2022/10/27/31-Semaphores/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>31. Semaphores | foursevenlove</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">foursevenlove</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/aboutMe/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/31-Semaphores/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          31. Semaphores
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-27 16:54:25 / Modified: 16:54:48" itemprop="dateCreated datePublished" datetime="2022-10-27T16:54:25+08:00">2022-10-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Concurrency/" itemprop="url" rel="index"><span itemprop="name">Concurrency</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="31-Semaphores"><a href="#31-Semaphores" class="headerlink" title="31. Semaphores"></a>31. Semaphores</h1><ul>
+<li>前面已经学习了使用lock和condition varivable来实现并发，这一节学习<strong>semaphore</strong>信号量。有了semaphore，就只有统一的原语操作了，可以用semaphore来实现lock和condition variavle的功能。问题来了：如何使用semaphore来代替lock和condition variable？semaphore的定义是怎样的？Binary semaphore是怎样的？</li>
+</ul>
+<span id="more"></span>
+<h2 id="31-1-Semaphores-A-Definition"><a href="#31-1-Semaphores-A-Definition" class="headerlink" title="31.1 Semaphores: A Definition"></a>31.1 Semaphores: A Definition</h2><ul>
+<li>一个semaphore有一个integer，并且可以对该值进行两个操作。在POSIX标准中，两个操作是sem_wait()和sem_post()。semaphore的初始值和要使用该semaphore进行什么操作有关，所以要先对其进行初始化：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512092452.png" style="zoom:80%;" /></p>
+<p>sem_init()对semaphore进行初始化，第一个参数是s的地址，第二个参数0表明同一个进程的线程可以共享该semaphore，第三个参数1代表semaphore的初始值。</p>
+<p>初始化后就可以对semaphore进行sem_wait()和sem_post()两个操作：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512092745.png" style="zoom:80%;" /></p>
+<p>注意：当semaphore为负数时，其绝对值代表有多少个线程正在等待。</p>
+<h2 id="31-2-Binary-Semaphores-Locks"><a href="#31-2-Binary-Semaphores-Locks" class="headerlink" title="31.2 Binary Semaphores (Locks)"></a>31.2 Binary Semaphores (Locks)</h2><ul>
+<li>现在来看看如何使用semaphore来构建一个lock。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512105434.png" style="zoom:80%;" /></p>
+<p><strong>这里的X应该设置为1</strong>，这样就可以把semaphore当作lock来使用了。</p>
+<ul>
+<li>康康两个线程使用semaphore构建的lock的一种情况：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512105641.png" style="zoom:80%;" /></p>
+<h2 id="31-3-Semaphores-For-Ordering"><a href="#31-3-Semaphores-For-Ordering" class="headerlink" title="31.3 Semaphores For Ordering"></a>31.3 Semaphores For Ordering</h2><ul>
+<li>semaphore也可以用来实现线程之间的同步等待，使用semaphore实现同步原语，和之前得condition varivable比较像。</li>
+</ul>
+<p>对于代码中得父线程和子线程，想实现父线程等待子线程结束再结束：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512112731.png" style="zoom:80%;" /></p>
+<p>也就是这种效果：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512112821.png" style="zoom:80%;" /></p>
+<p><strong>这种情况下semaphore的初始值应该为0。</strong>康康使用semaphore的两种情况：</p>
+<p>第一种父线程sleep等待子线程：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512113059.png" style="zoom:80%;" /></p>
+<p>第二种父线程无须sleep等待子线程：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512113125.png" style="zoom:80%;" /></p>
+<h2 id="31-4-The-Producer-Consumer-Bounded-Buffer-Problem"><a href="#31-4-The-Producer-Consumer-Bounded-Buffer-Problem" class="headerlink" title="31.4 The Producer/Consumer (Bounded Buffer) Problem"></a>31.4 The Producer/Consumer (Bounded Buffer) Problem</h2><ul>
+<li><p>使用semaphre来解决生产者消费者模型：</p>
+</li>
+<li><p><strong>First Attempt</strong>：</p>
+</li>
+</ul>
+<p>使用两个semaphore，empty和full：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512113603.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512113635.png" style="zoom:80%;" /></p>
+<p>生产者要等buffer有空间才能放数据，消费者要等buffer有数据才能取数据。简单起见，先将MAX设置为1。这种做法可以解决多线程的同步问题。</p>
+<p>但是现在如果将MAX调大一点，比如10，并且有多个生产者，多个消费者。问题就来了，有可能会race condition。假设两个生产者，其中一个先执行了put()，但是在还没有对fill更新时，由于中断换另一个生产者运行，另一个生产者拿到了和上一个生产者相同的fill，这样二者就会向同一个fill位置上放入数据，就会导致数据丢失。那么该怎么办呢？</p>
+<ul>
+<li><strong>A Solution: Adding Mutual Exclusion</strong></li>
+</ul>
+<p>其实问题就在于忘记解决互斥问题了，也好办，加把lock就好了。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512140612.png" style="zoom:80%;" /></p>
+<p>看起来好像很简单，但是这种做法是有问题的，有可能造成deadlock？在哪里？假设现在两个线程，一个生产者，一个消费者。消费者先上CPU运行，首先它拿到了mutex，然后由于full为0 ，被sleep。这时生产者开始运行，但是由于mutex被消费者拿到了，生产者不得不等待消费者释放锁，造成了循环等待的deadlock。</p>
+<ul>
+<li><strong>At Last, A Working Solution</strong></li>
+</ul>
+<p>解决方法也很简单，减小加锁的范围，只在真正的cirtical section加锁：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512141008.png" style="zoom:80%;" /></p>
+<h2 id="31-5-Reader-Writer-Locks"><a href="#31-5-Reader-Writer-Locks" class="headerlink" title="31.5 Reader-Writer Locks"></a>31.5 Reader-Writer Locks</h2><ul>
+<li>读写锁也是一个很经典的问题，其实在对数据进行读写时，虽然不允许同时写入，但往往为了提高性能，同时读取是被允许的，并且对正确性也没有影响。使用semaphore来实现读写锁：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512141332.png" style="zoom:80%;" /></p>
+<p>可以看到一共使用了两把锁，其中一把lock用来读，另一把writelock用来写。</p>
+<p>对于写，申请和释放锁的流程比较简单，因为某一时间只允许一个进程写数据，那么就单纯的申请释放锁就ok了。</p>
+<p>对于读，由于可以允许多个读者，所以稍微复杂一点。申请时，申请到lock后，要将读者数+1。并且判断读者数是否为1，如果为1代表这个来的读者是第一个要读，那么就要申请writelock，如果没有线程在占用writelock写数据，该读者就可以开始读了；如果不为1，代表前面已经有读者在读了，那么该读者跟着一起读了。最后要将lock释放，以允许别的线程接着申请读锁。释放时，首先还是要申请lock，然后将读者数-1。如果读者数为0，代表没人读了，那就可以释放写锁了。如果不为0，代表还有人在读，不能释放读锁。最后释放写锁。</p>
+<ul>
+<li>这种读写锁呢，开销比较大。并且是偏向读进程的，很有可能造成写进程的饥饿。</li>
+</ul>
+<h2 id="31-6-The-Dining-Philosophers"><a href="#31-6-The-Dining-Philosophers" class="headerlink" title="31.6 The Dining Philosophers"></a>31.6 The Dining Philosophers</h2><ul>
+<li>哲学家用餐问题也是很经典的问题，哲学家要么在吃饭，要么在思考。但是一个哲学家吃饭时需要两个叉子，每个哲学家只能拿到左右两边的叉子，哲学家和叉子的关系如图：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512142407.png" style="zoom:80%;" /></p>
+<p>虽然这个问题的实际价值不是很大，但是确实很有意思。如何解决这个问题使得每个哲学家不挨饿？</p>
+<p>先看一种解法，首先设置两个辅助函数来申请叉子，当哲学家想申请左手边的叉子就调用left(p)，右手边的就right(p)。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512143357.png" style="zoom:80%;" /></p>
+<p>还需要设置一些semaphore来帮助解决问题，这里每一个叉子设置一个semaphore，sem_t forks[5]。</p>
+<ul>
+<li><strong>Broken Solution</strong></li>
+</ul>
+<p>一种解法是这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512143941.png" style="zoom:80%;" /></p>
+<p>每个哲学家都要同时依次拿到左手和右手的叉子后才能吃饭。看起来好像可以解决问题，但实际上会产生deadlock。假设每个哲学家都在申请到了左手的叉子后由于中断换另一个线程运行，那么就会导致最后每一个哲学家都只拿到了左手的叉子，在等待右手的叉子，并且永远等不到。</p>
+<ul>
+<li><strong>A Solution: Breaking The Dependency</strong></li>
+</ul>
+<p>Dijkstra想出一种办法如下：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512144133.png" style="zoom:80%;" /></p>
+<p>对最后一个哲学家，他申请叉子的顺序是先申请右手边的，再申请左手边的，这样就可以有效避免deadlock。</p>
+<ul>
+<li>还有其他一些类似的问题，比如吸烟者问题，理发师问题等等。</li>
+</ul>
+<h2 id="31-7-Thread-Throttling"><a href="#31-7-Thread-Throttling" class="headerlink" title="31.7 Thread Throttling"></a>31.7 Thread Throttling</h2><ul>
+<li>可以用semaphore来控制进程开太多的线程从而导致系统性能下降。</li>
+</ul>
+<h2 id="31-8-How-To-Implement-Semaphores"><a href="#31-8-How-To-Implement-Semaphores" class="headerlink" title="31.8 How To Implement Semaphores"></a>31.8 How To Implement Semaphores</h2><ul>
+<li>康康一个简单版本的semaphore实现，叫做<strong>Zemaphores</strong>。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512145035.png" style="zoom:80%;" /></p>
+<h2 id="31-9-Summary"><a href="#31-9-Summary" class="headerlink" title="31.9 Summary"></a>31.9 Summary</h2><ul>
+<li>semaphores是强大并且灵活的原语，可以用来解决并发问题。这一章主要讲了如何用semaphore来构建lock和condition variable，以及如何用semaphore来解决经典并发问题，如哲学家进餐，生产者消费者，读写锁。</li>
+</ul>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Operating-System/" rel="tag"># Operating System</a>
+              <a href="/tags/Concurrency/" rel="tag"># Concurrency</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/10/27/30-Condition-Variables/" rel="prev" title="30. Condition Variables">
+      <i class="fa fa-chevron-left"></i> 30. Condition Variables
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/10/27/32-Common-Concurrency-Problems/" rel="next" title="32. Common Concurrency Problems">
+      32. Common Concurrency Problems <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#31-Semaphores"><span class="nav-text">31. Semaphores</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#31-1-Semaphores-A-Definition"><span class="nav-text">31.1 Semaphores: A Definition</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#31-2-Binary-Semaphores-Locks"><span class="nav-text">31.2 Binary Semaphores (Locks)</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#31-3-Semaphores-For-Ordering"><span class="nav-text">31.3 Semaphores For Ordering</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#31-4-The-Producer-Consumer-Bounded-Buffer-Problem"><span class="nav-text">31.4 The Producer&#x2F;Consumer (Bounded Buffer) Problem</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#31-5-Reader-Writer-Locks"><span class="nav-text">31.5 Reader-Writer Locks</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#31-6-The-Dining-Philosophers"><span class="nav-text">31.6 The Dining Philosophers</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#31-7-Thread-Throttling"><span class="nav-text">31.7 Thread Throttling</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#31-8-How-To-Implement-Semaphores"><span class="nav-text">31.8 How To Implement Semaphores</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#31-9-Summary"><span class="nav-text">31.9 Summary</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="foursevenlove"
+      src="/uploads/funs.jpg">
+  <p class="site-author-name" itemprop="name">foursevenlove</p>
+  <div class="site-description" itemprop="description">Keep on going never give up!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">23</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/foursevenlove" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;foursevenlove" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:foursevenlove@gmail.com" title="E-Mail → mailto:foursevenlove@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.foursevenlove.top/" title="http:&#x2F;&#x2F;blog.foursevenlove.top" rel="noopener" target="_blank">Another Blog</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">foursevenlove</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>

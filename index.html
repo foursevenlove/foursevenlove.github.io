@@ -185,7 +185,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/%E5%89%91%E6%8C%87offer-V2-06-%E4%BB%8E%E5%A4%B4%E5%88%B0%E5%B0%BE%E6%89%93%E5%8D%B0%E9%93%BE%E8%A1%A8/">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/32-Common-Concurrency-Problems/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/funs.jpg">
@@ -199,7 +199,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2022/10/27/%E5%89%91%E6%8C%87offer-V2-06-%E4%BB%8E%E5%A4%B4%E5%88%B0%E5%B0%BE%E6%89%93%E5%8D%B0%E9%93%BE%E8%A1%A8/" class="post-title-link" itemprop="url">剑指offer-V2-06-从头到尾打印链表</a>
+            <a href="/2022/10/27/32-Common-Concurrency-Problems/" class="post-title-link" itemprop="url">32. Common Concurrency Problems</a>
         </h2>
 
         <div class="post-meta">
@@ -210,7 +210,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2022-10-27 13:03:53 / Modified: 13:09:41" itemprop="dateCreated datePublished" datetime="2022-10-27T13:03:53+08:00">2022-10-27</time>
+              <time title="Created: 2022-10-27 16:55:02 / Modified: 16:55:25" itemprop="dateCreated datePublished" datetime="2022-10-27T16:55:02+08:00">2022-10-27</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -218,7 +218,11 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Concurrency/" itemprop="url" rel="index"><span itemprop="name">Concurrency</span></a>
                 </span>
             </span>
 
@@ -233,11 +237,12 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/cong-wei-dao-tou-da-yin-lian-biao-lcof/">原题点这里</a></p>
-<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202210271306232.png" /></p>
+          <h1 id="32-Common-Concurrency-Problems"><a href="#32-Common-Concurrency-Problems" class="headerlink" title="32. Common Concurrency Problems"></a>32. Common Concurrency Problems</h1><h2 id="32-1-What-Types-Of-Bugs-Exist"><a href="#32-1-What-Types-Of-Bugs-Exist" class="headerlink" title="32.1 What Types Of Bugs Exist?"></a>32.1 What Types Of Bugs Exist?</h2><ul>
+<li>并发中有哪些类型的bug？大致分为两种：<strong>non-deadlock bugs</strong>和<strong>deadlock bugs</strong>。</li>
+</ul>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/10/27/%E5%89%91%E6%8C%87offer-V2-06-%E4%BB%8E%E5%A4%B4%E5%88%B0%E5%B0%BE%E6%89%93%E5%8D%B0%E9%93%BE%E8%A1%A8/#more" rel="contents">
+              <a class="btn" href="/2022/10/27/32-Common-Concurrency-Problems/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -261,7 +266,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/%E5%89%91%E6%8C%87offer-v2-05-%E6%9B%BF%E6%8D%A2%E7%A9%BA%E6%A0%BC/">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/31-Semaphores/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/funs.jpg">
@@ -275,7 +280,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2022/10/27/%E5%89%91%E6%8C%87offer-v2-05-%E6%9B%BF%E6%8D%A2%E7%A9%BA%E6%A0%BC/" class="post-title-link" itemprop="url">剑指offer-V2-05-替换空格</a>
+            <a href="/2022/10/27/31-Semaphores/" class="post-title-link" itemprop="url">31. Semaphores</a>
         </h2>
 
         <div class="post-meta">
@@ -286,7 +291,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2022-10-27 12:40:00 / Modified: 12:41:38" itemprop="dateCreated datePublished" datetime="2022-10-27T12:40:00+08:00">2022-10-27</time>
+              <time title="Created: 2022-10-27 16:54:25 / Modified: 16:54:48" itemprop="dateCreated datePublished" datetime="2022-10-27T16:54:25+08:00">2022-10-27</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -294,7 +299,11 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Concurrency/" itemprop="url" rel="index"><span itemprop="name">Concurrency</span></a>
                 </span>
             </span>
 
@@ -309,11 +318,12 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/ti-huan-kong-ge-lcof/">原题点这里</a></p>
-<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202210271237724.png" alt=""><br>
+          <h1 id="31-Semaphores"><a href="#31-Semaphores" class="headerlink" title="31. Semaphores"></a>31. Semaphores</h1><ul>
+<li>前面已经学习了使用lock和condition varivable来实现并发，这一节学习<strong>semaphore</strong>信号量。有了semaphore，就只有统一的原语操作了，可以用semaphore来实现lock和condition variavle的功能。问题来了：如何使用semaphore来代替lock和condition variable？semaphore的定义是怎样的？Binary semaphore是怎样的？</li>
+</ul>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/10/27/%E5%89%91%E6%8C%87offer-v2-05-%E6%9B%BF%E6%8D%A2%E7%A9%BA%E6%A0%BC/#more" rel="contents">
+              <a class="btn" href="/2022/10/27/31-Semaphores/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -337,7 +347,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/%E5%89%91%E6%8C%87offer-v2-04-%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9F%A5%E6%89%BE/">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/30-Condition-Variables/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/funs.jpg">
@@ -351,7 +361,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2022/10/27/%E5%89%91%E6%8C%87offer-v2-04-%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9F%A5%E6%89%BE/" class="post-title-link" itemprop="url">剑指offer-V2-04-二维数组中的查找</a>
+            <a href="/2022/10/27/30-Condition-Variables/" class="post-title-link" itemprop="url">30. Condition Variables</a>
         </h2>
 
         <div class="post-meta">
@@ -362,7 +372,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2022-10-27 12:33:18 / Modified: 12:41:54" itemprop="dateCreated datePublished" datetime="2022-10-27T12:33:18+08:00">2022-10-27</time>
+              <time title="Created: 2022-10-27 16:53:41 / Modified: 16:54:08" itemprop="dateCreated datePublished" datetime="2022-10-27T16:53:41+08:00">2022-10-27</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -370,7 +380,11 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Concurrency/" itemprop="url" rel="index"><span itemprop="name">Concurrency</span></a>
                 </span>
             </span>
 
@@ -385,11 +399,18 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/er-wei-shu-zu-zhong-de-cha-zhao-lcof/?favorite=xb9nqhhg">原题点这里</a></p>
-<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202210271229492.png" alt=""><br>
+          <h1 id="30-Condition-Variables"><a href="#30-Condition-Variables" class="headerlink" title="30. Condition Variables"></a>30. Condition Variables</h1><ul>
+<li>之前介绍了lock，以及使用lock构建的一些线程安全的数据结构。但是那并不是所有并发的内容，说到并发，怎么能不谈谈同步呢？并发中，一个线程等待另一个线程是很常见的事情。举个栗子，父线程要等待子线程结束才能结束：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510092947.png" style="zoom:80%;" /></p>
+<p>我们希望看到的结果是这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510093145.png" style="zoom:80%;" /></p>
+<p>那要怎么做才能实现上述目的呢？首先尝试使用一个共享变量：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510094817.png" style="zoom:80%;" /></p>
+<p>这种做法基本可以达到我们的目的，但是效率很低，因为父线程一直在spin。实际上，我们应该将父线程sleep，当子线程结束时，再awake父线程。那么问题来了：在多线程程序中，经常出现一个线程要等待另一个线程的。简单的做法就像上面这样，在条件满足前一直spin，但是很低效。那应该用什么方法来代替呢？<br>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/10/27/%E5%89%91%E6%8C%87offer-v2-04-%E4%BA%8C%E7%BB%B4%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E6%9F%A5%E6%89%BE/#more" rel="contents">
+              <a class="btn" href="/2022/10/27/30-Condition-Variables/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -413,7 +434,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/%E5%89%91%E6%8C%87offer-v2-03-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/29-Lock-based-Concurrent-Data-Structures/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/funs.jpg">
@@ -427,7 +448,7 @@
       <header class="post-header">
         <h2 class="post-title" itemprop="name headline">
           
-            <a href="/2022/10/27/%E5%89%91%E6%8C%87offer-v2-03-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/" class="post-title-link" itemprop="url">剑指offer-V2-03-数组中重复的数字</a>
+            <a href="/2022/10/27/29-Lock-based-Concurrent-Data-Structures/" class="post-title-link" itemprop="url">29. Lock-based Concurrent Data Structures</a>
         </h2>
 
         <div class="post-meta">
@@ -438,7 +459,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2022-10-27 09:40:43 / Modified: 12:42:01" itemprop="dateCreated datePublished" datetime="2022-10-27T09:40:43+08:00">2022-10-27</time>
+              <time title="Created: 2022-10-27 16:52:47 / Modified: 16:53:21" itemprop="dateCreated datePublished" datetime="2022-10-27T16:52:47+08:00">2022-10-27</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -446,7 +467,11 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Concurrency/" itemprop="url" rel="index"><span itemprop="name">Concurrency</span></a>
                 </span>
             </span>
 
@@ -461,11 +486,515 @@
     <div class="post-body" itemprop="articleBody">
 
       
-          <p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/shu-zu-zhong-zhong-fu-de-shu-zi-lcof/?favorite=xb9nqhhg">原题点这里</a></p>
-<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202210270948039.png" alt=""><br>
+          <h1 id="29-Lock-based-Concurrent-Data-Structures"><a href="#29-Lock-based-Concurrent-Data-Structures" class="headerlink" title="29. Lock-based Concurrent Data Structures"></a>29. Lock-based Concurrent Data Structures</h1><ul>
+<li>有了lock之后，就可以用在一些数据结构中，使其变得<strong>thread safe</strong>线程安全。问题来了：给定一个数据结构时，如何加入lock使其能够正常工作？如何加入lock才能有好的性能，使得多线程可以尽可能多地并发访问结构？</li>
+</ul>
           <!--noindex-->
             <div class="post-button">
-              <a class="btn" href="/2022/10/27/%E5%89%91%E6%8C%87offer-v2-03-%E6%95%B0%E7%BB%84%E4%B8%AD%E9%87%8D%E5%A4%8D%E7%9A%84%E6%95%B0%E5%AD%97/#more" rel="contents">
+              <a class="btn" href="/2022/10/27/29-Lock-based-Concurrent-Data-Structures/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/28-Locks/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/10/27/28-Locks/" class="post-title-link" itemprop="url">28. Locks</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-27 15:44:59 / Modified: 15:45:26" itemprop="dateCreated datePublished" datetime="2022-10-27T15:44:59+08:00">2022-10-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Concurrency/" itemprop="url" rel="index"><span itemprop="name">Concurrency</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="28-Locks"><a href="#28-Locks" class="headerlink" title="28. Locks"></a>28. Locks</h1><ul>
+<li>并发中最基本的问题就是如何保证一段代码执行的原子性，这一章的<strong>lock</strong>就是用来解决这个问题的。
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/10/27/28-Locks/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/26-Concurrency-An-Introduction/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/10/27/26-Concurrency-An-Introduction/" class="post-title-link" itemprop="url">26. Concurrency: An Introduction</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-27 15:43:32 / Modified: 15:44:38" itemprop="dateCreated datePublished" datetime="2022-10-27T15:43:32+08:00">2022-10-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Concurrency/" itemprop="url" rel="index"><span itemprop="name">Concurrency</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="26-Concurrency-An-Introduction"><a href="#26-Concurrency-An-Introduction" class="headerlink" title="26. Concurrency: An Introduction"></a>26. Concurrency: An Introduction</h1><ul>
+<li>在前面很长的部分里我们讨论了虚拟化的问题，主要是对CPU和内存的虚拟化。在接下来的部分里，我们将学习一个进程（process）的抽象，那就是线程（thread）。一个进程可以包含多个线程，也是就<strong>multi-thread</strong> program，每个线程像一个单独的进程，但是区别在于同一进程的线程之间共享地址空间，因此可以访问相同的数据。</li>
+<li>线程和进程十分相似。线程有自己的PC来表明当前指令的地址；线程有自己的寄存器用来做计算；因此如果有两个线程在一个处理器上运行，就会面临<strong>context switch</strong>的问题。对于进程来说，context switch时将进程信息保存在<strong>process control block（PCB）</strong>中；而对于线程来说，context switch时将线程信息保存在<strong>thread control block（TCB）</strong>中。但是有一点不同，对于线程来说，context switch时并不会改变地址空间，也就是说使用的page table不需要改变。</li>
+<li>线程和进程的另一个区别在于stack。在之前的进程中（现在叫<strong>single-thread process</strong>），只有一个stack；但是在multi-thread process中，每一个线程都对应一个stack。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427094358.png" style="zoom:80%;" /></p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/10/27/26-Concurrency-An-Introduction/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/22-Beyond-Physical-Memory-Policies/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/10/27/22-Beyond-Physical-Memory-Policies/" class="post-title-link" itemprop="url">22. Beyond Physical Memory: Policies</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-27 15:41:55 / Modified: 15:42:14" itemprop="dateCreated datePublished" datetime="2022-10-27T15:41:55+08:00">2022-10-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/" itemprop="url" rel="index"><span itemprop="name">Virtualization</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/Memory/" itemprop="url" rel="index"><span itemprop="name">Memory</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="22-Beyond-Physical-Memory-Policies"><a href="#22-Beyond-Physical-Memory-Policies" class="headerlink" title="22. Beyond Physical Memory: Policies"></a>22. Beyond Physical Memory: Policies</h1><ul>
+<li>接着上一节的内容来学习replacement policy，问题：OS如何决定从内存中替换哪些page？
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/10/27/22-Beyond-Physical-Memory-Policies/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/21-Beyond-Physical-Memory-Mechanisms/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/10/27/21-Beyond-Physical-Memory-Mechanisms/" class="post-title-link" itemprop="url">21. Beyond Physical Memory: Mechanisms</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-27 15:41:11 / Modified: 15:41:36" itemprop="dateCreated datePublished" datetime="2022-10-27T15:41:11+08:00">2022-10-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/" itemprop="url" rel="index"><span itemprop="name">Virtualization</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/Memory/" itemprop="url" rel="index"><span itemprop="name">Memory</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="21-Beyond-Physical-Memory-Mechanisms"><a href="#21-Beyond-Physical-Memory-Mechanisms" class="headerlink" title="21. Beyond Physical Memory: Mechanisms"></a>21. Beyond Physical Memory: Mechanisms</h1><ul>
+<li>目前为止，我们一直假设page是全部保存在内存中的。但是，由于内存有限的原因，再加上可能运行的进程数很多导致有许多page，实际上内存往往还保存在 <strong>hard disk</strong>中。那么问题来了，OS如何通过像hard disk之类的低速设备，来提供一个很大的地址空间的假象？</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/10/27/21-Beyond-Physical-Memory-Mechanisms/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/20-Paging-Smaller-Tables/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/10/27/20-Paging-Smaller-Tables/" class="post-title-link" itemprop="url">20. Paging: Smaller Tables</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-27 15:40:26 / Modified: 15:40:44" itemprop="dateCreated datePublished" datetime="2022-10-27T15:40:26+08:00">2022-10-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/" itemprop="url" rel="index"><span itemprop="name">Virtualization</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/Memory/" itemprop="url" rel="index"><span itemprop="name">Memory</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="20-Paging-Smaller-Tables"><a href="#20-Paging-Smaller-Tables" class="headerlink" title="20. Paging: Smaller Tables"></a>20. Paging: Smaller Tables</h1><ul>
+<li>继续之前的问题，page table可能过大，上一节采用了TLB缓存的方法，这一节来看看不同的方法。问题来了，如何让page table 变小呢？有哪些方法？这些方法又会带来哪些问题？</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/10/27/20-Paging-Smaller-Tables/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/19-Paging-Faster-Translations-TLBs/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/10/27/19-Paging-Faster-Translations-TLBs/" class="post-title-link" itemprop="url">19. Paging: Faster Translations (TLBs)</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-27 15:38:22 / Modified: 15:39:32" itemprop="dateCreated datePublished" datetime="2022-10-27T15:38:22+08:00">2022-10-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/" itemprop="url" rel="index"><span itemprop="name">Virtualization</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/Memory/" itemprop="url" rel="index"><span itemprop="name">Memory</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="19-Paging-Faster-Translations-TLBs"><a href="#19-Paging-Faster-Translations-TLBs" class="headerlink" title="19. Paging: Faster Translations (TLBs)"></a>19. Paging: Faster Translations (TLBs)</h1><ul>
+<li>Page table存在内存中，因此使用paging的方法需要额外的内存访问，因此比较耗时。问题：如何加速地址翻译并且避免额外的内存访问？需要哪些硬件支持？OS又需要做什么？</li>
+<li>方法叫<strong>translation-lookaside buffer</strong>或者<strong>TLB</strong>，是MMU的一个部分。其实就是对于经常访问的page frame的一个缓存，因此也叫做<strong>address-translation cache</strong>。每次进行地址翻译时，先去TLB中找，如果没有再去内存中找。
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/10/27/19-Paging-Faster-Translations-TLBs/#more" rel="contents">
                 Read more &raquo;
               </a>
             </div>
@@ -487,6 +1016,9 @@
 
 
   
+  <nav class="pagination">
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+  </nav>
 
 
 
@@ -553,19 +1085,19 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">4</span>
+          <span class="site-state-item-count">23</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">1</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">2</span>
+        <span class="site-state-item-count">7</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>

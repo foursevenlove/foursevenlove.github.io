@@ -12,6 +12,7 @@
 ]]></content>
       <categories>
         <category>leetcode</category>
+        <category>offer</category>
       </categories>
       <tags>
         <tag>leetcode</tag>
@@ -29,6 +30,7 @@
 ]]></content>
       <categories>
         <category>leetcode</category>
+        <category>offer</category>
       </categories>
       <tags>
         <tag>leetcode</tag>
@@ -45,6 +47,7 @@
 ]]></content>
       <categories>
         <category>leetcode</category>
+        <category>offer</category>
       </categories>
       <tags>
         <tag>leetcode</tag>
@@ -62,10 +65,1708 @@
 ]]></content>
       <categories>
         <category>leetcode</category>
+        <category>offer</category>
       </categories>
       <tags>
         <tag>leetcode</tag>
         <tag>offer</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>6.Mechanism: Limited Direct Execution</title>
+    <url>/2022/10/27/6-Mechanism-Limited-Direct-Execution/</url>
+    <content><![CDATA[<h2 id="6-Mechanism-Limited-Direct-Execution"><a href="#6-Mechanism-Limited-Direct-Execution" class="headerlink" title="6.Mechanism: Limited Direct Execution"></a>6.Mechanism: Limited Direct Execution</h2><ul>
+<li>受限制的直接执行。</li>
+<li>虚拟化CPU的基本思想：让一个线程上CPU运行一会，下来再让另一个上CPU运行，通过<strong>time sharing</strong>的方法来实现。</li>
+<li>两个问题：<ul>
+<li>第一是性能：实现虚拟化时如何能让系统不用额外的开销？</li>
+<li>第二是控制：如何在高效运行线程时OS可以重新获得对CPU的控制？</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+<h3 id="6-1-Limited-Direct-Execution"><a href="#6-1-Limited-Direct-Execution" class="headerlink" title="6.1 Limited Direct Execution"></a>6.1 Limited Direct Execution</h3><ul>
+<li>为了解决上述两个问题可采用Limited Direct Execution的方法。</li>
+<li>先看什么是Direct Execution：单纯地让程序直接运行在CPU上。按照第四章的说法，OS需要在process list中创建进程入口，分配内存，加载代码到内存中，定位程序入口（main函数之类的），然后开始运行，流程如如下：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220325091511.png" style="zoom:67%;" /></p>
+<ul>
+<li>这种方法的问题来了：<ul>
+<li>第一，如果像这样仅仅运行程序，OS怎么能够确保程序不做一些OS不想让程序做的事？</li>
+<li>第二，在运行程序时，OS如何停止当前进程，让另外一个进程上CPU运行，从而实现<strong>time sharing</strong>来虚拟化CPU呢？</li>
+</ul>
+</li>
+<li>所以我们应该再谈谈”limited”。</li>
+</ul>
+<h3 id="6-2-Problem-1-Restricted-Operations"><a href="#6-2-Problem-1-Restricted-Operations" class="headerlink" title="6.2  Problem #1: Restricted Operations"></a>6.2  Problem #1: Restricted Operations</h3><ul>
+<li><p>Direct Execution是很快没错，但是有个问题：如果进程想执行一些受限制的操作该怎么办？例如提出I/O请求来读写磁盘或者进程想使用更多的系统资源如CPU或内存？也就是说如何能够让进程去执行这些操作，但是又不把整个系统的控制权交给该进程？</p>
+</li>
+<li><p>先看看一种可行但是不安全实际也不会使用的方法：当进程运行时，让该进程可以执行它想执行的相关操作。明白人都知道，这种做法很不安全。因为这样该进程就可以读写整个磁盘，还谈何保护呢？</p>
+</li>
+<li>所以我们来看一种实际可行的方法。将处理器也就是CPU分成两种模式，<strong>user mode</strong>和<strong>kernel mode</strong>。<ul>
+<li><strong>user mode</strong>：运行在user mode的代码的操作是受限的。比如在user mode的时候，进程是不能发起I/O请求的，如果它这么做了，就会导致异常，OS就会杀死该进程。</li>
+<li><strong>kernel mode</strong>：OS运行在kernel mode下，在这个模式下的代码可以执行他们想执行的任何操作，包括一些特权操作，比如发起I/O请求操作等。</li>
+</ul>
+</li>
+<li>问题又来了，在这种设定模式下，用户的线程想执行特权操作的时候，比如读写磁盘，那应该怎么办呢？<ul>
+<li>解决方法：实际上现代硬件，都给用户的程序提供了执行<strong>system call</strong>的能力。</li>
+<li><strong>system call</strong>实际上给user mode的进程提供了一种方法，用于访问只有在Kernel mode才能访问的资源。</li>
+</ul>
+</li>
+<li>执行system call，程序必须执行一条叫<strong>trap</strong>的指令。这条指令用于转换到Kernel mode，这样系统就可以执行该程序想做的特权操作了。完成之后，OS调用一条叫<strong>return-from-trap</strong>的指令，返回到该程序，并且返回user mode。</li>
+<li>执行trap的时候，硬件要做一些事情来确保保存好进程的寄存器，这样当OS调用return-from-trap的时候，才能恢复该进程的信息。例如在X86中，处理器会将程序的寄存器、flags、PC保存到每个程序的<strong>kernel stack</strong>中，当return-from-trap指令返回时，再从栈中pop出保存的值用于回复进程信息。其他系统做法不同，但核心思想相同。</li>
+</ul>
+<hr>
+<ul>
+<li>现在我们解决了和权限有关的问题，但是新的风暴已经出现，那就是trap指令如何知道，在换到kernel mode的时候OS要运行什么代码呢？明白人又知道了，那肯定不能由发起trap指令的进程说了算，因为这不安全。</li>
+<li>解决办法就是<strong>trap table</strong>。<strong>trap table</strong>在启动时就设置好了。机器在启动时，在kernel mode下设置，因此可以根据硬件需要来配置机器。<strong>trap  table</strong>里设置了当一些trap指令被调用时，应该运行什么代码来处理。比如当键盘输入或者有磁盘终端时应该做些什么。那么OS就让硬件记住了这些<strong>trap handlers</strong>的位置，硬件会记住这些<strong>trap handlers</strong>的位置直到下次重启。这就回答了上一个问题，当系统调用和其他的异常时间发生时硬件应该去执行什么代码。</li>
+<li>系统调用千千万，如何直到当前进程想发起哪个系统调用呢？答案是<strong>system-call number</strong>，用于指定系统调用。</li>
+<li><strong>trap table</strong> 有了，硬件也可以去记住他，但是怎么告诉硬件trap table在哪里呢？不能说让用户来告诉硬件吧？所以明白人又懂了，这也是一个特权操作。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220326161917.png" style="zoom:80%;" /></p>
+<ul>
+<li>图6.2表明了整个工作流程。在Limited direct execution（<strong>LDE</strong>）中有两个阶段。<ul>
+<li>第一阶段，kernel初始化trap table，CPU记住它的位置，以便后续使用 。</li>
+<li>第二阶段，kernel做些设置以便准备让程序上CPU运行，然后执行<strong>return-from-trap</strong>，转换到user mode，程序开始运行。如果程序想执行特权操作，那么就要发起system call，然后执行trap指令，保存当前进程状态，然后把CPU还给OS，进入kernel mode，执行特权操作。然后就是返回，恢复进程，进程正常结束，OS释放内存。</li>
+</ul>
+</li>
+</ul>
+<h3 id="6-3-Problem-2-Switching-Between-Processes"><a href="#6-3-Problem-2-Switching-Between-Processes" class="headerlink" title="6.3 Problem #2: Switching Between Processes"></a>6.3 Problem #2: Switching Between Processes</h3><ul>
+<li>我们已经直到了如何保护整个系统，程序在CPU上运行的流程应该时怎么样的，现在就该考虑下另一个问题了。我们想要虚拟化CPU，那就要在不同进程之间切换上CPU，那么如何做呢？</li>
+<li>想想好像很简单，先让一个下去再让另一个上来呗。当一个进程在CPU上运行时，OS是没有在CPU上运行的。但是要让一个进程上CPU又必须是由OS指定的，但是OS不在运行，这怎么办呢？</li>
+<li>所以要解决的问题就是，要想让别的进程上CPU就要让OS重获对CPU的控制。</li>
+</ul>
+<h4 id="6-3-1-A-Cooperative-Approach-Wait-For-System-Calls"><a href="#6-3-1-A-Cooperative-Approach-Wait-For-System-Calls" class="headerlink" title="6.3.1 A Cooperative Approach: Wait For System Calls"></a>6.3.1 A Cooperative Approach: Wait For System Calls</h4><ul>
+<li>要想解决上述问题，一种过去的OS采用的做法是cooperative的方法。这种方法下，OS是信任进程的，OS相信进程可以规范他们的行为。也就是说运行太长的进程会定期地放弃CPU，通过系统调用；或者当程序出错的时候，会执行trap指令，这样CPU就重获了对CPU的控制。但是如果程序死循环呢？如果程序永远也不愿意下来呢？</li>
+</ul>
+<h4 id="6-3-2-A-Non-Cooperative-Approach-The-OS-Takes-Control"><a href="#6-3-2-A-Non-Cooperative-Approach-The-OS-Takes-Control" class="headerlink" title="6.3.2 A Non-Cooperative Approach: The OS Takes Control"></a>6.3.2 A Non-Cooperative Approach: The OS Takes Control</h4><ul>
+<li>靠进程自觉不行，那就强制要求呗。如果不强制要求，进程陷入死循环永远不下CPU你就只能重启机器了。</li>
+<li>这里我们就采用<strong>timer interrupt</strong>的方法。也就是说一个进程没运行一段时间就必须中断，这样它就下CPU了。当该中断发起时，就代表你该下了，另外一个进程该上了。</li>
+<li>也就是说像之前讨论的那样，机器启动时，OS就告诉了硬件当timer interrupt的时候应该执行什么代码。在启动时，OS就起一个timer，这样OS才能重获对CPU的控制。</li>
+<li>当timer interrupt的时候，应该保存当前进程的信息，比如寄存器信息等，这样下次该进程才能被恢复重新上CPU。</li>
+</ul>
+<h4 id="6-3-3-Saving-and-Restoring-Context"><a href="#6-3-3-Saving-and-Restoring-Context" class="headerlink" title="6.3.3 Saving and Restoring Context"></a>6.3.3 Saving and Restoring Context</h4><ul>
+<li>当timer interrupt时，通过scheduler（会在之后讲）来决定是当前进程继续上还是换一个上。如果是换一个进程上的话，那么也就是执行<strong>context switch</strong>操作，这是由低层的代码实现的。</li>
+<li>context swich的本质就是保存信息并且恢复信息，即保存当前进程的一些信息，恢复即将上CPU的另一个进程的信息。首先将当前进程的寄存器信息保存到进程自己的kernel stack中，然后再恢复下一个进程的kernel stack信息。</li>
+<li>当然OS还要保存下别的信息，保存当前进程的通用寄存器、PC以及该进程的kernel stack指针，然后恢复下一个进程的这些信息。</li>
+<li>流程如下：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220326165400.png" style="zoom:80%;" /></p>
+<h3 id="6-4-有关并发"><a href="#6-4-有关并发" class="headerlink" title="6.4 有关并发"></a>6.4 有关并发</h3><ul>
+<li>聪明的你可能会问了，如果在处理中断的时候另一个中断发生了怎么办？其实这是之后在并发章节会讨论的事情，现在只需要直到当处理中断的时候，是不会允许其他中断的。</li>
+</ul>
+<h3 id="6-5-总结"><a href="#6-5-总结" class="headerlink" title="6.5 总结"></a>6.5 总结</h3><ul>
+<li>这章的重点就是，第一程序如何运行，第二进程怎么切换。</li>
+<li>我们通过LED来实现虚拟换CPU，其实就是让一个程序上CPU，但是留一手，通过timer让它不能一直运行。</li>
+<li>那么如何选择下一个上CPU的进程？这是之后的章节讨论的问题了。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Virtualization</category>
+        <category>Cpu</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Virtualization</tag>
+        <tag>Cpu</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>4.The Abstraction:The Process</title>
+    <url>/2022/10/27/4-The-Abstraction-The-Process/</url>
+    <content><![CDATA[<h2 id="4-The-Abstraction-The-Process"><a href="#4-The-Abstraction-The-Process" class="headerlink" title="4.The Abstraction: The Process"></a>4.The Abstraction: The Process</h2><ul>
+<li>线程的定义：正在运行的程序。</li>
+<li>问题来了：如何提供有许多CPU的假象？</li>
+<li>答：通过虚拟化的技术来制造有许多CPU的假象。即通过<strong>time sharing</strong>的方式。</li>
+<li>为了实现虚拟化，OS提供了低层和高层的一些机制。</li>
+<li>低层上主要是提供用来实现功能的方法和协议。比如，提供了如何实现<strong>context switch</strong>来使OS停止运行一个程序从而运行另外一个程序。</li>
+<li>高层上主要是提供了一些智能的policies。policies其实就是一些OS用于做决定的算法。比如说现在有一堆程序，先让哪个程序上CPU运行？在OS上有一系列的算法来决定这些事情。</li>
+</ul>
+<span id="more"></span>
+<h3 id="4-1-什么是线程？"><a href="#4-1-什么是线程？" class="headerlink" title="4.1 什么是线程？"></a>4.1 什么是线程？</h3><ul>
+<li>操作系统提供一种抽象被称为线程，用于运行程序。</li>
+<li>为了明白线程是有什么组成的，我们必须先谈谈<strong>machine state</strong>：即当一个程序处于运行时，它可以读取或者更新什么？</li>
+<li>第一个组成线程的<strong>machine state</strong>就是内存(<strong>memory</strong>)。指令存在内存中，程序读写的数据存在内存中。</li>
+<li>第二个组成线程的<strong>machine state</strong>是寄存器(<strong>registers</strong>)。许多指令都读取或者更新寄存器，因此寄存器很重要。<ul>
+<li>有许多特殊的寄存器，比如<strong>program counter(PC)</strong>，用于表明程序的下一条指令在哪里；<strong>stack pointer</strong>和<strong>frame pointer</strong>用于管理函数的参数、变量和返回值的地址。</li>
+</ul>
+</li>
+<li>第三个组成线程的<strong>machine state</strong>是<strong>I/O information</strong>。其中包含了一系列的进程正在打开的文件。</li>
+</ul>
+<h3 id="4-2-进程的接口"><a href="#4-2-进程的接口" class="headerlink" title="4.2 进程的接口"></a>4.2 进程的接口</h3><ul>
+<li>以下接口为OS必须为进程提供的一些接口：</li>
+<li><strong>Create</strong>：OS必须提供一些方法来创建新的进程。</li>
+<li><strong>Destory</strong>：既然我们可以创建，那必须可以强制销毁一个进程。正常情况下，进程应该主动退出，但是一旦有异常发生，我们需要强制销毁一个进程。</li>
+<li><strong>Wait</strong>：当一个进程停止运行的时候，OS应该提供wait接口。</li>
+<li><strong>Miscellaneous Control</strong>：相当于是一些操作的结合体，比如先停止一个进程，等待一会后再将其恢复运行。</li>
+<li><strong>Status</strong>：用于查看一个进程的信息，比如运行了多久或者出于什么状态。</li>
+</ul>
+<h3 id="4-3-进程创建的细节"><a href="#4-3-进程创建的细节" class="headerlink" title="4.3 进程创建的细节"></a>4.3 进程创建的细节</h3><ul>
+<li>提问：如何将一个程序转变为进程？更明确的问，OS如何启动或停止一个进程？进程创建是如何工作的？</li>
+<li>第一，在OS运行一个程序前需要从磁盘（或者固态）中，加载源代码和静态数据到内存中（或者叫进程的地址空间）。<ul>
+<li>早期OS中，加载线程是热加载，在运行前全部加载进来；现代OS一般是懒加载，只加载程序运行需要的部分。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220322212127.png" style="zoom: 50%;" /></p>
+<ul>
+<li>第二，在加载完源代码和静态数据后，OS需要将一部分内存分配给进程的<strong>stack</strong>。比如在C中，局部变量，函数参数，返回值的地址都是在stack中。</li>
+<li>第三，除了要给程序分配<strong>stack</strong>，还要给程序分配<strong>heap</strong>，<strong>heap</strong>用于动态分配的数据。比如通过malloc()函数分配、free()函数销毁的空间，列表、哈希表、树之类的数据结构。因为是动态分配的，所以heap一开始可能很小。</li>
+<li>第四，OS还需要做一些和I/O有关的初始化。比如在Unix中，每个进程默认都有三个打开文件描述符，用于标准输入、输出、错误。</li>
+<li>在经历过加载源代码和静态数据、分配stack、分配heap以及I/O初始化之后，finally OS把执行程序的环境搞好了。但是还有最后一件事，让程序在entry point处开始运行，也就是main()。在跳到main()入口后，OS终于让这个程序上了CPU，开始其进程的一生。</li>
+</ul>
+<h3 id="4-4-进程的状态"><a href="#4-4-进程的状态" class="headerlink" title="4.4 进程的状态"></a>4.4 进程的状态</h3><ul>
+<li>一般来说有以下三种最基础的状态：</li>
+<li>Running：进程正在处理器上运行。</li>
+<li>Ready：进程已经准备好上CPU，但是OS还允许它上。</li>
+<li><p>Blocked：由于进程需要完成某些操作，导致它还没有Ready。比如在等待I/O操作。</p>
+</li>
+<li><p>状态之间的转换：</p>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220322212315.png" style="zoom:67%;" /></p>
+<h3 id="4-5-数据结构"><a href="#4-5-数据结构" class="headerlink" title="4.5 数据结构"></a>4.5 数据结构</h3><ul>
+<li>OS也是程序，因此它有一些数据结构。比如，为了追踪进程的状态，OS会保存running、ready、blocked的process list。</li>
+<li>比如在xv6中，OS需要追踪的数据结构：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220322213001.png" style="zoom:67%;" /></p>
+<ul>
+<li><p>其中保存了 <strong>register context</strong>，用于保存一个停止进程的寄存器内容。当一个进程停止时，其寄存器信息会保存在内存中，只要将寄存器恢复，那么进程就能回复继续运行，也就是后面会说的<strong>context switch</strong>。</p>
+</li>
+<li><p>Process list用于保存正在运行的进程的信息，是一种比较简单的数据结构。还有别的比如说<strong>PCB</strong>(Process Control Block)。</p>
+</li>
+</ul>
+<h3 id="4-6-总结"><a href="#4-6-总结" class="headerlink" title="4.6 总结"></a>4.6 总结</h3><ul>
+<li>我们知道了OS最基本的抽象：进程，它是运行着的程序。</li>
+<li>知道了进程，再来看看本质：低层的mechanisms和高层的policies，mechanisms用于怎么实现，policies用于如何规划。二者结合在一起我们才能理解OS如何虚拟化CPU。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Virtualization</category>
+        <category>Cpu</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Virtualization</tag>
+        <tag>Cpu</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>7.Scheduling: Introduction</title>
+    <url>/2022/10/27/7-Scheduling-Introduction/</url>
+    <content><![CDATA[<h2 id="7-Scheduling-Introduction"><a href="#7-Scheduling-Introduction" class="headerlink" title="7.Scheduling: Introduction"></a>7.Scheduling: Introduction</h2><ul>
+<li>前面我们了解了低层的用于运行进程的机制，现在该来谈一谈高层的policy来决定如何调度进程上CPU了。这章就来学习下调度进程的算法。</li>
+</ul>
+<span id="more"></span>
+<h3 id="7-1-Workload-Assumptions"><a href="#7-1-Workload-Assumptions" class="headerlink" title="7.1 Workload Assumptions"></a>7.1 Workload Assumptions</h3><ul>
+<li>在往下走之前，我们先做一些假设，有关于在系统中运行的进程的假设，这些假设我们叫做<strong>workload</strong>。当然我们做的这些假设其实在OS中是不切实际不现实的，但是随着深入下去，我们会逐渐接近实际情况，逐渐打破这些假设。</li>
+<li>我们也经常把进程叫做<strong>job</strong>，对job我们做出如下五个假设：<ul>
+<li>1.每个job运行时间相等</li>
+<li>2.所有job都在同一时间到达</li>
+<li>3.一旦job开始运行，就运行到job完成</li>
+<li>4.所有的job都只使用CPU（也就是说没有I/O请求）</li>
+<li>5.Job的运行时长已知</li>
+</ul>
+</li>
+</ul>
+<h3 id="7-2-Scheduling-Metrics"><a href="#7-2-Scheduling-Metrics" class="headerlink" title="7.2 Scheduling Metrics"></a>7.2 Scheduling Metrics</h3><ul>
+<li>既然是调度算法，那么就要有一个调度指标，根据这个调度指标来决定让哪个进程上CPU。</li>
+<li>首先我们使用一个最简单的调度指标：<strong>turnaround time</strong>（周转时间）。周转时间的定义为，job的完成时间减去job到达系统的时间：<script type="math/tex">T_{turnaround}=T_{completion} - T_{arrival}</script>。因为我们假设所有job同时到达系统，也就是说<script type="math/tex">T_{arrival}=0</script>，因此 <script type="math/tex">T_{turnaround}=T_{completion}</script>。</li>
+<li>注意，周转时间是一种<strong>performance</strong>的指标，是我们这一章首要考虑的。另一种指标考虑的是<strong>fairness</strong>。这两种指标好比鱼与熊掌，不可得兼。</li>
+</ul>
+<h3 id="7-3-First-In-First-Out-FIFO"><a href="#7-3-First-In-First-Out-FIFO" class="headerlink" title="7.3 First In, First Out (FIFO)"></a>7.3 First In, First Out (FIFO)</h3><ul>
+<li>最基本的算法<strong>First In, First Out (FIFO)</strong>，有时也叫 <strong>First Come, First Served (FCFS)</strong>。过于简单不多赘述。优点是简单易实现。</li>
+<li>假设A、B、C几乎同时到达，但是FIFO是挑一个先到达的，所以假设A比B先一点，B比C先一点。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328161849.png" style="zoom:80%;" /></p>
+<ul>
+<li>此种情况下，计算每个job的平均周转时间：<script type="math/tex">\frac{10+20+30}{3}=20</script>。</li>
+<li>现在让我们打破第一个假设，即不再认为所有job都运行相同的时间，这种情况下FIFO的性能有时就不是很好。例如以下情况：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328162231.png" style="zoom:80%;" /></p>
+<ul>
+<li>此种情况下，计算每个job的平均周转时间：<script type="math/tex">\frac{100+110+120}{3}=110</script>。</li>
+<li>这种问题叫 <strong>convoy effect</strong>（护航效应），就是说对资源占用较少的job排在了对资源占用较多的job后面。那咋办呢？且看下一种算法。</li>
+</ul>
+<h3 id="7-4-Shortest-Job-First-SJF"><a href="#7-4-Shortest-Job-First-SJF" class="headerlink" title="7.4 Shortest Job First (SJF)"></a>7.4 Shortest Job First (SJF)</h3><ul>
+<li>短作业优先，顾名思义，运行时间短的job先上CPU运行。</li>
+<li>在之前的例子上，可得到如下图运行顺序：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328211902.png" style="zoom:80%;" /></p>
+<ul>
+<li><p>计算每个job的平均周转时间：<script type="math/tex">\frac{10+20+120}{3}=50</script>。</p>
+</li>
+<li><p>在我们假设所有job同时到达的情况下，SJF是一个优化的调度策略。但实际情况下往往不是所有job同时到达的。</p>
+</li>
+<li>现在让我们打破假设2，即job有可能在任何时刻到达，这种情况下应该怎么办？如果用SJF可能会出现以下情况，A先到，B、C在10s到，且A运行100s，B、C分别运行10s：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328213101.png" style="zoom:80%;" /></p>
+<ul>
+<li>这时每个job的平均周转时间：<script type="math/tex">\frac{100+(110-10)+(120-10)}{3}=103.33</script>。</li>
+</ul>
+<h3 id="7-5-Shortest-Time-to-Completion-First-STCF"><a href="#7-5-Shortest-Time-to-Completion-First-STCF" class="headerlink" title="7.5 Shortest Time-to-Completion First (STCF)"></a>7.5 Shortest Time-to-Completion First (STCF)</h3><ul>
+<li>为了解决上面这种情况，考虑到我们之前学过的timer interrupt和context switch我们采用新的算法<strong>Shortest Time-to-Completion First (STCF)</strong>或者叫<strong>Preemptive Shortest Job First (PSJF)</strong> 。也就是抢占式的SJF，即当一个job到达时，如果它的运行时间短，那可以抢占当前job正在使用的CPU。</li>
+<li>在之前的例子上，如下图：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328213624.png" style="zoom:80%;" /></p>
+<ul>
+<li>这时每个job的平均周转时间：<script type="math/tex">\frac{(120-0)+(20-10)+(30-10)}{3}=50</script>。</li>
+</ul>
+<h3 id="7-6-A-New-Metric-Response-Time"><a href="#7-6-A-New-Metric-Response-Time" class="headerlink" title="7.6 A New Metric: Response Time"></a>7.6 A New Metric: Response Time</h3><ul>
+<li>如果我们知道job的运行时间并且job仅仅使用CPU的话，那么周转时间是我们唯一的指标，STCF是一个很好的策略。但事实上，坐在终端前的用户希望能够和系统进行交互，因此我们必须考虑另一个指标：<strong>response time</strong>（响应时间）。</li>
+<li>响应时间的定义为job第一次上CPU的时间减去job到达系统的时间：<script type="math/tex">T_{response}=T_{firstrun} - T_{arrival}</script>。</li>
+<li>对图7.5，A的响应时间为0，B为0，C为10。</li>
+<li>之前的STCF对于考虑周转时间的情况下是很好的，但是却不利用响应时间，你想想你要是C的用户，你的程序要10s才能得到响应，你急不急？所以我们应该使用一种对于响应时间敏感的算法。</li>
+</ul>
+<h3 id="7-7-Round-Robin"><a href="#7-7-Round-Robin" class="headerlink" title="7.7  Round Robin"></a>7.7  Round Robin</h3><ul>
+<li>为了解决上述问题，采用 <strong>Round Robin（RR）</strong>的算法。基本思想就是不让每个job运行到它技术，每个job在CPU上都只能运行一个时间片（<strong>time slice</strong>有时也叫<strong>scheduling quantum</strong>），然后换下一个job上来运行。重复以上直到所有job运行结束。注意，时间片的长度必须是timer interrupt的倍数。</li>
+<li>举个栗子，A、B、C同时到达，每个都要运行5s。SJF算法运行图如7.6，RR算法运行图如7.7：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220328215527.png" style="zoom:80%;" /></p>
+<ul>
+<li>RR算法每个job的平均响应时间：<script type="math/tex">\frac{0+1+2}{3}=1</script>，SJF算法每个job的平均响应时间：<script type="math/tex">\frac{0+5+10}{3}=5</script>，只能说高下立判。</li>
+<li>RR算法中，时间片的长度太长或者太短都不行。<ul>
+<li>如果太短了，那么context switch的代价会影响整个性能。</li>
+<li>如果太长了，那么回到了老问题，响应时间太长。</li>
+</ul>
+</li>
+<li>举个栗子，还是上面的ABC，看图7.7，A在13s结束，B在14s结束，C在15s结束，其实很差劲。如果考虑周转时间的话，RR真的拉跨。又回到了那句话，performance和fairness不能得兼。</li>
+</ul>
+<h3 id="7-8-Incorporating-I-O"><a href="#7-8-Incorporating-I-O" class="headerlink" title="7.8 Incorporating I/O"></a>7.8 Incorporating I/O</h3><ul>
+<li>现在该打破第四个假设了，也就是说程序是需要I/O操作的。</li>
+<li>那么程序在等待I/O的时候，其实CPU是空闲的，进程是blocked的。那么这时就应该安排别的进程上CPU，等待I/O的进程等到I/O结果了，再恢复该进程。</li>
+<li>举个栗子，A、B各需要50msCPU，区别在于，A每10ms就发起一次I/O请求，B不需要I/O。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220329000554.png" style="zoom:80%;" /></p>
+<ul>
+<li>假设我们用的是STCF，很明显，这时CPU的利用率是很低的。所以应该充分利用CPU，像下面这样：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220329000716.png" style="zoom:80%;" /></p>
+<h3 id="7-9-No-More-Oracle"><a href="#7-9-No-More-Oracle" class="headerlink" title="7.9 No More Oracle"></a>7.9 No More Oracle</h3><ul>
+<li>现在该打破最后一个假设了，也就是说调度器不知道每个job需要运行时长。这个时候SJF/STCF都不好用了，RR也是一样。别着急后续会讲。</li>
+</ul>
+<h3 id="7-10-Summary"><a href="#7-10-Summary" class="headerlink" title="7.10 Summary"></a>7.10 Summary</h3><ul>
+<li>两个调度指标周转时间和响应时间，不可得兼。</li>
+<li>针对两者，对应有不同的算法。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Virtualization</category>
+        <category>Cpu</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Virtualization</tag>
+        <tag>Cpu</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>8.Scheduling: The Multi-Level Feedback Queue</title>
+    <url>/2022/10/27/8-Scheduling-The-Multi-Level-Feedback-Queue/</url>
+    <content><![CDATA[<h2 id="8-Scheduling-The-Multi-Level-Feedback-Queue"><a href="#8-Scheduling-The-Multi-Level-Feedback-Queue" class="headerlink" title="8.Scheduling: The Multi-Level Feedback Queue"></a>8.Scheduling: The Multi-Level Feedback Queue</h2><ul>
+<li>书接上回，我们来看看如何平衡两个调度指标，即周转时间和响应时间。</li>
+<li>采用 <strong>Multi-level Feedback Queue (MLFQ)</strong>，解决了两个问题：<ul>
+<li>第一，优化了周转时间。</li>
+<li>第二，同时兼顾了响应时间。</li>
+</ul>
+</li>
+</ul>
+<span id="more"></span>
+<h3 id="8-1-MLFQ-Basic-Rules"><a href="#8-1-MLFQ-Basic-Rules" class="headerlink" title="8.1 MLFQ: Basic Rules"></a>8.1 MLFQ: Basic Rules</h3><ul>
+<li>MLFQ有不同的实现方式，但是基本思想是一致的。</li>
+<li>在我们的方法中，MLFQ有多个队列，每个队列有不同的优先级。在任意之间点，处于ready状态的job只能处于一个队列中。MLFQ根据队列的优先级来决定运行哪一个job：优先级高的job可以先上CPU运行。当然，一个队列中可能有多个job，那么我们就采用RR的算法来运行处于统一队列中的job。</li>
+<li>因此，MLFQ的两条基本规则：<ul>
+<li><strong>Rule 1</strong>: If Priority(A) &gt; Priority(B), A runs (B doesn’t) </li>
+<li><strong>Rule 2</strong>: If Priority(A) = Priority(B), A &amp; B run in RR</li>
+</ul>
+</li>
+<li>举个栗子：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220330181943.png" style="zoom:80%;" /></p>
+<ul>
+<li>在上图中，由于A、B优先级高，所有A、B会以RR的方式轮流使用CPU，而可怜的C和D永远也使用不了CPU—an outrage！</li>
+<li>所以咋办？答案就是优先级不能是定死的，也就是说每个job的优先级是需要动态改变的。那根据什么规则来改变呢？可以根据每个job的历史行为来预测它未来的状态，根据历史来改变它的优先级。比如，如果一个job一直在让出CPU，因为它在不停等待键盘输入，那么就要提高它的优先级，因为当前该job正在和用户交互，要缩小响应时间；再比如，如果一个job长时间地使用CPU，那么就要适当减低它的优先级，因为要考虑到别的job。</li>
+</ul>
+<h3 id="8-2-Attempt-1-How-To-Change-Priority"><a href="#8-2-Attempt-1-How-To-Change-Priority" class="headerlink" title="8.2 Attempt #1: How To Change Priority"></a>8.2 Attempt #1: How To Change Priority</h3><ul>
+<li>在给出答案之前，我们明确：需要交互式的job一般是运行时间短的（并且有可能会经常退出CPU），运行时间长的job一般需要长时间的CPU也就是说响应时间没那么重要。</li>
+<li>这里尝试第一次给出改变优先级的规则：<ul>
+<li><strong>Rule 3</strong>：当一个job到达系统的时候，被放进优先级最高的队列。</li>
+<li><strong>Rule 4</strong>：如果一个job在运行时，使用完了分给它的整个时间片，那就降低它的优先级（把他移到下一级队列）。</li>
+<li><strong>Rule 5</strong>：如果一个job在时间片用完之前就让出了CPU，那么保持它的优先级不动。</li>
+</ul>
+</li>
+<li>举个栗子：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220330183313.png" style="zoom:80%;" /></p>
+<ul>
+<li>如果有短job来了咋办？再举个栗子：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220330183359.png" style="zoom:80%;" /></p>
+<ul>
+<li>I/O咋办？再举个栗子，灰色job不停的需要I/O操作。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220330183706.png" style="zoom:80%;" /></p>
+<ul>
+<li>现在的MLFQ的问题：<ul>
+<li>第一，<strong>starvation</strong>，也就是饥饿。如果系统中存在大量的交互性job，也就是说有很多的job，它们由于需要I/O操作一直停留在优先级高的队列中，那么优先级低的队列中的job永远得不到执行，饿死啦！</li>
+<li>第二，<strong>game the scheduler</strong>，也就是恶意程序把调度器骗了。想象一下，如果一个job在使用完99%的时间片后就发起一次I/O请求，根据我们的<strong>Rule5</strong>，因为它没有使用完时间片所以它会保持优先级不变，那么它就有可能永远停留在优先级最高的队列中。</li>
+<li>第三，一个job的行为是可能发生<strong>变化</strong>的。比如说，一个job可能前期大量使用CPU，后期就变成需要交互性的了。因为之前它大量使用CPU，可能它已经到了优先级最低的队列，但此时它又需要大量I/O和用户交互，那么此时的响应时间就会很高。</li>
+</ul>
+</li>
+</ul>
+<h3 id="8-3-Attempt-2-The-Priority-Boost"><a href="#8-3-Attempt-2-The-Priority-Boost" class="headerlink" title="8.3 Attempt #2: The Priority Boost"></a>8.3 Attempt #2: The Priority Boost</h3><ul>
+<li><p>为了解决上述问题，我们重写<strong>Rule 5</strong>，思想很简单，每隔一段时间增加所有job的优先级。做法有很多，我们采取最简单的：每隔一段时间，就把所有的job都放到优先级最高的队列中。</p>
+<ul>
+<li><strong>Rule 5</strong>：在周期<strong>S</strong>后，将系统中的所有job移到优先级最高的队列中。</li>
+</ul>
+</li>
+<li><p>这种做法解决了上述的两个问题：</p>
+<ul>
+<li><p>第一，解决了饥饿问题。看下图，左边没有增加优先级的时候，黑色job永远待在Q0，暗无天日。右图有了增加优先级，每隔一段时间所有job都会被移到优先级最高的队列，因此黑色job有了出头之日。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220330190852.png" style="zoom:80%;" /></p>
+</li>
+<li><p>第二，解决了job的行为会发生变化的问题。如果一个job早期大量使用CPU，在后期又转变成了交互型的，那么由于这个规则，每隔一段时间它就被移到优先级最高的队列，因此该问题解决。</p>
+</li>
+</ul>
+</li>
+<li><p>那么<strong>S</strong>该如何设置？如果S过长，那么还是可能有饥饿现象，太短的话，交互型job可能不能很好的共享CPU。（一般采用黑魔法， 不懂）</p>
+</li>
+</ul>
+<h3 id="8-4-Attempt-3-Better-Accounting"><a href="#8-4-Attempt-3-Better-Accounting" class="headerlink" title="8.4 Attempt #3: Better Accounting"></a>8.4 Attempt #3: Better Accounting</h3><ul>
+<li>上面的做法很好，解决了两个问题，但是还有一个问题没有解决。如何应对恶意程序？</li>
+<li>我们重写Rule 4a和Rule 4b，变成：<ul>
+<li><strong>Rule 4</strong>：只要一个job使用了所在队列分配的一个时间片的时间，那么就降低它的优先级（不管它有没有在使用完一个时间片之前让出CPU）</li>
+</ul>
+</li>
+<li>举个栗子：没有这种机制时，灰色程序就一直可以停留在最高级别的队列，</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220330192159.png" style="zoom:67%;" /></p>
+<ul>
+<li>有了这种机制，那么就变成：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220330192227.png" style="zoom:67%;" /></p>
+<h3 id="8-5-Tuning-MLFQ-And-Other-Issues"><a href="#8-5-Tuning-MLFQ-And-Other-Issues" class="headerlink" title="8.5 Tuning MLFQ And Other Issues"></a>8.5 Tuning MLFQ And Other Issues</h3><ul>
+<li>MLFQ还有一些问题，即如何设定调度器的参数？比如有多少个队列？每个队列的时间片长度应该是多少？定期增加优先级的周期应该是多少？等等这些问题，很不好解决，只能根据一些经验来设定，所以不赘述。</li>
+</ul>
+<h3 id="8-6-MLFQ-Summary"><a href="#8-6-MLFQ-Summary" class="headerlink" title="8.6 MLFQ: Summary"></a>8.6 MLFQ: Summary</h3><ul>
+<li>优化后的MLFQ的规则：<ul>
+<li><strong>Rule 1</strong>：如果A的优先级大于B，A可以运行。</li>
+<li><strong>Rule 2</strong>：如果A、B优先级相等，A、B以RR的方式运行，时间片的长度由所在队列的等级决定。</li>
+<li><strong>Rule 3</strong>：一个job进入系统时，放到最高级别的队列中。</li>
+<li><strong>Rule 4</strong>：只要一个job使用了所在队列分配的一个时间片的时间，那么就降低它的优先级（不管它有没有在使用完一个时间片之前让出CPU）</li>
+<li><strong>Rule 5</strong>：在周期<strong>S</strong>后，将系统中的所有job移到优先级最高的队列中。</li>
+</ul>
+</li>
+<li>可以看出，MLFQ不需要知道一个job需要运行多久，而是根据job的历史行为来预测未来的行为；并且兼顾了周转时间和响应时间。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Virtualization</category>
+        <category>Cpu</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Virtualization</tag>
+        <tag>Cpu</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>13. The Abstraction: Address Spaces</title>
+    <url>/2022/10/27/13-The-Abstraction-Address-Spaces/</url>
+    <content><![CDATA[<h1 id="13-The-Abstraction-Address-Spaces"><a href="#13-The-Abstraction-Address-Spaces" class="headerlink" title="13. The Abstraction: Address Spaces"></a>13. The Abstraction: Address Spaces</h1><h2 id="13-1-Early-Systems"><a href="#13-1-Early-Systems" class="headerlink" title="13.1 Early Systems"></a>13.1 Early Systems</h2><ul>
+<li>从内存的角度来说，早期的机器并没有提供很多的抽象给用户，因此比较简单，如下图：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220402155011.png" style="zoom: 67%;" /></p>
+<span id="more"></span>
+<h2 id="13-2-Multiprogramming-and-Time-Sharing"><a href="#13-2-Multiprogramming-and-Time-Sharing" class="headerlink" title="13.2 Multiprogramming and Time Sharing"></a>13.2 Multiprogramming and Time Sharing</h2><ul>
+<li>因为早期机器很贵，因此有了<strong>Multiprogramming</strong>的需求，需要充分利用CPU。</li>
+<li>欲望是无穷的，人们又有了<strong>Time Sharing</strong>的需求。人与机器的交互也变得很重要，你不想机器不理你对吧。</li>
+<li>如何实现<strong>Time Sharing</strong>呢？比较简单的方式是，让一个进程上CPU，并且给它内存所有的使用权限。运行一会后，停止运行，保存当前的所有信息到磁盘上，然后换下一个进程上来。这种方式当然可以，但是不够elegant，so crude！</li>
+<li>问题就在于太慢啦！虽然保存寄存器信息很快，但是还有别的保存是很耗时的。所以我们要做的是让所有进程都保留在内存中，有效实现time sharing。如下图：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220402160122.png" style="zoom: 67%;" /></p>
+<ul>
+<li>问题又来了，多进程都在内存中，如何做到<strong>protection</strong>？一个进程不能读别的进程的内容吧，也不能修改吧。</li>
+</ul>
+<h2 id="13-3-The-Address-Space"><a href="#13-3-The-Address-Space" class="headerlink" title="13.3 The Address Space"></a>13.3 The Address Space</h2><ul>
+<li>解决方法是对物理内存进行抽象，我们把这种抽象叫做<strong>Address Space</strong>。理解地址空间，就要理解是如何虚拟化内存的。</li>
+<li>Address Space包含了运行程序的所有内存状态。主要是：<ul>
+<li>code：即程序的代码，指令集。</li>
+<li>stack：用于保存所有的局部变量、参数和返回值等。</li>
+<li>heap：保存动态分配的内存。</li>
+<li>其他</li>
+</ul>
+</li>
+<li>如下图就是一个Address Space：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220402160742.png" style="zoom:67%;" /></p>
+<ul>
+<li>stack和heap一个从上往下，一个从下往上，这种做法并不是固定的。</li>
+<li>在Address Space中，地址是从0KB到16KB的，但其实它并不是指真正物理内存的0KB到16KB。那么问题就来了，OS如何才能建立起这种对内存抽象呢？</li>
+<li>建立抽象其实就是OS在虚拟化内存，OS这样做会让运行的程序认为，它真的被加载到物理内存的0KB到16KB了（经典欺骗进程）。举个栗子，当进程A试图从地址0开始加载时，其实并不是真的物理内存的0，而是它的地址空间的0，那么OS就要和硬件联手，把这个地址空间的0对应到物理内存的320KB去（因为A真的放在这）。</li>
+</ul>
+<h2 id="13-4-Goals"><a href="#13-4-Goals" class="headerlink" title="13.4 Goals"></a>13.4 Goals</h2><ul>
+<li>虚拟化内存，我们要达到以下几个目标：</li>
+<li>第一，虚拟内存（VM）系统是透明的，也就是说对程序是不可见的。程序意识不到自己的空间是假的，意识不到它的0不是真的0。</li>
+<li>第二，VM的效率。OS应该尽可能的提高虚拟的效率，这就要靠硬件的支持了。</li>
+<li>第三，保护。OS应该保护进程的信息不被其他进程读写，同样也应该保护OS的内存不被其他进程读写。也就是说各进程之间要隔离开来。</li>
+</ul>
+<h2 id="13-5-Summary"><a href="#13-5-Summary" class="headerlink" title="13.5 Summary"></a>13.5 Summary</h2><ul>
+<li>VM系统提供大的、私人的地址空间给程序，用于保存进程自己的信息。</li>
+<li>OS可以连同硬件一起，将虚拟的地址转化为物理地址。</li>
+<li>OS还对不同进程提供保护，提供隔离性。</li>
+<li>未完待续</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Virtualization</category>
+        <category>Memory</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Virtualization</tag>
+        <tag>Memory</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>17. Free-Space Management</title>
+    <url>/2022/10/27/17-Free-Space-Management/</url>
+    <content><![CDATA[<h1 id="17-Free-Space-Management"><a href="#17-Free-Space-Management" class="headerlink" title="17. Free-Space Management"></a>17. Free-Space Management</h1><ul>
+<li>这节就接着上节来讲讲怎么进行内存管理。具体来说，我们要讨论的就是<strong>paging</strong>的概念。简单点的话，把内存分成固定大小的块，管理这些块即可。复杂点来说，当这些块的大小不固定时，变长时该如何管理？比如一个进程可能通过malloc()和free()来分配或销毁内存。还可能存在<strong>外部碎片</strong>的问题。</li>
+<li><p>问题来了：如何在满足变长内存块的情况下进行内存管理？有什么策略可以用来最小化外部碎片？这些可用方法的时间和空间开销是多少？</p>
+<span id="more"></span>
+<h2 id="17-1-Assumptions"><a href="#17-1-Assumptions" class="headerlink" title="17.1 Assumptions"></a>17.1 Assumptions</h2></li>
+<li><p>假设我们通过malloc()和free()来对内存进行分配和销毁：</p>
+</li>
+</ul>
+<p>对于malloc()，接收一个size参数，用来代表需要分配多少字节的内存。</p>
+<p>对于free()，接收一个指针作为参数，释放相关内存。那么free()怎么知道要释放多少的内存呢？稍后就知道了。</p>
+<p>用<strong>free list</strong>，一种数据结构来管理空闲内存。</p>
+<ul>
+<li>再假设，我们只考虑外部碎片，不考虑内部碎片。</li>
+<li>再假设，一旦内存分配给客户端了，就不再重定位到内存中别的位置，也就是说哦我们不考虑<strong>compaction</strong>。（虽然它很有用）</li>
+<li>最后假设，分配器管理的都是连续的字节空间，并且我们假设该空间固定大小。</li>
+</ul>
+<h2 id="17-2-Low-level-Mechanisms"><a href="#17-2-Low-level-Mechanisms" class="headerlink" title="17.2 Low-level Mechanisms"></a>17.2 Low-level Mechanisms</h2><ul>
+<li><strong>Splitting and Coalescing</strong></li>
+</ul>
+<p>有一个30字节的heap，它和free list 的对应关系如下：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409093933.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409093947.png" style="zoom:80%;" /></p>
+<p>假设我们请求分配1个字节的空间，这是分配器就会采取<strong>splitting</strong>：找到满足要求的chunk，并且把它分成两块，第一块用于返回给caller，第二块继续保存在list中。那么就会变成这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409094520.png" style="zoom:80%;" /></p>
+<p>还是对于上述初始情况，假设我们调用free(10)会怎么样呢？如果简单的把10开始这个chunk加到list里去就是这种情况：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409094759.png" style="zoom:80%;" /></p>
+<p>这时，虽然总和可用是30字节，但是任何一个超过10字节的请求都会被拒绝，因为一个chunk最大可用是10。所以采用<strong>coalescing</strong>的方法，变成下面这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409095214.png" style="zoom:80%;" /></p>
+<p>有了coalescing，就可以保证最大程度利用内存。</p>
+<ul>
+<li><strong>Tracking The Size Of Allocated Regions</strong></li>
+</ul>
+<p>就像之前说的，free()函数只接收了一个指针参数，但是系统也可以知道该chunk有多大，然后把它加到free list中去，那么是如何做到的？</p>
+<p>为了满足上述目的，分配器需要额外保存一点信息在<strong>header</strong>中。看个图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409095743.png" style="zoom: 67%;" /></p>
+<p>假设malloc(20)，那么下面的20字节是分配用的空间，上面的header是为了加速释放内存用的，具体来说，header中包括：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409100131.png" style="zoom: 67%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409100259.png" style="zoom:80%;" /></p>
+<p>magic是用于提供额外的integrity和其他信息。当调用free时：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409100536.png" style="zoom:80%;" /></p>
+<p>在获得指向头部的指针后，就可以通过magic number来检查 assert(hptr-&gt;magic == 1234567) ，并且计算出要释放的区域的大小（20字节+header）。因此当用户申请N字节的内存时，不是找大小满足N的chunk，而是找大小满足N+header大小的chunk。</p>
+<ul>
+<li><strong>Embedding A Free List</strong></li>
+</ul>
+<p>假设内存空间一共4096字节，也就是4KB。对于free list，首先初始化，list中只有一个元素大小4096（减去header尺寸），list中的node：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409104900.png" style="zoom:80%;" /></p>
+<p>我们通过系统调用mmap()来构建heap，</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409134613.png" style="zoom:80%;" /></p>
+<p>运行代码之后，list中就有了一个元素，size是4096-8=4088。我们假设heap的虚拟地址是从16KB开始的，那么就像：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409134906.png" style="zoom:80%;" /></p>
+<p>假设用户请求分配100字节内存：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409134958.png" style="zoom:80%;" /></p>
+<p>注意每个header是8个字节，因为包含了两个整数，每个整数是4字节。也就是说，lib实际分配的是100+8=106字节。</p>
+<p>假设heap的分配情况是这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409135320.png" style="zoom:80%;" /></p>
+<p>这时如果我们要释放中间那块chunk会发生什么？free(16500)也就是物理地址，free(16K+108+8)，也就是sptr指向的地方。free后就会把该chunk加到free list中去：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409135640.png" style="zoom:80%;" /></p>
+<p>现在list中就有两个chunk。</p>
+<p>现在我们再释放剩下两个chunk：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220409135812.png" style="zoom:80%;" /></p>
+<p>这种还没有合并，遍历list对相邻chunk进行合并，那么就是一个完整的heap了。</p>
+<ul>
+<li><strong>Growing The Heap</strong></li>
+</ul>
+<p>如果heap空间用完了咋办？可以通过系统效用，比如UNIX中sbrk来申请更多内存。</p>
+<h2 id="17-3-Basic-Strategies"><a href="#17-3-Basic-Strategies" class="headerlink" title="17.3 Basic Strategies"></a>17.3 Basic Strategies</h2><ul>
+<li>没有最好的策略，只能尽量采取合适的策略来减少外部碎片。</li>
+<li><strong>Best Fit</strong>：找到大小最合适chunk分配。优点简单，缺点时间复杂度较高。</li>
+<li><strong>Worst Fit</strong>：找到最大的chunk分配。优点可能减少了外部best fit带来的小的chunk，缺点时间复杂度较高。</li>
+<li><strong>First Fit</strong>：找到第一个满足要求的chunk分配。优点速度快，缺点可能污染free list的开头。比如说一个很大的chunk分配给很小的内存申请。</li>
+<li><strong>Next Fit</strong>：找到第二个满足要求的chunk分配。和first fit很像，避免污染开头。</li>
+</ul>
+<h2 id="17-4-Other-Approaches"><a href="#17-4-Other-Approaches" class="headerlink" title="17.4 Other Approaches"></a>17.4 Other Approaches</h2><ul>
+<li><p>Segregated Lists</p>
+</li>
+<li><p>Buddy Allocation</p>
+</li>
+<li>Other Ideas</li>
+</ul>
+<h2 id="17-5-Summary"><a href="#17-5-Summary" class="headerlink" title="17.5 Summary"></a>17.5 Summary</h2><ul>
+<li>介绍了很初级的内存分配器。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Virtualization</category>
+        <category>Memory</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Virtualization</tag>
+        <tag>Memory</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>15. Mechanism: Address Translation</title>
+    <url>/2022/10/27/15-Mechanism-Address-Translation/</url>
+    <content><![CDATA[<h1 id="15-Mechanism-Address-Translation"><a href="#15-Mechanism-Address-Translation" class="headerlink" title="15. Mechanism: Address Translation"></a>15. Mechanism: Address Translation</h1><ul>
+<li>提供即高效又能保持OS控制的虚拟化内存方法。</li>
+<li>高效需要硬件的支持；控制意味着OS必须保证一个程序不能访问别的程序的内存空间，也不能访问OS的内存空间；最后还要灵活，也就是说一个程序想怎么使用地址空间都可以。</li>
+<li><p>那么问题来了，对于虚拟化内存：如何高效？如何提供灵活性？如何控制程序不访问别的程序内存空间？如何高效地完成这一切？</p>
+</li>
+<li><p>采用一种叫做<strong>hardware-based address translation</strong>或者简称<strong>address translation</strong>。该方法的作用就是把虚拟地址转换成物理实际地址。这样，程序就好像拥有了私人内存一样，但其实是所有程序共享内存。</p>
+<span id="more"></span>
+<h2 id="15-1-Assumptions"><a href="#15-1-Assumptions" class="headerlink" title="15.1 Assumptions"></a>15.1 Assumptions</h2></li>
+<li><p>第一，愚蠢的假设：假设用户的地址空间是连续放在物理内存中的。</p>
+</li>
+<li>第二，假设地址空间的大小小于物理内存的大小</li>
+<li><p>第三，假设每个地址空间的大小都相等。</p>
+</li>
+<li><p>这些假设会随着学习的深入被逐个打破，因为每个都是不现实的。</p>
+</li>
+</ul>
+<h2 id="15-2-An-Example"><a href="#15-2-An-Example" class="headerlink" title="15.2 An Example"></a>15.2 An Example</h2><ul>
+<li>一个进程的地址空间如下图所示：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405184720.png" style="zoom:80%;" /></p>
+<p>它的三条指令可以等价于以下C语言代码：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405184832.png" style="zoom:80%;" /></p>
+<p>当这些指令运行时，从进程层面来说，发生了以下内存的读写：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405185030.png" style="zoom:80%;" /></p>
+<p>从程序的角度来看，地址空间时从地址0开始一直到地址16KB的，所有用到的内存地址都应该在这个范围里面。但是从虚拟化内存的角度来看，OS要把该进程放在物理内存中，那么问题来了：如何<strong>透明地</strong>在内存中重定位该进程？如何提供一种假象，虽然该进程在物理内存中可能是任意位置开始，但是使得该进程好像在物理内存中真的是从地址0开始的？</p>
+<ul>
+<li>一个物理内存实际的样子：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405190107.png" style="zoom: 67%;" /></p>
+<h2 id="15-3-Dynamic-Hardware-based-Relocation"><a href="#15-3-Dynamic-Hardware-based-Relocation" class="headerlink" title="15.3 Dynamic (Hardware-based) Relocation"></a>15.3 Dynamic (Hardware-based) Relocation</h2><ul>
+<li>为了解决上述问题，采用一种叫做<strong>base and bounds</strong>或者<strong>dynamic relocation</strong>的方法。</li>
+<li>具体做法是，每一个CPU中设置两个硬件寄存器，一个是<strong>base</strong>寄存器，一个是<strong>bounds</strong>寄存器(或者叫<strong>limit</strong>寄存器)。有了这两个寄存器就可以让我们把进程放在内存的任意位置，并且保证一个进程不会访问别的进程的物理内存空间。</li>
+<li>当一个程序开始运行时，OS决定该进程应该放在物理内存的什么位置，并且把base寄存器的值设置为该进程在内存中的起始位置。在上述例子中，该进程在物理内存中实际是从32KB开始的，那么当该进程上CPU的时候，就应该把base寄存器设置为32KB。</li>
+<li>当该进程运行时需要访问内存，产生了一个地址时，实际该地址是一个虚拟地址，是相对该进程的地址空间来的，那么如何将其转换为物理内存的实际地址呢？</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405190426.png" style="zoom:80%;" /></p>
+<p>也就是说，实际地址等于虚拟地址加上base寄存器中的地址。</p>
+<p>对于上述进程的第一条指令：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405190530.png" style="zoom:80%;" /></p>
+<p>取该指令，PC值为128，那么这时候取该指令的物理内存实际地址为128+32KB(32768)=32896。这样PC就从物理内存中32896的位置取到了该指令，接下来执行该指令。该指令是说取15KB地址的值，注意这个15KB是虚拟地址，那么同理加上base的值，实际是从15+32=47KB的物理内存地址中取得该值的。</p>
+<ul>
+<li>把虚拟地址转换为物理地址的过程就是<strong>address translation</strong>也叫<strong>dynamic relocation</strong>。</li>
+<li>别忘了我们还提到了一个bound寄存器，它的作用是啥？别小瞧他，OS最看重的就是protection，而bound寄存器就是用来实现不让一个进程访问别的进程的内存以及操作系统的内存的。bound寄存器中存的值，代表该进程的地址空间最大有多少，也就是说每一个虚拟地址不能超过bound寄存器中的值。这样久确保了这个进程访问不了其他进程的内存。</li>
+<li>关于bound寄存器的定义可以有两种，一种是保存地址空间的大小，也就是说虚拟地址不能超过bound；还有一种是保存该进程的物理内存地址的最大值，也就是说translation后的地址不能超过bound。这里我们采用第一种。</li>
+<li>举个栗子，一个进程的地址空间大小4KB，它在物理内存中从16KB开始，那么：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405191924.png" style="zoom:80%;" /></p>
+<h2 id="15-4-Hardware-Support-A-Summary"><a href="#15-4-Hardware-Support-A-Summary" class="headerlink" title="15.4 Hardware Support: A Summary"></a>15.4 Hardware Support: A Summary</h2><ul>
+<li>总结一下从硬件获得的支持：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405193608.png" style="zoom: 67%;" /></p>
+<h2 id="15-5-Operating-System-Issues"><a href="#15-5-Operating-System-Issues" class="headerlink" title="15.5 Operating System Issues"></a>15.5 Operating System Issues</h2><ul>
+<li>不能光硬件做事，OS总归也要做点事吧，别忘了这门课是在学什么。</li>
+<li>第一，当创建一个进程时，要在内存中找到一个位置存放该进程了，也就是确定该进程的地址空间在内存中的实际位置。别忘了我们之前还做过假设，那就是所有进程的地址空间是连续存放的，那么就简单了，只要找到第一个空闲的内存地址即可。当创建进程时，OS需要从一个叫<strong>free list</strong>的数据结构中找到该内存地址，然后把它标记为已使用。</li>
+<li>第二，当终止一个进程时，要将该进程的地址空间释放以便其他进程或者OS使用。也就是说OS把该内存放回free list，然后清理相关的数据结构。</li>
+<li>第三，当做context switch的时候OS保存一些信息。因为一个CPU只有一对base and bound，所以当做context switch的时候需要保存base and bound的信息。也就是说，让一个进程先下CPU的时候，需要把base and bound寄存器的信息放在内存中，通常是某种数据结构，比如PCB。同样，当恢复改进程时，需要恢复寄存器信息。</li>
+<li>第四，OS必须提供<strong>exception handlers</strong>或者可以调用的函数，和之前讨论的一样，这些是在启动时设置的。比如说，当一个进程访问的虚拟地址越界时要发起异常，交给handler来处理，handler就会终止该进程。</li>
+<li>下图展示了硬件和OS的交互：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405195345.png" style="zoom: 67%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220405195523.png" style="zoom:80%;" /></p>
+<h2 id="15-6-Summary"><a href="#15-6-Summary" class="headerlink" title="15.6 Summary"></a>15.6 Summary</h2><ul>
+<li><p>主要讲的就是<strong>address translation</strong>。</p>
+</li>
+<li><p><strong>base and bounds</strong> 或者<strong>dynamic relocation</strong>。</p>
+</li>
+<li>当然这种做法是有不足的，比如图15.2中，进程的地址空间中是有很多浪费的空间，这些空间被叫做<strong>internal fragmentation</strong>，下面的章节我们就来看看如何充分使用内存空间。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Virtualization</category>
+        <category>Memory</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Virtualization</tag>
+        <tag>Memory</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>18. Paging: Introduction</title>
+    <url>/2022/10/27/18-Paging-Introduction/</url>
+    <content><![CDATA[<h2 id="18-Paging-Introduction"><a href="#18-Paging-Introduction" class="headerlink" title="18. Paging: Introduction"></a>18. Paging: Introduction</h2><ul>
+<li>内存管理有两种，一种是采用变长的chunk，也就是之前讲的segmentation。这章来讲一讲第二种方法，采用定长的chunk，这种方法叫做<strong>paging</strong>。我们把地址空间分成大小相等unit，每个unit叫做一个<strong>page</strong>；把物理内存也分成相同大小的slot，每个slot叫做 <strong>page frame</strong>。问题来了：如何使用page来虚拟化内存，从而避免外部碎片的问题？有哪些基本方法？如何用最小的空间和时间开销来实现这些方法？</li>
+</ul>
+<span id="more"></span>
+<h2 id="18-1-A-Simple-Example-And-Overview"><a href="#18-1-A-Simple-Example-And-Overview" class="headerlink" title="18.1 A Simple Example And Overview"></a>18.1 A Simple Example And Overview</h2><ul>
+<li>举个栗子，64字节的地址空间，分成4个16字节的page。（仅仅是栗子，事实空间比这大得多）</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411094428.png" style="zoom:80%;" /></p>
+<p>假设物理内存128字节，对应物理内存的话：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411094543.png" style="zoom:80%;" /></p>
+<p><strong>Paging</strong>的好处：</p>
+<p>1.可以高效管理内存，而不用在意用户如何使用地址空间，不用管stack和heap是向上增长还是向下增长。</p>
+<p>2.很简单。</p>
+<ul>
+<li>可以看到，page和page frame是对应的。那么为了记录这种对应关系，<strong>每个进程</strong>都需要一个 <strong>page table</strong>的数据结构。其作用就是地址翻译，给一个虚拟地址空间中的page，翻译出其在物理内存中的page frame位置。</li>
+<li>举个栗子，64字节的地址空间的进程，要访问内存：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411095424.png" style="zoom:80%;" /></p>
+<p>翻译这个虚拟地址的话，我们要先把虚拟地址分成两个部分：<strong>virtual page number (VPN)</strong>和page的<strong>offset</strong>。比如，64字节对应6位地址，虚拟地址长这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411101029.png" style="zoom:80%;" /></p>
+<p>划分后的虚拟地址：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411101114.png" style="zoom:80%;" /></p>
+<p>因为一共有4个page，所以VPN两位，剩下的就是offset。</p>
+<p>考虑这条指令：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411101314.png" style="zoom:80%;" /></p>
+<p>十进制的21转换成二进制： 010101，这样的话：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411101419.png" style="zoom:80%;" /></p>
+<p>可以看到是第1个page，offset是5，由图18.2看到对应的<strong>physical frame number (PFN)</strong>，有时也叫<strong>physical page number PPN</strong>是7，那么翻译过程如下：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411101600.png" style="zoom:80%;" /></p>
+<ul>
+<li>还有些问题：page table存在哪里？有多大？都存了什么内容？paging会让系统变慢吗？</li>
+</ul>
+<h2 id="18-2-Where-Are-Page-Tables-Stored"><a href="#18-2-Where-Are-Page-Tables-Stored" class="headerlink" title="18.2 Where Are Page Tables Stored?"></a>18.2 Where Are Page Tables Stored?</h2><ul>
+<li>page table可能会很大。比如，32位地址空间，分成4KB的page，那么VPN就是20位，offset是12位。假设每个<strong>page table entry(PTE)</strong>需要四个字节来保存有关地址翻译的信息，那么整个page table就是4 * 2 ^ 20 = 4MB。要是有100个运行进程的话，那可就是400MB！太大了！</li>
+<li>page table是保存在物理内存中的；后面会讲是如何保存在OS的虚拟地址空间中的。</li>
+</ul>
+<h2 id="18-3-What’s-Actually-In-The-Page-Table"><a href="#18-3-What’s-Actually-In-The-Page-Table" class="headerlink" title="18.3 What’s Actually In The Page Table?"></a>18.3 What’s Actually In The Page Table?</h2><ul>
+<li>其实只要能够保存page到page frame的映射，什么数据结构都行。举个栗子，最简单的就是一个<strong>linear page table</strong>，一个数组。数组下标代表地址空间中的page下标，数组元素代表映射到物理内存的page frame下标。</li>
+<li>具体来说，每个PTE是由很多位组成的。</li>
+</ul>
+<p><strong>valid bit</strong> 用于表明某个特定翻译是否有效，比如没有使用的地址空间都是无效的，如果请求的是无效地址就会trap。把没有使用过的page标为无效。</p>
+<p><strong>protection bits</strong>用于表明某个page是否可以被读写、执行。</p>
+<p>还有一些：</p>
+<p><strong>present bit</strong>表明当前page在内存中还是disk上。</p>
+<p><strong>dirty bit</strong>表明page自从上次被加载到内存中有没有被修改过。</p>
+<p><strong>reference bit (a.k.a. accessed bit)</strong>表明page是否被访问过。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411104959.png" style="zoom:80%;" /></p>
+<h2 id="18-4-Paging-Also-Too-Slow"><a href="#18-4-Paging-Also-Too-Slow" class="headerlink" title="18.4 Paging: Also Too Slow"></a>18.4 Paging: Also Too Slow</h2><ul>
+<li>考虑这条指令：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411105142.png" style="zoom:80%;" /></p>
+<p>现在我们知道虚拟地址21对应物理内存地址117，但是how？怎么翻译过来的？</p>
+<p>首先硬件必须知道当前运行进程的page table在哪里。假设一个<strong>page-table base register</strong>中包含的是一个page table的起始地址。为了找到目标PTE，硬件要执行以下函数：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411105601.png" style="zoom:80%;" /></p>
+<p>在我们的栗子中，VPN_MASK设置为110000，用于从虚拟地址中筛选出VPN。SHIFT设置为4，也就是offset的位数。对于虚拟地址21，010101，（010101 &amp; 110000） &gt;&gt;  4 = 010000 &gt;&gt; 4 = 01。也就是说是第一个虚拟page。这样再根据数组特性，数组首地址加上下标乘每个元素大小，就找到了PTE的地址。</p>
+<p>然后就可以从内存中取出PTE，得到PFN，再加上offset得到真正的物理地址。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411110148.png" style="zoom:80%;" /></p>
+<p>这样就可以得到物理地址，然后访问该地址，取出值放到eax寄存器中。</p>
+<p>总结：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411110337.png" style="zoom:80%;" /></p>
+<p>可以看到，paging需要一次额外的访问内存来获取PTE，因此比较慢。</p>
+<ul>
+<li>问题来了：paging还是太慢，并且占用大量内存。</li>
+</ul>
+<h2 id="18-5-A-Memory-Trace"><a href="#18-5-A-Memory-Trace" class="headerlink" title="18.5 A Memory Trace"></a>18.5 A Memory Trace</h2><ul>
+<li>考虑这段C代码：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411110633.png" style="zoom:80%;" /></p>
+<p>对应的汇编代码：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411110801.png" style="zoom:80%;" /></p>
+<p>假设进程地址空间64KB，每个page1KB。linear page table，物理内存中首地址1KB（1024）。代码在VPN1中，VPN1对应PFN4。地址空间中，数组地址位40000到44000，也就是VPN39到VPN42，(VPN 39 → PFN 7), (VPN 40 → PFN 8), (VPN 41 → PFN 9), (VPN 42 → PFN 10)。</p>
+<p>当这段指令运行时，每条指令需要进行两次内存访问，第一次是找到PTE以获得page frame，第二次是去page frame 中访问。对于movl指令，还需要额外的两次访问内存，也就是说一共四次。哪四次呢？取指令的时候有两次，第一次是找到记录指令所在的位置的PTE，第二次是真正取指令；访问数组时有两次，第一次是找到数组所在位置的PTE，第二次是真正访问数组。也就是说，对于一次循环，需要有10次访问内存。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220411135609.png" style="zoom:80%;" /></p>
+<p>最下方的黑色代表指令的内存访问，左边虚拟内存，右边物理内存。</p>
+<p>中间的黑灰色代表数组的内存访问，左边虚拟内存，右边物理内存。</p>
+<p>最上方的浅灰色代表page table的内存访问，物理内存。</p>
+<h2 id="18-6-Summary"><a href="#18-6-Summary" class="headerlink" title="18.6 Summary"></a>18.6 Summary</h2><ul>
+<li>介绍了paging的方法，优点一，没有外部碎片；优点二，很灵活，无需在意用户怎么使用page。</li>
+<li>但是这种方法导致系统变慢，如何解决？</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Virtualization</category>
+        <category>Memory</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Virtualization</tag>
+        <tag>Memory</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>19. Paging: Faster Translations (TLBs)</title>
+    <url>/2022/10/27/19-Paging-Faster-Translations-TLBs/</url>
+    <content><![CDATA[<h1 id="19-Paging-Faster-Translations-TLBs"><a href="#19-Paging-Faster-Translations-TLBs" class="headerlink" title="19. Paging: Faster Translations (TLBs)"></a>19. Paging: Faster Translations (TLBs)</h1><ul>
+<li>Page table存在内存中，因此使用paging的方法需要额外的内存访问，因此比较耗时。问题：如何加速地址翻译并且避免额外的内存访问？需要哪些硬件支持？OS又需要做什么？</li>
+<li>方法叫<strong>translation-lookaside buffer</strong>或者<strong>TLB</strong>，是MMU的一个部分。其实就是对于经常访问的page frame的一个缓存，因此也叫做<strong>address-translation cache</strong>。每次进行地址翻译时，先去TLB中找，如果没有再去内存中找。<span id="more"></span>
+<h2 id="19-1-TLB-Basic-Algorithm"><a href="#19-1-TLB-Basic-Algorithm" class="headerlink" title="19.1 TLB Basic Algorithm"></a>19.1 TLB Basic Algorithm</h2></li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220413101231.png" style="zoom:80%;" /></p>
+<ul>
+<li>考虑一个简单的<strong>linear page table</strong>，一个由硬件管理的TLB。</li>
+</ul>
+<p>想通过VPN来找到FPN的时候，先去TLB中找，如果找到称为 <strong>TLB hit</strong>，就可以从TLB中取得FPN。</p>
+<p>如果在TLB中没有找到就称<strong>TLB miss</strong>，这种情况下就和之前一样去内存中找到对应的PTE，从PTEAddr中拿到PTE，再从PTE中拿到PFN，并且更新TLB。</p>
+<p>最后重新执行该指令就会hit了。</p>
+<h2 id="19-2-Example-Accessing-An-Array"><a href="#19-2-Example-Accessing-An-Array" class="headerlink" title="19.2 Example: Accessing An Array"></a>19.2 Example: Accessing An Array</h2><ul>
+<li>举个栗子，一个整数数组，有10个4字节的整数，虚拟地址是100开始；地址空间8位，也就是256B，每个 page 16B，也就是说一共有16个page，因此4位VPN，4位offset。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220413102208.png" style="zoom:80%;" /></p>
+<p>考虑这段C代码：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220413102259.png" style="zoom:80%;" /></p>
+<p>简单起见，我们只考虑循环的内存访问。</p>
+<p>当访问第一个元素a[0]时，虚拟地址100，VPN06，因为是第一次访问，所以 TLB中VPN06对应的FPN肯定是空，TLB miss。当访问第二个元素a[1]时，神奇的事情发生了，TLB hit！为什么呢？因为对于第一个元素，TLB miss之后会去内存中找到VPN06对应的FPN放到TLB中，而第二个元素和第一个元素都是属于VPN06的，因此第二次TLB hit！同理a[2]也是TLB hit！</p>
+<p>同理可得，a[3] miss，a[4] hit，a[5] hit，a[6] hit；a[7] miss，a[8] hit，a[9] hit；可以计算出hit比例是70%。我们通过 <strong>spatial locality</strong>减少了内存访问。如果地址空间再大一点的话，比如4KB，那么整个数组就可以放在同一个page中，那么就只会在第一次miss，其他都是hit。</p>
+<p>注意，当我们在该程序中再次访问该数组时，会100%hit，这利用了<strong>temporal locality</strong>。</p>
+<h2 id="19-3-Who-Handles-The-TLB-Miss"><a href="#19-3-Who-Handles-The-TLB-Miss" class="headerlink" title="19.3 Who Handles The TLB Miss?"></a>19.3 Who Handles The TLB Miss?</h2><ul>
+<li>谁来处理TLB miss？答案有两个：硬件或者OS。</li>
+</ul>
+<p>早期，硬件有着complex instruction sets （<strong>CISC</strong>，complex-instruction set computers），因此由硬件来处miss。硬件通过page table register记住page table的位置，当miss时，从page table中找到PTE再找到PFN。</p>
+<p>现代系统一般使用<strong>RISC</strong>（reduced-instruction set computers），由软件管理TLB，也就是OS。当miss时，OS raises an exception，切换到kernel mode然后jump 到 trap handler，对应的handler里有处理miss的代码，运行这段代码，就会从page table中找到对应地址，使用特权指令更新TLB，然后return from trap ，之后硬件再retry 指令。</p>
+<ul>
+<li>现在我们再来看亿点点细节：</li>
+</ul>
+<p>第一，这里的return from trap和普通的return from trap指令不太一样。普通的return from trap指令return后是到陷入trap的后面的代码，继续往下执行；而处理TLB miss的return from trap指令return后是return到这条指令开头，需要retry这条指令。<br>第二，在运行TLB miss handler代码时，在这段代码内要避免造成TLB miss，不然就会一直循环TLB miss。</p>
+<ul>
+<li>软件管理TLB的一个好处就是比较灵活，可以使用任意数据结构来实现page table；另一个好处就是简单。</li>
+</ul>
+<h2 id="19-4-TLB-Contents-What’s-In-There"><a href="#19-4-TLB-Contents-What’s-In-There" class="headerlink" title="19.4 TLB Contents: What’s In There?"></a>19.4 TLB Contents: What’s In There?</h2><ul>
+<li>典型的TLB可能包含32、64或128个元素。每个元素长这样：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220413110858.png" style="zoom:80%;" /></p>
+<p>可以看到和PTE很像，但是other bits又有所不同。</p>
+<p><strong>valid</strong> bit：表明这个元素的是否有效。</p>
+<p><strong>protection</strong> bit：表明这个page能被怎样访问。比如读写、读执行等。</p>
+<p>等等</p>
+<h2 id="19-5-TLB-Issue-Context-Switches"><a href="#19-5-TLB-Issue-Context-Switches" class="headerlink" title="19.5 TLB Issue: Context Switches"></a>19.5 TLB Issue: Context Switches</h2><ul>
+<li>注意，可能多个进程的PN to PFN信息同时存储在TLB中，对这种情况如何控制？</li>
+</ul>
+<p>举个栗子，进程P1正在运行，TLB中保存了P1的VPN10 to PFN 100。进程P2退出了，但是一会可能要切换到P2，TLB中保存了P2的VPN10 toPFN 170：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220413134208.png" style="zoom:80%;" /></p>
+<p>问题来了，当context switch的时候，如何保证TLB中上一个进程的信息对于即将要运行的进程来讲是无效的呢？硬件和OS又需要做什么来达到上述目的呢？</p>
+<ul>
+<li>有很多种做法</li>
+</ul>
+<p>一种做法是当context switch的时候就刷新TLB，因此对于下一个进程来讲TLB是空的。可以简单的把valid设置为0。但是这种做法在频繁切换进程时性能较差。</p>
+<p>为了解决上述问题，可以通过硬件的支持来让不同的进程之间共享TLB。可以在TLB中加上<strong>ASID</strong>（address space identifier）字段用于表明当前这个翻译是给哪个进程用的，举个栗子：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220413135613.png" style="zoom:80%;" /></p>
+<p>这样在context switch的时候就不需要清空TLB了。当然存在两个进程共享page frame的情况：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220413135743.png" style="zoom:80%;" /></p>
+<h2 id="19-6-Issue-Replacement-Policy"><a href="#19-6-Issue-Replacement-Policy" class="headerlink" title="19.6 Issue: Replacement Policy"></a>19.6 Issue: Replacement Policy</h2><ul>
+<li>对于所有缓存来说，都存在一个共性问题：<strong>cache replacement</strong>。当缓存满了的时候，如何选择一个来替换？问题来了：在TLB满了的时候，如何选择一个entry来替换？当然目标是尽可能减少miss rate。</li>
+<li>最常见的做法是<strong>least-recently-used LRU</strong>，还有<strong>random</strong>，各有优劣。</li>
+</ul>
+<h2 id="19-7-A-Real-TLB-Entry"><a href="#19-7-A-Real-TLB-Entry" class="headerlink" title="19.7 A Real TLB Entry"></a>19.7 A Real TLB Entry</h2><ul>
+<li>MIPS R4000的TLB entry如图</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220413140230.png" style="zoom:80%;" /></p>
+<p>32位地址空间，每个page4KB，因此VPN20位，12位offset。但是在图中VPN只有19位，用户的地址空间最多用到一半？（好像是这个意思，原文：user addresses will only come from half the address space (the rest reserved for the kernel)）。物理内存64GB，因此PFN24位。</p>
+<p>global bit（G）：表明该page对于进程是否全局共享，如果是那么就忽略ASID位。</p>
+<p>ASID：8位，用于区分不同进程。</p>
+<p>Coherence：3位，用于表明硬件是通过何种方式缓存一个page的。</p>
+<p>dirty：表明page是否被修改过。</p>
+<p>还有一些没有用到。</p>
+<h2 id="19-8-Summary"><a href="#19-8-Summary" class="headerlink" title="19.8 Summary"></a>19.8 Summary</h2><ul>
+<li>TLB用于缓存page table记录的翻译。</li>
+<li>但还是存在问题，比如短时间内大量进程切换，导致TLB中缓存的page不够了，那么还是会有很多的TLB miss，超过了TLB coverage，下一章讨论解决方法。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Virtualization</category>
+        <category>Memory</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Virtualization</tag>
+        <tag>Memory</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>16. Segmentation</title>
+    <url>/2022/10/27/16-Segmentation/</url>
+    <content><![CDATA[<h1 id="16-Segmentation"><a href="#16-Segmentation" class="headerlink" title="16. Segmentation"></a>16. Segmentation</h1><ul>
+<li>接上一节的问题，当我们把地址空间放到物理内存中的时候，stack和heap中会出现内部碎片，存在空间浪费。再如下图：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220407135018.png" style="zoom:80%;" /></p>
+<ul>
+<li><p>因此，简单地使用一对base and bounds寄存器的方法是不行滴。要解决的问题：面对一个很大的地址空间，中间有内部碎片，如何放到物理内存中去？上图只是16KB，想象下假如是4GB呢？</p>
+<span id="more"></span>
+<h2 id="16-1-Segmentation-Generalized-Base-Bounds"><a href="#16-1-Segmentation-Generalized-Base-Bounds" class="headerlink" title="16.1 Segmentation: Generalized Base/Bounds"></a>16.1 Segmentation: Generalized Base/Bounds</h2></li>
+<li><p>为了解决上述问题，采用的方法是<strong>Segmentation</strong>。很简单，之前的方法中，MMU有一对base and bound寄存器，那么为什么不这样做呢，给地址空间中的每一个逻辑<strong>segment</strong>设置一对base and bound寄存器。一个<strong>segment</strong>是地址空间中有着特定长度的某个连续片段。在典型的地址空间中，有三个逻辑segment：code、stack、heap。那么segmentation做的事情就是把每个segment放在物理内存中的不同地方，这样就避免了物理内存中存在没有使用的虚拟地址空间。</p>
+</li>
+<li>也就是说不再以整个地址空间为单位放到物理内存中去，而是以segment为单位放到物理内存中去。</li>
+<li>举个栗子，将上述地址空间放到64KB的物理内存中去：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220407140100.png" style="zoom: 80%;" /></p>
+<ul>
+<li>从硬件方面来说，要设置三对base and bound寄存器：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220407140608.png" style="zoom:80%;" /></p>
+<ul>
+<li>问题来了，在这种情况下，如何做translation呢？</li>
+</ul>
+<p>假设现在要访问虚拟地址100。可以看到，在原地址空间中，100这个虚拟地址属于code这个segment，因此在做translation的时候就要使用code的base and bounds寄存器的值，那么实际物理内存地址就是：100+32K（32768）=32868，并且根据bound寄存器中2K的值来检查，100&lt;2K合法。</p>
+<p>假设现在要访问的虚拟地址是4200。可以看到在原地址空间中这个地址属于heap这个segment，但是如果我们直接4200+34K得到的物理内存地址是不对的。因为对于34K这个base来说，4200并不是真的offset，真正的offset是4200-4K（4096）=104（&lt;3K合法），也就是说减去heap这个segment在虚拟地址空间中的起始地址。物理内存地址：104+34K=34920。</p>
+<ul>
+<li>如果我们试图访问非法的地址，比如说虚拟地址7KB或者更大，该怎么办？这时候硬件就应该检测出地址非法然后终止进程。在C语言中就报错：<strong>the segmentation violation</strong> or <strong>segmentation fault</strong>。</li>
+</ul>
+<h2 id="16-2-Which-Segment-Are-We-Referring-To"><a href="#16-2-Which-Segment-Are-We-Referring-To" class="headerlink" title="16.2 Which Segment Are We Referring To?"></a>16.2 Which Segment Are We Referring To?</h2><ul>
+<li>问题来了，一个地址空间有多对base and bounds寄存器，我们怎么知道一个虚拟地址相对base的offset，怎么知道该用哪一个base寄存器？</li>
+<li>第一种做法是一种<strong>explicit</strong>的做法。根据虚拟地址的头几位来将地址空间分成若干个segment。</li>
+</ul>
+<p>还是以上述那个地址空间，地址空间是16KB，按字节寻址，那么也就是说地址空间一共有16K，一共是4+10=14位。我们用头两位来选择segment：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220407144427.png" style="zoom:80%;" /></p>
+<p>如果头两位是00，那么虚拟地址就是属于code这个segment的；如果头两位是01，那么虚拟地址就是属于heap这个segment的。还以虚拟地址4200为例，二进制表示如下：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220407144624.png" style="zoom:80%;" /></p>
+<p>可以看到根据头两位01确定属于heap，剩下的就是offset 0000 0110 1000，也就是之前我们计算得到的104。ok，现在就可以用heap的base和bound寄存器来计算物理地址了。</p>
+<p>这时候聪明的你就问了，头两位一共可以表示4个segment，我们只有三个，那岂不是有一个没用？</p>
+<p>为了充分利用虚拟地址空间，有时候会把code和heap放在同一个segment中，这样就就只用一位来判断属于哪个segment了。</p>
+<p>这种做法还有一个问题，那就是限制了虚拟地址空间的使用。在这种情况下，每个segment的最大值是4KB，那如果一个程序希望扩大其segment，比如stack或者heap，超过最大值就不行了。</p>
+<ul>
+<li>还有一种做法也可以帮助硬件决定选择哪一个segment，这种做法是<strong>implicit</strong>的。对于一个虚拟地址，硬件判断这个虚拟地址是如何形成的，根据形成方式来判断是哪一个segment的。比如，如果这个虚拟地址是PC形成的，那么一定属于code这个segment；如果这个地址是来自stack或者base指针，那么属于stack这个segment；那其余的就是heap的了。</li>
+</ul>
+<h2 id="16-3-What-About-The-Stack"><a href="#16-3-What-About-The-Stack" class="headerlink" title="16.3 What About The Stack?"></a>16.3 What About The Stack?</h2><ul>
+<li>别把stack忘了，之前一直没说它，因为它有点不一样：stack是向下增长的。那么如何计算stack的物理内存地址？</li>
+<li>首先，我们需要硬件的帮助。硬件除了要知道base和bound，还要知道地址空间是向上增长还是向下增长的。所以用额外的1位来表示：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220407154601.png" style="zoom:80%;" /></p>
+<ul>
+<li>举个栗子：</li>
+</ul>
+<p>假设虚拟地址是15KB，映射到物理地址应该是27KB。虚拟地址的二进制：11 1100 0000 0000，硬件根据头两位的11来判断是stack这个segment，那么剩下的1100 0000 0000也就是3K是offset，为了得到正确的负offset，必须用3K-4K=-1K，这样28K+（-1K）=27K。offset的绝对值不能超过bound寄存器中的值。</p>
+<h2 id="16-4-Support-for-Sharing"><a href="#16-4-Support-for-Sharing" class="headerlink" title="16.4 Support for Sharing"></a>16.4 Support for Sharing</h2><ul>
+<li>为了节省内存，不同地址空间有时共享特定内存中的segment。这就需要硬件的帮助，设置一个<strong>protection bits</strong>。给每一个segment加一个保护位，用来代表该segment是否可以被一个程序读写或者是执行该segment中的代码。当一个segment是read-only时，多个进程可以共享，也不用担心隔离的问题，并且好像是每个进程独享的一样。</li>
+<li>举个栗子：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220407162556.png" style="zoom:80%;" /></p>
+<p>这样，code这个segment就可以和多个地址空间进行映射。</p>
+<h2 id="16-5-Fine-grained-vs-Coarse-grained-Segmentation"><a href="#16-5-Fine-grained-vs-Coarse-grained-Segmentation" class="headerlink" title="16.5 Fine-grained vs. Coarse-grained Segmentation"></a>16.5 Fine-grained vs. Coarse-grained Segmentation</h2><ul>
+<li>Coarse-grained Segmentation把一个地址空间分成少的segment</li>
+<li>Fine-grained Segmentation把一个地址空间分成多的segment</li>
+</ul>
+<h2 id="16-6-OS-Support"><a href="#16-6-OS-Support" class="headerlink" title="16.6 OS Support"></a>16.6 OS Support</h2><ul>
+<li>OS不能偷懒，也要提供帮助。</li>
+<li>第一，OS如何做context switch？<ul>
+<li>保存并恢复segment的寄存器。</li>
+</ul>
+</li>
+<li>第二，当一个segment要扩大或收缩时，OS该怎么做？<ul>
+<li>比如malloc()分配内存时，OS要检查有没有足够的内存，并且更新segment的寄存器。</li>
+</ul>
+</li>
+<li>第三，最重要的，OS如何管理物理内存中的空闲区域？</li>
+</ul>
+<p>当物理内存中存在片段时，但是该片段又不够大不能够使用，就是外部碎片。比如下图左边中间小片段：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220407163357.png" style="zoom:80%;" /></p>
+<p>一种做法是，定期整理segment，使其变成右边的样子。但是这种做法时间开销太大。</p>
+<p>还有种简单的做法，使用free-list管理算法来保证内存分配的最大使用率。比如best-fit，worst-fit，first-fit等等。但是不管采用什么算法，外部碎片总会存在，我们能做的就是减少之。</p>
+<h2 id="16-7-Summary"><a href="#16-7-Summary" class="headerlink" title="16.7 Summary"></a>16.7 Summary</h2><ul>
+<li>Segmentation的方发解决了内部碎片，并且可以code sharing。</li>
+<li>但是同时带来了新的问题，外部碎片，可以用compact或者算法来解决，但是根本问题没解决。</li>
+<li>还有一个，segmentation对于稀疏地址空间来说还不够灵活。举个栗子，一个较大的地址空间一直放在内存中，但是很少使用，怎么办？</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Virtualization</category>
+        <category>Memory</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Virtualization</tag>
+        <tag>Memory</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>21. Beyond Physical Memory: Mechanisms</title>
+    <url>/2022/10/27/21-Beyond-Physical-Memory-Mechanisms/</url>
+    <content><![CDATA[<h1 id="21-Beyond-Physical-Memory-Mechanisms"><a href="#21-Beyond-Physical-Memory-Mechanisms" class="headerlink" title="21. Beyond Physical Memory: Mechanisms"></a>21. Beyond Physical Memory: Mechanisms</h1><ul>
+<li>目前为止，我们一直假设page是全部保存在内存中的。但是，由于内存有限的原因，再加上可能运行的进程数很多导致有许多page，实际上内存往往还保存在 <strong>hard disk</strong>中。那么问题来了，OS如何通过像hard disk之类的低速设备，来提供一个很大的地址空间的假象？</li>
+</ul>
+<span id="more"></span>
+<h2 id="21-1-Swap-Space"><a href="#21-1-Swap-Space" class="headerlink" title="21.1 Swap Space"></a>21.1 Swap Space</h2><ul>
+<li>首先要做的事情就是在磁盘上找到一块空间用于保存page，这块空间叫做<strong>swap space</strong>。那么如何知道一个page保存在磁盘上的什么位置呢？因此OS需要记住一个page的<strong>disk address</strong>。</li>
+<li>假设swap space足够大，举个栗子：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220420093804.png" style="zoom:80%;" /></p>
+<p>当一个进程的page需要运行时，如果在disk上找到，那么先要从disk移到内存中。</p>
+<h2 id="21-2-The-Present-Bit"><a href="#21-2-The-Present-Bit" class="headerlink" title="21.2 The Present Bit"></a>21.2 The Present Bit</h2><ul>
+<li>对于保存在disk上的page，一定要有一些机制要管理。假设我们采用硬件管理的TLB：</li>
+</ul>
+<p>回忆一下内存访问时发生了什么。运行的进程给出要访问的虚拟地址，然后硬件将虚拟地址翻译为物理地址。首先从虚拟地址中拿到VPN，接着从TLB中查看是否hit，如果hit直接返回PFN。如果miss，需从page table base register中拿到page table 的物理起始地址，然后使用VPN计算出对应的PTE的物理地址，读取PTE内容，得到PFN。最后和虚拟地址的offset拼在一起得到物理地址。</p>
+<p>ok，现在如果page可能保存在disk上要怎么办？那么就要在page table中保存额外的信息了。具体是在每一个PTE中设置<strong>present bit</strong>，用来表明当前page是否在内存中。如果不在内存中，那么对于该page的访问就会造成<strong>page fault</strong>。接着就交给<strong>page-fault handler</strong>处理。</p>
+<h2 id="21-3-The-Page-Fault"><a href="#21-3-The-Page-Fault" class="headerlink" title="21.3 The Page Fault"></a>21.3 The Page Fault</h2><ul>
+<li>对于TLB miss，可以通过硬件处理或者软件处理；但是对于page fault，直接交给软件处理，哪怕TLB miss是被硬件处理的。如果page不在内存中，OS就会把在disk中的page交换到内存中来，那么问题来了，OS如何知道该page放在哪里呢？实际上还是用page table来保存该信息。当page不在内存中时，可以采用该PTE的PFN为来保存disk address。</li>
+<li>当disk I/O完成后，也就是该page被交换到内存中后，OS就会更新page table将其标记为存在，然后更新PTE的PFN，最后retry指令。retry之后可能还会TLB miss，这就和之前一样了，会从page table中拿到PFN，更新TLB，再retry，最后从TLB中取到PFN。</li>
+<li>注意，当执行I/O操作时，该线程会被blocked，因此会运行其他进程。</li>
+</ul>
+<h2 id="21-4-What-If-Memory-Is-Full"><a href="#21-4-What-If-Memory-Is-Full" class="headerlink" title="21.4 What If Memory Is Full?"></a>21.4 What If Memory Is Full?</h2><ul>
+<li>如题，内存满了咋办？随着不断的把page放入内存，内存总会满的。这时，如果再想把page放入满的内存中会发生什么呢？首先，OS会把内存中的某些page移到disk上，然后再把需要使用的page放入内存。这个过程就不可避免地需要一种策略来决定当内存满时，选择哪一个page移出内存，<strong>page-replacement policy</strong>。具体策略会在之后介绍，这里我们先记得有这么个从策略。</li>
+</ul>
+<h2 id="21-5-Page-Fault-Control-Flow"><a href="#21-5-Page-Fault-Control-Flow" class="headerlink" title="21.5 Page Fault Control Flow"></a>21.5 Page Fault Control Flow</h2><p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220420103216.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220420103244.png" style="zoom:80%;" /></p>
+<h2 id="21-6-When-Replacements-Really-Occur"><a href="#21-6-When-Replacements-Really-Occur" class="headerlink" title="21.6 When Replacements Really Occur"></a>21.6 When Replacements Really Occur</h2><ul>
+<li>实际上，OS并不会等到内存完全满了 ，再去把一些page移出内存。正所谓未雨绸缪，OS总会保留内存的一部分是可用的。因此有两个概念：<strong>high watermark(HW)</strong>和<strong>low watermark(LW)</strong>，其中LW代表，当内存中可用page数低于LW时，后台负责释放内存的进程运行，知道内存中有HW的page数可用。这个后台进程一般叫做<strong>swap daemon</strong>或者<strong>page daemon</strong>。</li>
+<li>有了这个后台进程，图21.3的控制流程需要稍微修改。不再直接执行替换操作，也就是DiskRead，先检查是否有可用的page位置。如果没有，就会启动后台进程来清理内存。当有page位置可用时，就会唤醒原进程继续工作。</li>
+</ul>
+<h2 id="21-7-Summary"><a href="#21-7-Summary" class="headerlink" title="21.7 Summary"></a>21.7 Summary</h2><ul>
+<li>采用 <strong>present bit</strong>来判断page是否保存在内存中；使用<strong>page-fault handler</strong>来处理<strong>page-fault</strong> ，也就是page不在内存中的情况。</li>
+<li>所有的这些操作对于进程来说都是透明的。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Virtualization</category>
+        <category>Memory</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Virtualization</tag>
+        <tag>Memory</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>20. Paging: Smaller Tables</title>
+    <url>/2022/10/27/20-Paging-Smaller-Tables/</url>
+    <content><![CDATA[<h1 id="20-Paging-Smaller-Tables"><a href="#20-Paging-Smaller-Tables" class="headerlink" title="20. Paging: Smaller Tables"></a>20. Paging: Smaller Tables</h1><ul>
+<li>继续之前的问题，page table可能过大，上一节采用了TLB缓存的方法，这一节来看看不同的方法。问题来了，如何让page table 变小呢？有哪些方法？这些方法又会带来哪些问题？</li>
+</ul>
+<span id="more"></span>
+<h2 id="20-1-Simple-Solution-Bigger-Pages"><a href="#20-1-Simple-Solution-Bigger-Pages" class="headerlink" title="20.1 Simple Solution: Bigger Pages"></a>20.1 Simple Solution: Bigger Pages</h2><ul>
+<li>如题，当使用更大的page时，那么page数就会变少，自然page table就会变小。</li>
+</ul>
+<p>假设地址空间32位，page大小4KB，page-table entry大小4B，那么page table大小就是<script type="math/tex">\frac{2^{32}}{2^{12}}*4B=4MB</script>。</p>
+<p>现在将page大小变为16KB，那么page table大小就是 <script type="math/tex">\frac{2^{32}}{2^{14}}*4B=1MB</script>。可以看到page table大小变为原来的四分之一。</p>
+<p>但是这种方法同样存在着问题，page越大，那么page内出现内部碎片的可能性就越大。因此大部分系统使用的还是相对较小的page，比如4KB (as in x86) or 8KB (as in SPARCv9)。</p>
+<h2 id="20-2-Hybrid-Approach-Paging-and-Segments"><a href="#20-2-Hybrid-Approach-Paging-and-Segments" class="headerlink" title="20.2 Hybrid Approach: Paging and Segments"></a>20.2 Hybrid Approach: Paging and Segments</h2><ul>
+<li>平衡之道，采用将paging和segmentation相结合的方法来减小page table的大小。</li>
+</ul>
+<p>举个栗子，地址空间16KB，page1KB，因此共有16个page，page和page frame的映射关系如下：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220418103928.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220418104038.png" style="zoom:80%;" /></p>
+<p>从上图可以看到，虽然大量的page没有使用，但是依旧保存在page table中（将valid位设为0）。也就是说page table中其实保存了大量无用信息，假如地址空间再大一点，可以想象保存的无用信息可能会更多。所以为什么不采用segmentation的思想只保存valid的信息呢？</p>
+<p>我们的平衡之道是：与其给每个进程设置一张page table保存所有page映射关系，不如给每个地址空间的segment设置一张page table。segmentation可以保存变长的信息，因此可以使用segmentation的方法保存变长的page table，这就是我们将segmentation和paging结合的平衡之道。</p>
+<p>在这个栗子里，我们将设置三张page table，因为有三个逻辑segment：code、stack、heap。回忆一下segmentation方法，给每个进程的逻辑segment设置一对base and bound寄存器，其中base寄存器保存地址空间在物理内存的起始位置，bound保存了地址空间的边界。那么在我们的平衡之道中仍将采用base and bound的方法，只不过，这里的base保存的是每个page table在物理内存中的起始地址，bound保存的是page table的边界（也就是其中保存了多少个valid的page）。</p>
+<p>假设32位地址空间，page大小4KB，地址空间被分为四个segment。使用其中的三个segment：code、heap、stack。对于32位地址，使用最高两位来判断当前地址指向的是哪个segment，00代表未使用，01代表code，10代表heap，11代表stack。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220418110330.png" style="zoom:80%;" /></p>
+<p>当TLB miss的时候，硬件使用segment bit(SN)来决定使用哪一对base and bound寄存器；然后通过VPN去base指向的page table中寻找对应PTE：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220418111748.png" style="zoom:80%;" /></p>
+<p>注意，bound寄存器中保存的是当前segment中有效的page值。假设，code segemnt只使用了前三个page，那么对用的page table会有三个PTE对应保存VPN0、1、2。无效的信息没有保存，因此page table的大小就减小了。</p>
+<p>当然了，这种做饭并非完美。第一，还是要使用segmentation的思想，就像之前提到的，这种思想不够灵活，因为它定好了地址空间的使用模式；第二，segmentation总是会导致外部碎片。因此我们还需要更好的方式来解决page table过大的问题。</p>
+<h2 id="20-3-Multi-level-Page-Tables"><a href="#20-3-Multi-level-Page-Tables" class="headerlink" title="20.3 Multi-level Page Tables"></a>20.3 Multi-level Page Tables</h2><ul>
+<li>重量级方法来了，<strong>multi-level page table</strong>，多级页表，还是那句话，在计算机里，没有什么是加一层解决不了的，如果有，就再加一层。用一句话概括多级页表就是，保存page table的page table，即套娃。</li>
+</ul>
+<p>本来想细节解释一番如何做成多级页表，但是文字功底有限，不如直接看图，一图胜千言。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220418140228.png" style="zoom:80%;" /></p>
+<p>简单解释一下吧。</p>
+<p>可以看到，最左边就是我们原本的page table，中间是我们采用的新的数据结构page directory（本质上和page table是类似的，也就是page table的page table）。</p>
+<p>如果仅仅使用page table不使用多级页表，那么就需要将左边的整个page table都保存在内存中。而在多级页表中，将page table分成若干个unit，每个unit是一个page的大小；既然将整个page table分成这么多unit了，也就意味着我们不需要把原本的page table<strong>连续</strong>的存放在内存中了，理论上我们可以将每一个uint放在内存的不同位置。既然都分开放了，那么page table中那些空的位置就不用实际上放在内存中了呀，可以只将使用过的那些位置保存在内存中。</p>
+<p>那么问题就来了，对于原本<strong>连续</strong>存放在内存中的page table，我们只需要一个page table 寄存器就可以知道它的起始位置；但是当这个page table<strong>分散</strong>地存在内存中，我们如何知道他们保存在什么位置呢？</p>
+<p>ok，终于来到了<strong>page directory</strong>。上面那个问题的答案就是page directory，其中保存了page table的每个unit实际保存在内存的什么位置。有了page dir，对于上图而言，可以看到原本的page table被分成了四个unit，但是实际上只有一头一尾两个unit是保存在内存中的，中间的并没有保存，从而达到节省空间的目的。</p>
+<p>page directory中每个元素叫做page directory entry（PDE），其中包含了valid和PFN，valid表示是当前PDE对应的page是否有效，PFN代表了对应的page的物理块号。</p>
+<p>综上所述，多级页表只不过是套娃而已，本来page table就是把地址空间分成page，将每个page离散地存在内存中；现在又把page table分成page，再离散地存在内存中，仅此而已。</p>
+<ul>
+<li>说了这么多，来举个栗子吧：</li>
+</ul>
+<p>地址空间16KB，page大小64B，因此虚拟地址14位，其中8位VPN，6位offset。如下图，白色代表使用了，灰色代表没有使用：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220418144640.png" style="zoom:80%;" /></p>
+<p>那么对于page table，一共有<script type="math/tex">2^8</script>个entry，整个page table大小位<script type="math/tex">2^8*4B=1KB</script>。</p>
+<p>现在来看看多级页表怎么个情况。由于每个page是64B，那么可以将page table分成<script type="math/tex">\frac{1KB}{64B}=16</script>个page，每个page中保存了16个（<script type="math/tex">\frac{2^8}{16}=16</script>）个PTE。在page dir中，每page dir entry对应page table中的一个unit（也就是一个page 大小的 PTE），也就是page dir中有16个PDE。因此对于一个虚拟地址，我们需要用VPN的最高四位来代表在page dir中的index：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220418154014.png" style="zoom:80%;" /></p>
+<p>一旦我们得到了page dir index，就可以计算出对应PDE的物理地址：</p>
+<p>PDEAddr = PageDirBase + (PDIndex * sizeof(PDE))</p>
+<p>有了PDE地址，就可以访问其中的内容，也就是保存的page table中的page的物理地址。如果ODE标记为无效，那么访问就是无效的会抛出异常。如果是有效的，那么我们就需要再从虚拟地址中VPN的剩下位中得到在page table中的某个page的page table entry的下标：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220418155036.png" style="zoom:80%;" /></p>
+<p>有了page table entry的下标就可以计算出对应的物理地址：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220418155611.png" style="zoom:80%;" /></p>
+<p>那么就可以访问对应PTE中的内容，也就是记录的地址空间中的page对应的物理块号PFN，于是就可以将虚拟地址翻译为物理地址了，至此目的应该就达成了。</p>
+<ul>
+<li>什么？还是觉得抽象？来看个实际的栗子吧：</li>
+</ul>
+<p>对于上述栗子，page dir的图长这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220418160618.png" style="zoom:80%;" /></p>
+<p>实际上，没有多级页表时，我们需要把整个page table保存在内存中，但是有了多级页表，就只要保存page table中的两个page大小的PTE，再加上page dir（一个page大小），总共加起来只需要三个page的内存。</p>
+<p>考虑这个虚拟 VPN 254 ：11 1111 1000 0000。用前四位来表示page dir 的index，也就是1111 ，十进制就是15，page dir的最后一个entry：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220418161230.png" style="zoom:80%;" /></p>
+<p>根据这里保存的信息，我们就找到了对应page table的page的PFN：<strong>101</strong>。</p>
+<p>接着我们用后面的四位 1110来得到page table中的page里面的index，也就是十进制<strong>14</strong>（倒数第二个），也就是地址空间的下标254的page table entry：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220418161622.png" style="zoom:80%;" /></p>
+<p>假设这个entry中保存的PFN为55，这样就计算出page实际的物理地址：</p>
+<p>PhysAddr = (PTE.PFN &lt;&lt; SHIFT) + offset = 00 1101 1100 0000 = 0x0DC0。</p>
+<ul>
+<li>虽然实际上流程不是很复杂，但是说起来真的好麻烦（不想再来一遍了）。</li>
+<li>wc，等等怎么还有超过两级的多级页表？？？不想再说了，其实实际原理都是一样的，只不过又加了一层，需要多翻译一次而已：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220418162606.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220418162656.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220418162718.png" style="zoom:80%;" /></p>
+<p>实际上超过两级的页表还是很有必要的，因为有可能page dir过大保存在内存中还是很占内存，所以需要对page dir在分页，也就是大于两级的多级页表。</p>
+<ul>
+<li>可能还有一些更节省空间的方法，比如 Inverted Page Tables 或 Swapping the Page Tables to Disk，目前看不动了。所以，summary：</li>
+</ul>
+<h2 id="20-6-Summary"><a href="#20-6-Summary" class="headerlink" title="20.6 Summary"></a>20.6 Summary</h2><ul>
+<li>我们的目的就是节省内存空间，因此要想方法把page table变小，于是就有了多级页表，也就是page table的page table。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Virtualization</category>
+        <category>Memory</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Virtualization</tag>
+        <tag>Memory</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>22. Beyond Physical Memory: Policies</title>
+    <url>/2022/10/27/22-Beyond-Physical-Memory-Policies/</url>
+    <content><![CDATA[<h1 id="22-Beyond-Physical-Memory-Policies"><a href="#22-Beyond-Physical-Memory-Policies" class="headerlink" title="22. Beyond Physical Memory: Policies"></a>22. Beyond Physical Memory: Policies</h1><ul>
+<li>接着上一节的内容来学习replacement policy，问题：OS如何决定从内存中替换哪些page？<span id="more"></span>
+</li>
+</ul>
+<h2 id="22-1-Cache-Management"><a href="#22-1-Cache-Management" class="headerlink" title="22.1 Cache Management"></a>22.1 Cache Management</h2><ul>
+<li>内存中保存了所有page的一部分，因此内存可以看作虚拟内存page的<strong>cache</strong>。因此在做replacement的时候的目标就是降低<strong>cache misses</strong>或者提高<strong>cache hits</strong>。</li>
+<li>有了cache misses和cache hits就可以计算<strong>average memory access time (AMAT)</strong>，<script type="math/tex">AMAT=T_{M}+(P_{Miss}*T_{D})</script>，其中<script type="math/tex">T_{M}</script>内存访问时间，<script type="math/tex">T_{D}</script>代表磁盘访问时间，<script type="math/tex">P_{Miss}</script>代表一次miss的概率。</li>
+<li>由于<script type="math/tex">T_D</script>通常比<script type="math/tex">T_M</script>大非常多，因此要尽可能地减少访问磁盘的时间，也就是降低<script type="math/tex">P_{Miss}</script>。</li>
+</ul>
+<h2 id="22-2-The-Optimal-Replacement-Policy"><a href="#22-2-The-Optimal-Replacement-Policy" class="headerlink" title="22.2 The Optimal Replacement Policy"></a>22.2 The Optimal Replacement Policy</h2><ul>
+<li>Belady提出的MIN可能是最好的替换策略（但是非常难实现），思路是每次替换都替换在将来，离现在时间最远处会被访问的page。</li>
+</ul>
+<p>举个栗子来看看，假设程序需要依次访问如下page： 0, 1, 2, 0, 1, 3, 0, 3, 1, 2, 1，并且内存最多只能加载进三个page，采用上述方法是会发生这种情况：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424093204.png" style="zoom:80%;" /></p>
+<p>可以看到前三次访问都是miss，这是正常的，因为刚开始所有的page都还没有被加载进内存，这种现象称为<strong>cold-start miss</strong>或者<strong>compulsory miss</strong>。在首次访问page 3时发生miss，这时看一下访问page的顺序，发现page是最远才会访问到的（在倒数第二位），因此替换page 2装入page 3。</p>
+<p>在倒数第二次访问page 2时又发生miss，根据这个策略，选择page 0或者page 3是一样的。</p>
+<p>可以计算这种方法的命中率为<script type="math/tex">\frac{Hits}{Hits+Misses}=\frac{6}{6+5}=54.5\%</script>，如果不算前三次compulsory miss的话，命中率可以达到85.7%。</p>
+<ul>
+<li>这种方法可以有效提高命中率，但是通常情况下，未来是未知的，一般不知道程序要访问的page顺序，因此这种方法只能作为理想情况，用于和其他策略进行对比。</li>
+</ul>
+<h2 id="22-3-A-Simple-Policy-FIFO"><a href="#22-3-A-Simple-Policy-FIFO" class="headerlink" title="22.3 A Simple Policy: FIFO"></a>22.3 A Simple Policy: FIFO</h2><ul>
+<li>这种策略比较简单，先进先出，<strong>FIFO</strong> (first-in, first-out) 。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424094011.png" style="zoom:80%;" /></p>
+<p>可以计算出命中率为36.4%，不算compulsory miss的话是57.1%。</p>
+<p>FIFO的特点就在于比较简单容易实现，但是问题在于性能较差，很有可能会替换出即将要访问的page。这种现象也叫做<strong>Belady’s Anomaly</strong>。</p>
+<h2 id="22-4-Another-Simple-Policy-Random"><a href="#22-4-Another-Simple-Policy-Random" class="headerlink" title="22.4 Another Simple Policy: Random"></a>22.4 Another Simple Policy: <strong>Random</strong></h2><ul>
+<li>这种策略更简单，每次替换是随机替换。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424094555.png" style="zoom:80%;" /></p>
+<p>重复进行10000次实验，可得到结果：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424094845.png" style="zoom:80%;" /></p>
+<h2 id="22-5-Using-History-LRU"><a href="#22-5-Using-History-LRU" class="headerlink" title="22.5 Using History: LRU"></a>22.5 Using History: LRU</h2><ul>
+<li>FIFO和Random存在的问题就是它们很可能会替换出一些重要的page，也就是可能即将要访问的page。以史为鉴，可知兴替，因此我们必须要考虑history。比如，如果程序在不久前刚访问了一个page，那么很有可能在不远的将来还会继续访问这个page。有两种历史信息可以用来做参考：</li>
+</ul>
+<p>第一是frequency，如果一个page在过去多次被访问到，那么在做替换时也许就不该考虑这个page；</p>
+<p>第二是recency，如果一个page刚刚才被访问到，那么也不应该考虑替换这个page。</p>
+<ul>
+<li>因此就有两种策略可以使用了：</li>
+</ul>
+<p><strong>Least-Frequently-Used (LFU)</strong>：淘汰一段时间内，使用次数最少的page。</p>
+<p><strong>Least-Recently-Used (LRU)</strong> ：淘汰最长时间没有被使用的page。</p>
+<p>以LRU为例，康康效果：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424100404.png" style="zoom:80%;" /></p>
+<p>首次访问page 3时miss，往前看，page 0和page 1都是最近被访问到的，因此选择page 2做替换。</p>
+<p>同理倒数第二行访问page 2时miss，往前看，page 1和page 3都是最近访问到的，因此选择page 0做替换。</p>
+<h2 id="22-7-Implementing-Historical-Algorithms"><a href="#22-7-Implementing-Historical-Algorithms" class="headerlink" title="22.7 Implementing Historical Algorithms"></a>22.7 Implementing Historical Algorithms</h2><ul>
+<li>要想实现LRU是需要硬件的帮助的，硬件需要记录每一个page的上次访问时间，这样在做page替换的时候，就可以扫描page的访问时间，找到最近没有被访问的page。</li>
+<li>但是这么做的开销也是很大的，假设内存4GB，page 4KB，也就是说有一百万个page，那么就需要对这么多的page进行扫描。问题来了，有没有一种方法可以减少开销但是性能和LRU差不多呢？</li>
+</ul>
+<h2 id="22-8-Approximating-LRU"><a href="#22-8-Approximating-LRU" class="headerlink" title="22.8 Approximating LRU"></a>22.8 Approximating LRU</h2><ul>
+<li>上述问题的答案是肯定的，可以采用Approximating LRU。思想是，通过硬件的支持，加一个<strong>use bit</strong>（或者叫<strong>reference bit</strong>），每个page都有一个use bit，use bit保存在内存中。当一个page被访问时，硬件就将其use bit设为1，但是硬件从不将use bit设为0，因为那是OS需要做的事情。</li>
+<li>如何利用这个use bit来实现Approximating LRU呢？下面介绍<strong>clock algorithm</strong> ：</li>
+</ul>
+<p>假设所有page的信息都以循环列表的形式记录，算法开始时，clock hand指向某一个page。当发生page替换时，检查clock hand指向的page，如果该page的use bit为1，那么将该page的use bit设为0，并且将clock hand向后移动一位；如果该page的use bit为0，那么就是用该page作为替换出去的page。</p>
+<ul>
+<li>尽管时钟算法的性能比不了LRU，但是肯定比考虑所有page的上次访问时间要快，并且性能比完全不考虑过去的傻子算法要好。</li>
+</ul>
+<h2 id="22-9-Considering-Dirty-Pages"><a href="#22-9-Considering-Dirty-Pages" class="headerlink" title="22.9 Considering Dirty Pages"></a>22.9 Considering Dirty Pages</h2><ul>
+<li>对时钟算法还可以在做一点改进，那就是考虑page是否修改过。因为如果一个在内存中的page最近被修改过，那在将这个page替换出内存的时候，还需要将修改内容写入磁盘，那肯定是很耗时的；如果没有修改过的话，直接将这个page替换出内存就好了。因此，假设上次访问时间相同的两个page，应当优先考虑替换出没有被修改过的page。</li>
+<li>因此再加一位，<strong>modified bit</strong>（或者叫<strong>dirty bit</strong>）。</li>
+</ul>
+<p>时钟算法做相应调整，当发生page替换时，首先选择最近没有被访问并且没有被修改的，也就是use bit为0并且dirty bit为0；其次选择最近没有被访问过但是修改过的，也就是use bit为0并且dirty bit为1；如果use bit为1，那就设为0，向后移动clock hand。</p>
+<h2 id="22-12-Summary"><a href="#22-12-Summary" class="headerlink" title="22.12 Summary"></a>22.12 Summary</h2><ul>
+<li>本节学习了不同的page置换算法，现代OS有的选用时钟算法。</li>
+<li>不管采用多完美的算法，总是会发生cache miss，因此设计更好的算法还不如买一块更大的内存！</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Virtualization</category>
+        <category>Memory</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Virtualization</tag>
+        <tag>Memory</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>28. Locks</title>
+    <url>/2022/10/27/28-Locks/</url>
+    <content><![CDATA[<h1 id="28-Locks"><a href="#28-Locks" class="headerlink" title="28. Locks"></a>28. Locks</h1><ul>
+<li>并发中最基本的问题就是如何保证一段代码执行的原子性，这一章的<strong>lock</strong>就是用来解决这个问题的。<span id="more"></span>
+</li>
+</ul>
+<h2 id="28-1-Locks-The-Basic-Idea"><a href="#28-1-Locks-The-Basic-Idea" class="headerlink" title="28.1 Locks: The Basic Idea"></a>28.1 Locks: The Basic Idea</h2><ul>
+<li>对于更新共享变量的这段代码，也就是critical section：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220504134512.png" style="zoom:80%;" /></p>
+<p>使用lock后，代码长这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220504134557.png" style="zoom:80%;" /></p>
+<p>首先声明一个全局变量叫做mutex，这个变量中保存着这个lock当前时刻的状态，可用：<strong>available (or unlocked or free)</strong> 或不可用<strong>acquired (or locked or held)</strong>。接着在进入critical section之前先lock()，也就是申请占用mutex，如果当前mutex的状态为空闲，那就申请成功，进入critical section；这时如果有其他线程再调用lock()申请占有mutex，就会被阻塞，知道mutex被释放。最后在critical section结束后，占有mutex的线程调用unlock()对mutex进行释放。</p>
+<h2 id="28-2-Pthread-Locks"><a href="#28-2-Pthread-Locks" class="headerlink" title="28.2 Pthread Locks"></a>28.2 Pthread Locks</h2><ul>
+<li>POSIX库中使用mutex，给不同线程之间提供互斥  <strong>mutual exclusion</strong> 。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220504140629.png" style="zoom:80%;" /></p>
+<h2 id="28-3-Building-A-Lock"><a href="#28-3-Building-A-Lock" class="headerlink" title="28.3 Building A Lock"></a>28.3 Building A Lock</h2><ul>
+<li>上面讲了讲lock的基本工作方式，下面就该讲一讲如何构建一个lock了。问题来了，高效的lock提供了互斥，并且开销很低。硬件需要提供哪些帮助？OS又需要提供什么？</li>
+</ul>
+<h2 id="28-4-Evaluating-Locks"><a href="#28-4-Evaluating-Locks" class="headerlink" title="28.4 Evaluating Locks"></a>28.4 Evaluating Locks</h2><ul>
+<li>在谈构建lock之前，首先应该明白我们的lock应该实现哪些目的，如何评估一种lock。下面介绍几种评估lock的指标。</li>
+<li>第一，correctness，lock是否能够完成基本任务，也就是为不同线程之间提供互斥，防止多个线程同时进入critical section。</li>
+<li>第二，fairness。当lock处于free状态时，lock是否能保证每个线程在竞争lock的时候是公平竞争？或者说，是否存在这种情况，一个线程因为一直竞争不到lock而产生饥饿现象？</li>
+<li>第三，performance，特指使用 lock的时间开销。这里有多种情况需要考虑。第一种情况是无竞争时，一个运行的线程占用锁再释放锁的时间开销是多少？第二种情况，多个线程在单核CPU上竞争lock，这时时间开销是多少？最后，当使用多核CPU的时候，情况又是怎样？</li>
+</ul>
+<h2 id="28-5-Controlling-Interrupts"><a href="#28-5-Controlling-Interrupts" class="headerlink" title="28.5 Controlling Interrupts"></a>28.5 Controlling Interrupts</h2><ul>
+<li>最早的提供互斥的一种办法就是，为critical section关闭中断。这种方法是为单处理器的系统发明的，代码长这样：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220504144942.png" style="zoom:80%;" /></p>
+<p>在进入critical section之前关闭中断，这样就可以保证该线程可以执行完critical section的代码。当执行完毕后再打开中断。</p>
+<p>这种方法的好处就是简单。</p>
+<p>但是缺点很严重，也很多。第一，关闭中断是特权操作，也就意味着线程要执行特权操作。这是很不安全的，假如这个线程不老实，它不按照规矩在critical section前后进行lock()和unlock()，而是在所有代码一开始就lock()，直到代码结束才unlock()，那它就可以独享CPU！第二，这种做法对于多处理器是不适用的。假设关闭中断的线程是在A处理器上运行，这时只是关闭了A处理器的中断，但是其他处理器并不受影响，其他线程还可以通过在其他处理器上运行进入critical section。第三，关闭中断可能会让一些中断丢失。想象一下假如一个线程之前请求I/O，但是现在关闭中断了，那当这个线程I/O请求完毕后该怎么办？最后，就是低效的问题。打开中断或者关闭中断可能会让系统变得更慢。</p>
+<p>因此，这种方法还是不行的，再想想其他办法。</p>
+<h2 id="28-6-A-Failed-Attempt-Just-Using-Loads-Stores"><a href="#28-6-A-Failed-Attempt-Just-Using-Loads-Stores" class="headerlink" title="28.6 A Failed Attempt: Just Using Loads/Stores"></a>28.6 A Failed Attempt: Just Using Loads/Stores</h2><ul>
+<li>不使用上一节的方法，那就要依靠CPU硬件和其提供的指令来构建一个lock。想法很简单，使用一个变量（flag）来表明当前是否有线程在占用lock。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220504151449.png" style="zoom:80%;" /></p>
+<p>当lock()时，<strong>test</strong> flag是否为1，如果flag为1表示lock正在被占用，线程就循环等待；当flag不为1时，就将flag设置为1表示该进程占用了lock。unlock()就将flag设为0表示释放lock。</p>
+<ul>
+<li>这种方法有两个问题。</li>
+</ul>
+<p>第一个是正确性，它并不能够真的实现互斥。像下图这种情况，可能两个线程会同时进入critical section。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220504152008.png" style="zoom:80%;" /></p>
+<p>第二个问题是性能，当flag为1时，线程就需要循环等待。而在其循环等待的时候也是在占用CPU的，这就造成了CPU的浪费。</p>
+<h2 id="28-7-Building-Working-Spin-Locks-with-Test-And-Set"><a href="#28-7-Building-Working-Spin-Locks-with-Test-And-Set" class="headerlink" title="28.7 Building Working Spin Locks with Test-And-Set"></a>28.7 Building Working Spin Locks with Test-And-Set</h2><ul>
+<li>上面两种都不行，那就需要用硬件的帮助了。硬件提供了<strong>test-and-set</strong>指令：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220504153908.png" style="zoom:80%;" /></p>
+<p>test-and-set指令是原子的，可以看作该指令要么全不执行要么全部执行。test-and-set中，返回old指针的值，并且将old指针的值改为new。这就保证了原子性。代码就变成了这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220504154126.png" style="zoom:80%;" /></p>
+<p>可以看到在lock()中，由于test-and-set的原子性，可以保证lock的原子性。</p>
+<ul>
+<li>通过这种方式实现的lock一般叫做<strong>spin lock</strong>，是最简单的一种，不停的在CPU上spin直到lock可用。在单处理器上使用这种锁，需要使用抢占式调度器。</li>
+</ul>
+<h2 id="28-8-Evaluating-Spin-Locks"><a href="#28-8-Evaluating-Spin-Locks" class="headerlink" title="28.8 Evaluating Spin Locks"></a>28.8 Evaluating Spin Locks</h2><ul>
+<li>首先是正确性，它是否提供了线程间的互斥？答案是yes，它可以保证一次只有一个线程进入critical section。</li>
+<li>接着是公平性，它是否可以保证没有线程会因为一直竞争不到lock而饥饿？答案是no，一个在spin的线程可能会一直spin下去。</li>
+<li>最后是性能，使用它的开销如何？第一种情况，多线程运行在单处理器上竞争lock，这种情况下性能很差。如果有一个线程占用了lock，那么其余线程在上CPU时就只能spin，什么别的事情也做不了。第二种情况，多线程运行在多处理器上竞争lock，这种情况下要好一点。假设线程A占用了lock，运行在CPU1上，线程B运行在CPU2上竞争lock。可能critical section比较短，由于线程A一直在运行，很快就让出lock，其他线程就可以竞争到lock。</li>
+</ul>
+<h2 id="28-9-Compare-And-Swap"><a href="#28-9-Compare-And-Swap" class="headerlink" title="28.9 Compare-And-Swap"></a>28.9 Compare-And-Swap</h2><ul>
+<li>硬件提供的另一条原子指令是<strong>compare-and-swap</strong>或者叫<strong>compare-and-exchange</strong>：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220504160544.png" style="zoom:80%;" /></p>
+<p>基本思想就是检查ptr指向的值是否和expected一样。如果一样，就更新ptr指向的值为new；如果不一样就什么都不做。最后返回原ptr指向的值。</p>
+<ul>
+<li>有了这条指令，lock()就变成了这样：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220504160758.png" style="zoom:80%;" /></p>
+<p>其他的代码和使用test-and-set指令的代码差不多。</p>
+<ul>
+<li>使用compare-and-swap指令会比test-and-set指令能做的事情更多，这会在<strong>lock-free-synchronization</strong>中体现。如果不讨论这个话题，只构建一个简单的锁，使用两种指令是一样的。</li>
+</ul>
+<h2 id="28-10-Load-Linked-and-Store-Conditional"><a href="#28-10-Load-Linked-and-Store-Conditional" class="headerlink" title="28.10 Load-Linked and Store-Conditional"></a>28.10 Load-Linked and Store-Conditional</h2><ul>
+<li>一些平台提供了一些指令来构建lock。例如，在MIPS架构中，<strong>load-linked</strong>和<strong>store-conditional</strong>指令可以用来构建lock和其他一些并发结构。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220505092435.png" style="zoom:80%;" /></p>
+<p>load-linked指令返回一个指针所指向的值；</p>
+<p>store-conditional，如果在上一次调用load-linked后没有更新ptr的值，就将ptr的值设置为value并且返回1；如果有更新，返回0。</p>
+<ul>
+<li>构建lock的代码长这样：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220505092800.png" style="zoom:80%;" /></p>
+<p>在lock()中，首先线程不断循环等待flag的值为0。当flag的值为0后，再尝试使用store-conditional将flag的值设置为1，如果设置成功，all done；失败的话就重新进入循环。</p>
+<ul>
+<li>考虑这种情况，一个线程使用LL返回值为0 ，但此时由于中断下CPU；另一个线程上CPU使用LL得到返回值也是0 。但这并不会有任何影响，因为两个线程中只有一个线程能够顺利执行SC并且得到返回值1，另一个线程在执行SC的时候由于最近对ptr有更新，因此返回值为0。因此这种方法可以保证正确性。</li>
+<li>对于lock()还有一种更简洁的等价写法：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220505093620.png" style="zoom:80%;" /></p>
+<h2 id="28-11-Fetch-And-Add"><a href="#28-11-Fetch-And-Add" class="headerlink" title="28.11 Fetch-And-Add"></a>28.11 Fetch-And-Add</h2><ul>
+<li>最后一个硬件原语是<strong>fetch-and-add</strong>，原子地增加一个value的值，把返回原值：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220505094146.png" style="zoom:80%;" /></p>
+<ul>
+<li>使用fetch-and-add指令可以构建<strong>ticket lock</strong>：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220505094238.png" style="zoom:80%;" /></p>
+<p>ticket lock中使用两个变量来构建lock。</p>
+<p>在lock()中，先使用fetch-and-add来获取当前线程的”turn”，当lock-&gt;turn==myturn的时候，代表该线程获取了锁。此时如果别的线程想要占有锁，会被卡在lock-&gt;turn是否等于myturn的判断这里。</p>
+<p>在unlock()中，对lock-&gt;turn进行加1。</p>
+<ul>
+<li>这种方法和之前的方法不同的是，它保证了<strong>所有进程都在未来的某段时间一定能获得锁</strong>。一旦一个线程的ticket被赋值，在未来的某个时刻，一定能够有lock-&gt;turn==ticket。这个特性是之前的方法中没有的。</li>
+</ul>
+<h2 id="28-12-Too-Much-Spinning-What-Now"><a href="#28-12-Too-Much-Spinning-What-Now" class="headerlink" title="28.12 Too Much Spinning: What Now?"></a>28.12 Too Much Spinning: What Now?</h2><ul>
+<li>之前的这些方法确实可以达到我们对critical section互斥访问的目的，但是性能很差。为啥性能很差呢？因为当一个线程在竞争锁时，一旦发现锁被占用，就只能通过spin来循环等待。想想N个线程，轮流上CPU，都在竞争同一个锁。开始时，第一个线程竞争到了锁，因此剩下N-1个锁在上CPU时就只能循环等待，造成了CPU资源的浪费。问题来了，如何才能使得lock不浪费CPU资源？到这个份上，光凭借硬件已经解决不了问题了，需要OS的帮助。</li>
+</ul>
+<h2 id="28-13-A-Simple-Approach-Just-Yield-Baby"><a href="#28-13-A-Simple-Approach-Just-Yield-Baby" class="headerlink" title="28.13 A Simple Approach: Just Yield, Baby"></a>28.13 A Simple Approach: Just Yield, Baby</h2><ul>
+<li>如何解决上述问题？很简单的一个方法是，在线程要spin循环等待时，主动放弃CPU给其他线程运行。so, just yield, baby!</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220505143027.png" style="zoom:80%;" /></p>
+<p>在lock()中，通过yield()让一个线程放弃CPU，让其他的线程上CPU运行。假设线程只有三种状态（running、ready和blocked），yield()只是让线程从running状态变为ready状态。</p>
+<ul>
+<li>当只有两个线程时，这种方法的性能看起来还不错。当一个线程占有锁时，另一个线程在运行时就只能yield()放弃CPU，从而第一个线程可以完成criticla section，这样第二个线程就可以进入critical section。</li>
+<li>但是当线程很多的时候，假设有100个线程。第一个线程获得了锁，剩下99个线程在运行时必须全部yield()。这种情况下，尽管比spin的性能要好一点，但性能还是很差的。因为99个线程都需要context swtich，这些开销也是很大的。</li>
+<li>并且这种方法没有解决饥饿问题。</li>
+</ul>
+<h2 id="28-14-Using-Queues-Sleeping-Instead-Of-Spinning"><a href="#28-14-Using-Queues-Sleeping-Instead-Of-Spinning" class="headerlink" title="28.14 Using Queues: Sleeping Instead Of Spinning"></a>28.14 Using Queues: Sleeping Instead Of Spinning</h2><ul>
+<li>之前问题的本质是，由调度器决定了哪一个线程继续运行。如果调度器做了错误的选择，那么线程就会spin或者是yield。这都会造成浪费和可能的饥饿问题。因此必须显示地控制接下来到底哪一个线程上CPU运行，那就需要OS的帮助了，通过一个队列来记录哪些线程当前正在等待获取lock。</li>
+<li>简单起见，使用Solaris OS的两个系统调用：park()，将运行中的线程转为sleep；unpark(threadID)，唤醒threadID进程。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220505144845.png" style="zoom:80%;" /></p>
+<p>首先，还是使用了test-and-set，以及一个队列。其次队列是用来控制下一个是谁来获得lock，因此就避免了饥饿。</p>
+<p>可以看到在这种结构中，多了一个guard，guard锁用来控制对flag加锁和队列操作。这种方法并没有完全避免spin，因为对于guard的锁等待还是通过spin来完成的。</p>
+<p>在lock()中，首先试图通过test-and-set申请获得guard锁。在获得guard锁后，接下来的一系列操作可以保证是原子的，因为这是由guard锁保证的，其他线程由于获取不了guard锁，因此无法进入下面的这一系列操作。那么这一系列操作到底做了什么事情呢？首先判断flag锁是否空闲，如果空闲就占用flag锁，并且释放guard锁；如果flag锁正在被占用，首先将当前线程加入队列，然后释放guard锁，再通过park()将自己sleep。你可能会有疑问，什么情况下才会进入这个else？也就是什么时候flag会被其他的线程占用。考虑这种情况，初始时，什么都没发生。线程A顺利地占用了guard锁，接着 占用了flag锁，释放了guard锁。这时由于时间片中断线程A下CPU，线程B来了，B可以获得guard锁，但是由于flag锁被A占用，因此只能进入else，被迫sleep。</p>
+<p>在unlock()中，首先还是先申请guard，这个锁就是个通行证，没这个锁就不能进行下面的操作。接着判断队列是否为空，如果为空就代表没有线程在等待竞争flag锁，那就简单了，直接释放掉flag锁就好了。如果队列非空，代表当前有线程在等待竞争flag锁，那就调用unpark(ID)来将对头线程唤醒。最后释放掉guard锁。你可能又会有疑问了，为什么队列非空时，在调用unpark()后不释放掉flag锁，也就是将flag设置为0？要回答这个问题你要想一想，通过unpark()唤醒的线程是在哪里进入sleep的。很简单，是在lock()中的park()进入sleep的，那么在这里通过unpark()将其唤醒，这个线程就会感觉自己是在park()之后醒来的，但是lock()中在park()之后就结束了，该线程就可以获得flag锁了，但是如何将flag锁标记为被占用呢？只能在unpark()这里不对flag锁做任何处理，让其值保持为1，这样就好像是下一个线程占用了锁。</p>
+<h2 id="28-15-Different-OS-Different-Support"><a href="#28-15-Different-OS-Different-Support" class="headerlink" title="28.15 Different OS, Different Support"></a>28.15 Different OS, Different Support</h2><ul>
+<li>如题，不同OS的支持是不一样的，因此构建lock的方式也是不同的。不再举例了。</li>
+</ul>
+<h2 id="28-16-Two-Phase-Locks"><a href="#28-16-Two-Phase-Locks" class="headerlink" title="28.16 Two-Phase Locks"></a>28.16 Two-Phase Locks</h2><ul>
+<li>略去。</li>
+</ul>
+<h2 id="28-17-Summary"><a href="#28-17-Summary" class="headerlink" title="28.17 Summary"></a>28.17 Summary</h2><ul>
+<li>主要讲的就是如何构建lock，通过硬件和OS的支持来构建lock。不同的系统具体实现方式都是不一样的。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Concurrency</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Concurrency</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>29. Lock-based Concurrent Data Structures</title>
+    <url>/2022/10/27/29-Lock-based-Concurrent-Data-Structures/</url>
+    <content><![CDATA[<h1 id="29-Lock-based-Concurrent-Data-Structures"><a href="#29-Lock-based-Concurrent-Data-Structures" class="headerlink" title="29. Lock-based Concurrent Data Structures"></a>29. Lock-based Concurrent Data Structures</h1><ul>
+<li>有了lock之后，就可以用在一些数据结构中，使其变得<strong>thread safe</strong>线程安全。问题来了：给定一个数据结构时，如何加入lock使其能够正常工作？如何加入lock才能有好的性能，使得多线程可以尽可能多地并发访问结构？</li>
+</ul>
+<span id="more"></span>
+<h2 id="29-1-Concurrent-Counters"><a href="#29-1-Concurrent-Counters" class="headerlink" title="29.1 Concurrent Counters"></a>29.1 Concurrent Counters</h2><ul>
+<li>以一个最简单的counter数据结构开始：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220507091715.png" style="zoom:80%;" /></p>
+<ul>
+<li>如何将上面的counter变成线程安全的counter？</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220507091809.png" style="zoom:80%;" /></p>
+<p>可以看到，在counter中加入了lock，并且每次读写数据时都需要对其进行加锁。</p>
+<ul>
+<li>让我们来康康现在这个线程安全的lock性能如何。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220507092034.png" style="zoom:80%;" /></p>
+<p>上图（Precise）展示了从1到4个线程，每个线程更新counter一百万次，实验环境是Intel2.7GHz I5 CPU。可以看到，随着线程数目的增大，该counter的性能逐渐变差。</p>
+<ul>
+<li>Scalable Counting</li>
+</ul>
+<p>如何解决上述多线程时性能价差的问题呢？其中一种方法叫做<strong>approximate counter</strong>。approximate counter对于每一个CPU都会设置一个局部物理计数器，并且还有一个全局计数器。对于这些计数器，相应地每个计数器都要有一个lock。</p>
+<p>基本思路是：一个运行的线程要更新计数器时，更新的是其所在CPU对应的计数器，由于每个CPU对应计数器都有一个lock，因此在一个CPU上更新一定是同步的。因为每个CPU都有自己的计数器去，那么多CPU之间的线程，可以无连接的更新局部计数器，因此是scalable的。</p>
+<p>但是，如何保证全局计数器保存的数值是最新的呢？局部计数器要定期把自己保存的值转移到全局计数器上，因此需要申请全局lock然后将自己的值加到全局计数器上，最后把自己的值重置为0。</p>
+<p>问题又来了，将局部计数器的值转移到全局计数器上的频率是多少呢？这是由一个阈值S决定的，当局部计数器的值超过S，就转移。如果S较小，那么计数器可能就没有那么的scalable；如果S较大，计数器更scalable，但是可能计数值可能就没那么准确。</p>
+<p>如果S=5：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220507095302.png" style="zoom:80%;" /></p>
+<p>代码长这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220507094913.png" style="zoom:80%;" /></p>
+<p>还是来康康性能，S值为1024：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220507095026.png" style="zoom:80%;" /></p>
+<p>可以看到，Approximate性能非常好。</p>
+<p>下图展示了四个线程，每个线程更新一百万次，S对性能的影响：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220507095203.png" style="zoom:80%;" /></p>
+<h2 id="29-2-Concurrent-Linked-Lists"><a href="#29-2-Concurrent-Linked-Lists" class="headerlink" title="29.2 Concurrent Linked Lists"></a>29.2 Concurrent Linked Lists</h2><ul>
+<li>现在来康康稍微复杂一点点的，链表。加入lock后初级版本长这样：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220507095434.png" style="zoom:80%;" /></p>
+<p>可以看到，在对链表进行读写操作前，先申请lock，在所有操作都结束后，再释放lock。</p>
+<p>这种做法是有大概40%几率出bug的，咱也不知道会出什么bug，但显然这种方法就是不行。</p>
+<p>因此，稍稍做一些调整，让对于锁的申请和释放只在真正的critical section前后进行，并且假设malloc()本身就是线程安全的：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220507100232.png" style="zoom:80%;" /></p>
+<ul>
+<li><strong>Scaling Linked Lists</strong></li>
+</ul>
+<p>上面这个版本可以实现基本的线程安全了，但是还不够scalable。一种解决办法叫做<strong>hand-over-hand locking</strong>。思想非常简单，不再给每个链表一个lock，而是给链表中的每一个Node一个lock。对链表遍历时，必须先获取下一个node的lock，再释放当前node的lock。</p>
+<h2 id="29-3-Concurrent-Queues"><a href="#29-3-Concurrent-Queues" class="headerlink" title="29.3 Concurrent Queues"></a>29.3 Concurrent Queues</h2><ul>
+<li>其实队列和链表也差不多，最简单的一种方式实现就是加一把大的lock，这里就不再赘述了。这一节来看看一种并发性更好的实现方式，代码长这样：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220507220228.png" style="zoom:80%;" /></p>
+<p>和普通加一把大lock不同的是，这里加了两个lock，队头队尾分别一个，这么做的目的就是提高入队操作和出队操作的并发性。并且，在这里加了一个dummy node，目的是为了将头尾操作分开。</p>
+<p>这里的实现方式其实还是有问题的，并不能满足全部关于队列的使用需求。</p>
+<h2 id="29-4-Concurrent-Hash-Table"><a href="#29-4-Concurrent-Hash-Table" class="headerlink" title="29.4 Concurrent Hash Table"></a>29.4 Concurrent Hash Table</h2><ul>
+<li>线程安全的hash table，使用之前的线程安全的链表。每个BUCKETS一把lock，因此性能较好。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220507221352.png" style="zoom:80%;" /></p>
+<p>与链表的性能对比图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220507221504.png" style="zoom:80%;" /></p>
+<h2 id="29-5-Summary"><a href="#29-5-Summary" class="headerlink" title="29.5 Summary"></a>29.5 Summary</h2><ul>
+<li>主要介绍了如何构建常见的线程安全的数据结构，链表、队列及hash table。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Concurrency</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Concurrency</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>31. Semaphores</title>
+    <url>/2022/10/27/31-Semaphores/</url>
+    <content><![CDATA[<h1 id="31-Semaphores"><a href="#31-Semaphores" class="headerlink" title="31. Semaphores"></a>31. Semaphores</h1><ul>
+<li>前面已经学习了使用lock和condition varivable来实现并发，这一节学习<strong>semaphore</strong>信号量。有了semaphore，就只有统一的原语操作了，可以用semaphore来实现lock和condition variavle的功能。问题来了：如何使用semaphore来代替lock和condition variable？semaphore的定义是怎样的？Binary semaphore是怎样的？</li>
+</ul>
+<span id="more"></span>
+<h2 id="31-1-Semaphores-A-Definition"><a href="#31-1-Semaphores-A-Definition" class="headerlink" title="31.1 Semaphores: A Definition"></a>31.1 Semaphores: A Definition</h2><ul>
+<li>一个semaphore有一个integer，并且可以对该值进行两个操作。在POSIX标准中，两个操作是sem_wait()和sem_post()。semaphore的初始值和要使用该semaphore进行什么操作有关，所以要先对其进行初始化：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512092452.png" style="zoom:80%;" /></p>
+<p>sem_init()对semaphore进行初始化，第一个参数是s的地址，第二个参数0表明同一个进程的线程可以共享该semaphore，第三个参数1代表semaphore的初始值。</p>
+<p>初始化后就可以对semaphore进行sem_wait()和sem_post()两个操作：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512092745.png" style="zoom:80%;" /></p>
+<p>注意：当semaphore为负数时，其绝对值代表有多少个线程正在等待。</p>
+<h2 id="31-2-Binary-Semaphores-Locks"><a href="#31-2-Binary-Semaphores-Locks" class="headerlink" title="31.2 Binary Semaphores (Locks)"></a>31.2 Binary Semaphores (Locks)</h2><ul>
+<li>现在来看看如何使用semaphore来构建一个lock。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512105434.png" style="zoom:80%;" /></p>
+<p><strong>这里的X应该设置为1</strong>，这样就可以把semaphore当作lock来使用了。</p>
+<ul>
+<li>康康两个线程使用semaphore构建的lock的一种情况：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512105641.png" style="zoom:80%;" /></p>
+<h2 id="31-3-Semaphores-For-Ordering"><a href="#31-3-Semaphores-For-Ordering" class="headerlink" title="31.3 Semaphores For Ordering"></a>31.3 Semaphores For Ordering</h2><ul>
+<li>semaphore也可以用来实现线程之间的同步等待，使用semaphore实现同步原语，和之前得condition varivable比较像。</li>
+</ul>
+<p>对于代码中得父线程和子线程，想实现父线程等待子线程结束再结束：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512112731.png" style="zoom:80%;" /></p>
+<p>也就是这种效果：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512112821.png" style="zoom:80%;" /></p>
+<p><strong>这种情况下semaphore的初始值应该为0。</strong>康康使用semaphore的两种情况：</p>
+<p>第一种父线程sleep等待子线程：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512113059.png" style="zoom:80%;" /></p>
+<p>第二种父线程无须sleep等待子线程：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512113125.png" style="zoom:80%;" /></p>
+<h2 id="31-4-The-Producer-Consumer-Bounded-Buffer-Problem"><a href="#31-4-The-Producer-Consumer-Bounded-Buffer-Problem" class="headerlink" title="31.4 The Producer/Consumer (Bounded Buffer) Problem"></a>31.4 The Producer/Consumer (Bounded Buffer) Problem</h2><ul>
+<li><p>使用semaphre来解决生产者消费者模型：</p>
+</li>
+<li><p><strong>First Attempt</strong>：</p>
+</li>
+</ul>
+<p>使用两个semaphore，empty和full：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512113603.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512113635.png" style="zoom:80%;" /></p>
+<p>生产者要等buffer有空间才能放数据，消费者要等buffer有数据才能取数据。简单起见，先将MAX设置为1。这种做法可以解决多线程的同步问题。</p>
+<p>但是现在如果将MAX调大一点，比如10，并且有多个生产者，多个消费者。问题就来了，有可能会race condition。假设两个生产者，其中一个先执行了put()，但是在还没有对fill更新时，由于中断换另一个生产者运行，另一个生产者拿到了和上一个生产者相同的fill，这样二者就会向同一个fill位置上放入数据，就会导致数据丢失。那么该怎么办呢？</p>
+<ul>
+<li><strong>A Solution: Adding Mutual Exclusion</strong></li>
+</ul>
+<p>其实问题就在于忘记解决互斥问题了，也好办，加把lock就好了。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512140612.png" style="zoom:80%;" /></p>
+<p>看起来好像很简单，但是这种做法是有问题的，有可能造成deadlock？在哪里？假设现在两个线程，一个生产者，一个消费者。消费者先上CPU运行，首先它拿到了mutex，然后由于full为0 ，被sleep。这时生产者开始运行，但是由于mutex被消费者拿到了，生产者不得不等待消费者释放锁，造成了循环等待的deadlock。</p>
+<ul>
+<li><strong>At Last, A Working Solution</strong></li>
+</ul>
+<p>解决方法也很简单，减小加锁的范围，只在真正的cirtical section加锁：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512141008.png" style="zoom:80%;" /></p>
+<h2 id="31-5-Reader-Writer-Locks"><a href="#31-5-Reader-Writer-Locks" class="headerlink" title="31.5 Reader-Writer Locks"></a>31.5 Reader-Writer Locks</h2><ul>
+<li>读写锁也是一个很经典的问题，其实在对数据进行读写时，虽然不允许同时写入，但往往为了提高性能，同时读取是被允许的，并且对正确性也没有影响。使用semaphore来实现读写锁：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512141332.png" style="zoom:80%;" /></p>
+<p>可以看到一共使用了两把锁，其中一把lock用来读，另一把writelock用来写。</p>
+<p>对于写，申请和释放锁的流程比较简单，因为某一时间只允许一个进程写数据，那么就单纯的申请释放锁就ok了。</p>
+<p>对于读，由于可以允许多个读者，所以稍微复杂一点。申请时，申请到lock后，要将读者数+1。并且判断读者数是否为1，如果为1代表这个来的读者是第一个要读，那么就要申请writelock，如果没有线程在占用writelock写数据，该读者就可以开始读了；如果不为1，代表前面已经有读者在读了，那么该读者跟着一起读了。最后要将lock释放，以允许别的线程接着申请读锁。释放时，首先还是要申请lock，然后将读者数-1。如果读者数为0，代表没人读了，那就可以释放写锁了。如果不为0，代表还有人在读，不能释放读锁。最后释放写锁。</p>
+<ul>
+<li>这种读写锁呢，开销比较大。并且是偏向读进程的，很有可能造成写进程的饥饿。</li>
+</ul>
+<h2 id="31-6-The-Dining-Philosophers"><a href="#31-6-The-Dining-Philosophers" class="headerlink" title="31.6 The Dining Philosophers"></a>31.6 The Dining Philosophers</h2><ul>
+<li>哲学家用餐问题也是很经典的问题，哲学家要么在吃饭，要么在思考。但是一个哲学家吃饭时需要两个叉子，每个哲学家只能拿到左右两边的叉子，哲学家和叉子的关系如图：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512142407.png" style="zoom:80%;" /></p>
+<p>虽然这个问题的实际价值不是很大，但是确实很有意思。如何解决这个问题使得每个哲学家不挨饿？</p>
+<p>先看一种解法，首先设置两个辅助函数来申请叉子，当哲学家想申请左手边的叉子就调用left(p)，右手边的就right(p)。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512143357.png" style="zoom:80%;" /></p>
+<p>还需要设置一些semaphore来帮助解决问题，这里每一个叉子设置一个semaphore，sem_t forks[5]。</p>
+<ul>
+<li><strong>Broken Solution</strong></li>
+</ul>
+<p>一种解法是这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512143941.png" style="zoom:80%;" /></p>
+<p>每个哲学家都要同时依次拿到左手和右手的叉子后才能吃饭。看起来好像可以解决问题，但实际上会产生deadlock。假设每个哲学家都在申请到了左手的叉子后由于中断换另一个线程运行，那么就会导致最后每一个哲学家都只拿到了左手的叉子，在等待右手的叉子，并且永远等不到。</p>
+<ul>
+<li><strong>A Solution: Breaking The Dependency</strong></li>
+</ul>
+<p>Dijkstra想出一种办法如下：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512144133.png" style="zoom:80%;" /></p>
+<p>对最后一个哲学家，他申请叉子的顺序是先申请右手边的，再申请左手边的，这样就可以有效避免deadlock。</p>
+<ul>
+<li>还有其他一些类似的问题，比如吸烟者问题，理发师问题等等。</li>
+</ul>
+<h2 id="31-7-Thread-Throttling"><a href="#31-7-Thread-Throttling" class="headerlink" title="31.7 Thread Throttling"></a>31.7 Thread Throttling</h2><ul>
+<li>可以用semaphore来控制进程开太多的线程从而导致系统性能下降。</li>
+</ul>
+<h2 id="31-8-How-To-Implement-Semaphores"><a href="#31-8-How-To-Implement-Semaphores" class="headerlink" title="31.8 How To Implement Semaphores"></a>31.8 How To Implement Semaphores</h2><ul>
+<li>康康一个简单版本的semaphore实现，叫做<strong>Zemaphores</strong>。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220512145035.png" style="zoom:80%;" /></p>
+<h2 id="31-9-Summary"><a href="#31-9-Summary" class="headerlink" title="31.9 Summary"></a>31.9 Summary</h2><ul>
+<li>semaphores是强大并且灵活的原语，可以用来解决并发问题。这一章主要讲了如何用semaphore来构建lock和condition variable，以及如何用semaphore来解决经典并发问题，如哲学家进餐，生产者消费者，读写锁。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Concurrency</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Concurrency</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>30. Condition Variables</title>
+    <url>/2022/10/27/30-Condition-Variables/</url>
+    <content><![CDATA[<h1 id="30-Condition-Variables"><a href="#30-Condition-Variables" class="headerlink" title="30. Condition Variables"></a>30. Condition Variables</h1><ul>
+<li>之前介绍了lock，以及使用lock构建的一些线程安全的数据结构。但是那并不是所有并发的内容，说到并发，怎么能不谈谈同步呢？并发中，一个线程等待另一个线程是很常见的事情。举个栗子，父线程要等待子线程结束才能结束：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510092947.png" style="zoom:80%;" /></p>
+<p>我们希望看到的结果是这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510093145.png" style="zoom:80%;" /></p>
+<p>那要怎么做才能实现上述目的呢？首先尝试使用一个共享变量：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510094817.png" style="zoom:80%;" /></p>
+<p>这种做法基本可以达到我们的目的，但是效率很低，因为父线程一直在spin。实际上，我们应该将父线程sleep，当子线程结束时，再awake父线程。那么问题来了：在多线程程序中，经常出现一个线程要等待另一个线程的。简单的做法就像上面这样，在条件满足前一直spin，但是很低效。那应该用什么方法来代替呢？<br><span id="more"></span></p>
+<h2 id="30-1-Definition-and-Routines"><a href="#30-1-Definition-and-Routines" class="headerlink" title="30.1 Definition and Routines"></a>30.1 Definition and Routines</h2><ul>
+<li>为了实现同步等待的目的，线程用到的叫做<strong>condition variable</strong>。condition variable是一个队列，当一些条件不满足时线程可以将自己放到这个队列中（wait）。当由于其他线程的操作使得其他该条件成立时，可以将在队列中的一个或多个线程唤醒（signal），允许他们继续运行。</li>
+<li>声明condition variable，简单点可以直接pthread_cond_t c，每个condition variable都有两个原语：wait()和signal()。wait()原语将线程自己sleep；signal()原语可以将一个sleeping的线程唤醒，一般用于某个线程改变了某个条件后。特别的。POSIX库中长这样：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510104332.png" style="zoom:80%;" /></p>
+<p>​    你可能发现，在wait()中还传入了lock作为参数，wait()的作用就是<strong>原子地</strong>先将锁释放，然后将线程sleep。当线程被唤醒时，在wait()中必须重新申请占用lock，才能进行接下来的操作。这样可以避免race condition。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510110338.png" style="zoom:80%;" /></p>
+<p>这样有两种情况：</p>
+<p>第一种是父线程需要等待子线程，那么父线程就会被sleep。当子线程结束时，由于done=1，父线程会从wait()处被唤醒，这时父线程需要先的申请lock，如果子线程还没有释放lock，父线程无法进行下面的操作。</p>
+<p>第二种情况，父线程无须等待子线程，那就没什么好说的了，按照流程进行下去。</p>
+<p>下面来看一种更复杂的情况：生产者消费者模型。</p>
+<h2 id="30-2-The-Producer-Consumer-Bounded-Buffer-Problem"><a href="#30-2-The-Producer-Consumer-Bounded-Buffer-Problem" class="headerlink" title="30.2 The Producer/Consumer (Bounded Buffer) Problem"></a>30.2 The Producer/Consumer (Bounded Buffer) Problem</h2><ul>
+<li>一个或多个生产者以及一个或多个消费者，生产者向buffer中生产数据，消费者从buffer中取出数据消费。这种模型在实际系统中很常见，比如多线程的web服务器，生产者线程生产HTTP请求，消费者线程处理HTTP请求。等等。</li>
+<li>因为有界buffer是共享资源，因此必须保证对其的同步操作，要避免race condition。</li>
+</ul>
+<p>首先来看简单的生产者和消费者，这里简单起见buffer只是一个整数值，后面会扩展的：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510142913.png" style="zoom:80%;" /></p>
+<p>生产者不停的生产数据，消费者不停的取出数据。其中put()，假设buffer是空的，然后将数据放进去后通过将count设置为1表明buffer已满；get()从buffer中取数据，然后将count设置为0，返回数据值。</p>
+<p>对于这个模型，条件是这样：只有当count是0时，才能put()；只有count是1时，才能get()。因为你不能向已经满了的buffer在放数据，也不能从空的buffer中取数据。</p>
+<ul>
+<li>A Broken Solution</li>
+</ul>
+<p>现在假设只有一个生产者和一个消费者，现在要想实现生产者和消费者的同步该怎么做呢？也就是说实现，只有在生产者向buffer中生产数据后，消费者才能从buffer中取数据？只有lock是不够的，还需要用到condition variable。先来看一次失败的尝试：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510143939.png" style="zoom:80%;" /></p>
+<p>这种做法在只有一个生产者和一个消费者的时候是可行的，如果是多线程时，就会有两个问题。</p>
+<p>第一，在判断count状态时使用了if语句。假设有两个消费者<script type="math/tex">T_{c1}、T_{c2}</script>，一个生产者<script type="math/tex">T_{p}</script>。考虑下面这种情况：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510144719.png" style="zoom:80%;" /></p>
+<p>问题在于，当<script type="math/tex">T_{p}</script>向buffer中put数据后，本应该让Ready的<script type="math/tex">T_{c1}</script>运行，但是被<script type="math/tex">T_{c2}</script>抢占了先机，当<script type="math/tex">T_{c2}</script>把数据取完之后，<script type="math/tex">T_{c1}</script>开始运行了，但这是已经没有数据了，ops。</p>
+<p>问题的原因在于，当<script type="math/tex">T_{c1}</script>被唤醒成Ready状态后，没有立刻运行使其成为Run，在其真正Run之前，buffer的状态又发生了改变。</p>
+<p>对于这种情况，可以将if改为while，那么可以解决第一个问题。变成这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510150448.png" style="zoom:80%;" /></p>
+<p>当判断语句是while时，现在<script type="math/tex">T_{c1}</script>被唤醒，然后由于while循环立即检查count的状态。如果Buffer为空，<script type="math/tex">T_{c1}</script>又会sleep。记住，在condition varivable中永远使用while循环，可能并不一定真的要重新检查条件，但是加上总没错的。</p>
+<p>这虽然解决了第一个问题，但是第二个问题还没有解决。考虑下面这种情况：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510151019.png" style="zoom:80%;" /></p>
+<p>问题在于，一开始<script type="math/tex">T_{c1}、T_{c2}</script>都在sleep，接着<script type="math/tex">T_{p}</script>放入数据，接着<script type="math/tex">T_{p}</script>也sleep。<script type="math/tex">T_{c1}</script>被唤醒消费数据，然后试图去唤醒<script type="math/tex">T_{p}</script>，但是由于并不能控制唤醒哪个进程，完全有可能唤醒<script type="math/tex">T_{c2}</script>，ops，搞错了，<script type="math/tex">T_{c2}</script>醒来一看没有数据于是接着睡，<script type="math/tex">T_{c1}</script>认为自己唤醒了<script type="math/tex">T_{p}</script>，也开始睡，<script type="math/tex">T_{p}</script>自始至终都在睡，好嘛大家都在睡！</p>
+<p>要想解决这个问题，就要让signal唤醒的线程正确。所以在这里要使用两个condition variable，代码长这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510152646.png" style="zoom:80%;" /></p>
+<p>对于生产者和消费者各分配一个condition variable，生产者生产数据后唤醒消费者的cv，消费者消费数据后唤醒生产者的cv。</p>
+<ul>
+<li><strong>The Correct Producer/Consumer Solution</strong></li>
+</ul>
+<p>上面的做法已经可以基本满足需求了，现在要做最后一点改变，将Buffer的大小扩大，这样就能够减小context switch以减少开销：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510153007.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510153019.png" style="zoom:80%;" /></p>
+<h2 id="30-3-Covering-Conditions"><a href="#30-3-Covering-Conditions" class="headerlink" title="30.3 Covering Conditions"></a>30.3 Covering Conditions</h2><ul>
+<li>还有一个问题：唤醒线程的时候，应该唤醒哪一个？</li>
+</ul>
+<p>考虑这种情况，线程A申请100字节空间，线程B申请10字节空间，但是由于内存空间不足，两个线程依次sleep。不久后有线程释放了50字节空间，那么这时应该唤醒哪一个线程呢？很明显时线程B因为B只要求10字节的空间，唤醒它可能让他运行。但是往往很有可能就唤醒了A，A被唤醒后还是没有足够的内存空间。</p>
+<p>因此解决方法是：不要pthread_cond_signal()，用pthread_cond_broadcast()。signal只是唤醒单个线程，而broadcast唤醒所有线程。那么这种做法是可以满足需求的，所有应该被唤醒的线程都被唤醒了，但是缺点是可能会唤醒那些不该被唤醒的线程，因此性能会变差。这种情况叫做<strong>covering condition</strong>。</p>
+<h2 id="30-4-Summary"><a href="#30-4-Summary" class="headerlink" title="30.4 Summary"></a>30.4 Summary</h2><ul>
+<li>采用condition variable实现了线程间的同步，并且介绍了经典问题生产者消费者模型。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Concurrency</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Concurrency</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>32. Common Concurrency Problems</title>
+    <url>/2022/10/27/32-Common-Concurrency-Problems/</url>
+    <content><![CDATA[<h1 id="32-Common-Concurrency-Problems"><a href="#32-Common-Concurrency-Problems" class="headerlink" title="32. Common Concurrency Problems"></a>32. Common Concurrency Problems</h1><h2 id="32-1-What-Types-Of-Bugs-Exist"><a href="#32-1-What-Types-Of-Bugs-Exist" class="headerlink" title="32.1 What Types Of Bugs Exist?"></a>32.1 What Types Of Bugs Exist?</h2><ul>
+<li>并发中有哪些类型的bug？大致分为两种：<strong>non-deadlock bugs</strong>和<strong>deadlock bugs</strong>。</li>
+</ul>
+<span id="more"></span>
+<h2 id="32-2-Non-Deadlock-Bugs"><a href="#32-2-Non-Deadlock-Bugs" class="headerlink" title="32.2 Non-Deadlock Bugs"></a>32.2 Non-Deadlock Bugs</h2><ul>
+<li>主要又分为两类：<strong>atomicity violation</strong>和<strong>order violation</strong>。</li>
+<li><strong>atomicity violation</strong>：</li>
+</ul>
+<p>可能出现的Bug：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220513102528.png" style="zoom:80%;" /></p>
+<p>解决办法：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220513102548.png" style="zoom:80%;" /></p>
+<ul>
+<li><strong>order violation</strong>：</li>
+</ul>
+<p>可能出现的bug：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220513102650.png" style="zoom:80%;" /></p>
+<p>解决方法：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220513102705.png" style="zoom:80%;" /></p>
+<ul>
+<li><strong>Non-Deadlock Bugs: Summary</strong></li>
+</ul>
+<p>97%的非死锁bug都是原子性和同步的问题，一般通过lock可以解决。</p>
+<h2 id="32-3-Deadlock-Bugs"><a href="#32-3-Deadlock-Bugs" class="headerlink" title="32.3 Deadlock Bugs"></a>32.3 Deadlock Bugs</h2><ul>
+<li>死锁，当不同进程循环等待资源时，就会造成死锁。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220513102913.png" style="zoom:80%;" /></p>
+<p>假设线程1占有lock1，线程2占有lock2，那么就造成了死锁。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220513103001.png" style="zoom:80%;" /></p>
+<ul>
+<li>死锁产生的条件：</li>
+</ul>
+<p><strong>Mutual exclusion</strong>：线程要对想访问的资源申请互斥访问，比如加锁。</p>
+<p><strong>Hold and wait</strong>：当线程在等待其他资源时，保持自己已经申请到的资源。</p>
+<p><strong>No preemption</strong>：不能强制线程放弃已占有的资源。</p>
+<p><strong>Circular wait</strong>：存在一条循环等待链，其中已经占有部分资源的线程在等待其他线程。</p>
+<p>四个条件必须同时满足才能产生死锁。也就是说只要破坏其中一个条件就可以避免死锁。下面康康如何破坏这四个条件。</p>
+<ul>
+<li><strong>Prevention</strong></li>
+</ul>
+<p><strong>Circular wait</strong>：</p>
+<p>可以通过固定资源的访问顺序来破坏循环等待条件。比如在上面那个栗子中，可以规定线程必须先申请lock1再申请lock2，这样就可以避免死锁。但是这种做法往往不现实，因为你要知道系统中所有要用到的资源，并且不方便新增资源。</p>
+<p><strong>Hold and wait</strong>：</p>
+<p>可以通过让线程一次性申请完所需的所有资源后再往下进行，像这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220513104610.png" style="zoom:80%;" /></p>
+<p>但是这种做法会降低系统的并发性。</p>
+<p><strong>No preemption</strong>：</p>
+<p>可以通过当线程由于申请不到其他资源而等待时，释放掉其已经占有的资源，像这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220513104815.png" style="zoom:80%;" /></p>
+<p><strong>Mutual exclusion</strong>：</p>
+<p>可以通过不使用lock的方式来申请对资源的访问，比如使用compareAndSwap：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220513105107.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220513105118.png" style="zoom:80%;" /></p>
+<ul>
+<li><strong>Deadlock Avoidance via Scheduling</strong></li>
+</ul>
+<p>除了死锁预防，还可以死锁避免。死锁避免需要知道运行过程中的线程可能需要申请哪些lock，并合理安排对这些lock的调度。比如银行家算法，虽然可以有效避免死锁，但是应用场景比较局限，并且会限制系统的并发性。</p>
+<ul>
+<li><strong>Detect and Recover</strong></li>
+</ul>
+<p>最后是检测和恢复，也就是说允许系统产生死锁，但是产生死锁后通过一定的手段对死锁进行恢复。比如通过检测进程资源图中是否存在循环等待来判断死锁，或者一个线程等待资源时间过长就判断发生死锁等；然后再通过强制释放某个进程的资源来打破死锁。</p>
+<h2 id="32-4-Summary"><a href="#32-4-Summary" class="headerlink" title="32.4 Summary"></a>32.4 Summary</h2><ul>
+<li>这一章介绍了并发问题可能存在Bug，分为非死锁问题和死锁问题。非死锁问题主要是原子性和顺序性的问题；死锁问题主要是如何预防、避免、检测并恢复。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Concurrency</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Concurrency</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>26. Concurrency: An Introduction</title>
+    <url>/2022/10/27/26-Concurrency-An-Introduction/</url>
+    <content><![CDATA[<h1 id="26-Concurrency-An-Introduction"><a href="#26-Concurrency-An-Introduction" class="headerlink" title="26. Concurrency: An Introduction"></a>26. Concurrency: An Introduction</h1><ul>
+<li>在前面很长的部分里我们讨论了虚拟化的问题，主要是对CPU和内存的虚拟化。在接下来的部分里，我们将学习一个进程（process）的抽象，那就是线程（thread）。一个进程可以包含多个线程，也是就<strong>multi-thread</strong> program，每个线程像一个单独的进程，但是区别在于同一进程的线程之间共享地址空间，因此可以访问相同的数据。</li>
+<li>线程和进程十分相似。线程有自己的PC来表明当前指令的地址；线程有自己的寄存器用来做计算；因此如果有两个线程在一个处理器上运行，就会面临<strong>context switch</strong>的问题。对于进程来说，context switch时将进程信息保存在<strong>process control block（PCB）</strong>中；而对于线程来说，context switch时将线程信息保存在<strong>thread control block（TCB）</strong>中。但是有一点不同，对于线程来说，context switch时并不会改变地址空间，也就是说使用的page table不需要改变。</li>
+<li>线程和进程的另一个区别在于stack。在之前的进程中（现在叫<strong>single-thread process</strong>），只有一个stack；但是在multi-thread process中，每一个线程都对应一个stack。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427094358.png" style="zoom:80%;" /></p>
+<span id="more"></span>
+<h2 id="26-1-Why-Use-Threads"><a href="#26-1-Why-Use-Threads" class="headerlink" title="26.1 Why Use Threads?"></a>26.1 Why Use Threads?</h2><ul>
+<li>如题，为何要使用线程？</li>
+<li>第一，<strong>并行性</strong>。假设有一个很大的数组，现在要把数组的每一个元素都加1。在single-thread的程序中，就只能按部就班地从头做到尾。但是现在如果有了multi-thread程序，并且有多核CPU，就可以让每个CPU运行一个线程，每个线程完成一部分任务，提高了<strong>并行性</strong>。</li>
+<li>第二，避免由于I/O而block程序。假设一个程序中需要发起不同的I/O请求，对于single-thread的进程来说，发起I/O请求就会被block，但是如果想在发起I/O请求后还做一些事情，比如计算或者是提出别的I/O请求应该怎么办？在multi-thread进程中，可以让一个线程来发起I/O请求，其他线程继续运行，也就是说block的是发起I/O的那个线程而不是整个儿进程。</li>
+</ul>
+<h2 id="26-2-An-Example-Thread-Creation"><a href="#26-2-An-Example-Thread-Creation" class="headerlink" title="26.2 An Example: Thread Creation"></a>26.2 An Example: Thread Creation</h2><ul>
+<li>直接看代码吧：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427095803.png" style="zoom:80%;" /></p>
+<p>Pthread_create用于创建一个新的线程并完成一些事情。具体来说，第17行，创建p1线程，完成mythread函数，参数是“A”。</p>
+<p>Pthread_join用于等待某一个线程结束。具体来说。第20行，等待p1线程运行结束。</p>
+<p>对于上述代码，有着多种不同的执行顺序：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427100128.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427100149.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427100203.png" style="zoom:80%;" /></p>
+<ul>
+<li>可以看到，线程让事情变得更复杂，到底让哪个线程上CPU运行？计算机如果没有concurrency，就无法回答这个问题。但是有了concurrency，就变得更worse。</li>
+</ul>
+<h2 id="26-3-Why-It-Gets-Worse-Shared-Data"><a href="#26-3-Why-It-Gets-Worse-Shared-Data" class="headerlink" title="26.3 Why It Gets Worse: Shared Data"></a>26.3 Why It Gets Worse: Shared Data</h2><ul>
+<li>上面举例了简单的创建线程，但是没有讲的是线程共享数据的同时是如何交互的呢？</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427100644.png" style="zoom:80%;" /></p>
+<p>正如上面这个栗子，在所有代码都执行完后，我们期待最终counter的结果是2e7：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427100752.png" style="zoom:80%;" /></p>
+<p>但事实并非如此。实际运行后的结果：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427101019.png" style="zoom:80%;" /></p>
+<p>再运行一次康康？</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427101037.png" style="zoom:80%;" /></p>
+<p>可以看到每次的结果都不一样，也就是说结果是不确定的。</p>
+<h2 id="26-4-The-Heart-Of-The-Problem-Uncontrolled-Scheduling"><a href="#26-4-The-Heart-Of-The-Problem-Uncontrolled-Scheduling" class="headerlink" title="26.4 The Heart Of The Problem: Uncontrolled Scheduling"></a>26.4 The Heart Of The Problem: Uncontrolled Scheduling</h2><ul>
+<li>上述问题到底是什么原因导致的？为了搞清楚这个问题，就必须从汇编语言的层面来康康在更新counter时到底发生了什么。实际上，在对counter更新时执行了一下三条汇编指令：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427101355.png" style="zoom:80%;" /></p>
+<p>第一条是将0x8049a1c地址中的值取出，保存到eax寄存器；</p>
+<p>第二条是对eax寄存器中的值做加1；</p>
+<p>第三条是将eax寄存器中的值保存到0x8049a1c地址。</p>
+<p>问题的本质就在于，一个线程执行这三条指令时并不是原子的，如下图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427101644.png" style="zoom:80%;" /></p>
+<p>解释一下几个术语：</p>
+<p>当超过两个线程在共享数据并且试图同时修改一个数据时，这种现象叫做<strong>race condition</strong>（或者data race）。</p>
+<p>当发生race condition的时候，把修改数据的那段代码叫做<strong>critical section</strong>。</p>
+<p>我们期望的结果是<strong>mutual exclusion</strong>，也就是说在执行critical section的代码时，其他的线程不能执行这段代码。</p>
+<h2 id="26-5-The-Wish-For-Atomicity"><a href="#26-5-The-Wish-For-Atomicity" class="headerlink" title="26.5 The Wish For Atomicity"></a>26.5 The Wish For Atomicity</h2><ul>
+<li>想要解决上面这个问题，就必须实现原子性。也就是说对于更新counter的三条汇编指令，要么全部执行，要么全不执行。所以我们又需要硬件的帮助了，可以基于硬件提供的指令，可以构建一套指令叫做<strong>synchronization primitives</strong>。有了硬件的帮助，再加上OS就可以多线程同步地访问critical section，保证顺序可控。这一部分会在这个章节的后面继续讲解。</li>
+</ul>
+<h2 id="26-6-One-More-Problem-Waiting-For-Another"><a href="#26-6-One-More-Problem-Waiting-For-Another" class="headerlink" title="26.6 One More Problem: Waiting For Another"></a>26.6 One More Problem: Waiting For Another</h2><ul>
+<li>在多线程中另一个需要解决的问题就是同步，一个线程必须等待另一个线程完成才能继续往下执行。在后面的部分讲解。</li>
+</ul>
+<h2 id="26-7-Summary-Why-in-OS-Class"><a href="#26-7-Summary-Why-in-OS-Class" class="headerlink" title="26.7 Summary: Why in OS Class?"></a>26.7 Summary: Why in OS Class?</h2><ul>
+<li>如题，多线程不应该在编程层面考虑吗？为什么要在OS的课程里学习？实际上，OS是第一个并发程序。比如系统调用write()来写文件，两个程序同时调用该怎么办？OS会处理这一切的。因此，OS必须考虑多线程的问题。</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Operating System</category>
+        <category>Concurrency</category>
+      </categories>
+      <tags>
+        <tag>Operating System</tag>
+        <tag>Concurrency</tag>
       </tags>
   </entry>
 </search>
