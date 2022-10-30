@@ -1841,4 +1841,40 @@
         <tag>offer</tag>
       </tags>
   </entry>
+  <entry>
+    <title>剑指offer-V2-11-旋转数组的最小数字</title>
+    <url>/2022/10/30/%E5%89%91%E6%8C%87offer-V2-11-%E6%97%8B%E8%BD%AC%E6%95%B0%E7%BB%84%E7%9A%84%E6%9C%80%E5%B0%8F%E6%95%B0%E5%AD%97/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-11-旋转数组的最小数字"><a href="#剑指offer-V2-11-旋转数组的最小数字" class="headerlink" title="剑指offer-V2-11-旋转数组的最小数字"></a>剑指offer-V2-11-旋转数组的最小数字</h1><p><a href="https://leetcode.cn/problems/xuan-zhuan-shu-zu-de-zui-xiao-shu-zi-lcof/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202210301325777.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>对于有序数组，一般可以采用二分查找。当mid元素小于right时，说明最小元素一定在&lt;=mid的位置上；如果mid大于right，说明最小元素一定在mid+1到right之间；如果二者相等，不好判断，则把right—再判断。当left和right相等时，跳出循环。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">minArray</span><span class="params">(numbers []<span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	left, right := <span class="number">0</span>, <span class="built_in">len</span>(numbers)<span class="number">-1</span></span><br><span class="line">	<span class="keyword">for</span> left &lt; right &#123;</span><br><span class="line">		mid := (left + right) / <span class="number">2</span></span><br><span class="line">		<span class="keyword">if</span> numbers[mid] &gt; numbers[right] &#123;</span><br><span class="line">			left = mid + <span class="number">1</span></span><br><span class="line">		&#125; <span class="keyword">else</span> <span class="keyword">if</span> numbers[mid] &lt; numbers[right] &#123;</span><br><span class="line">			right = mid</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			right--</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> numbers[left]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>剑指offer-V2-12-矩阵中的路径</title>
+    <url>/2022/10/30/%E5%89%91%E6%8C%87offer-V2-12-%E7%9F%A9%E9%98%B5%E4%B8%AD%E7%9A%84%E8%B7%AF%E5%BE%84/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-矩阵中的路径"><a href="#剑指offer-V2-矩阵中的路径" class="headerlink" title="剑指offer-V2-矩阵中的路径"></a>剑指offer-V2-矩阵中的路径</h1><p><a href="https://leetcode.cn/problems/ju-zhen-zhong-de-lu-jing-lcof/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202210301332896.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>递归+回溯。使用原数组保存是否访问信息，节省空间。如果当前位置byte和字符串当前位置byte不相等，直接return false。当k等于字符串长度-1时，代表完全匹配，直接return true。判断每一次dfs结果是否为true，如果是直接return true。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">exist</span><span class="params">(board [][]<span class="type">byte</span>, word <span class="type">string</span>)</span></span> <span class="type">bool</span> &#123;</span><br><span class="line">    row := <span class="built_in">len</span>(board)</span><br><span class="line">	col := <span class="built_in">len</span>(board[<span class="number">0</span>])</span><br><span class="line">	dirs := [<span class="number">4</span>][<span class="number">2</span>]<span class="type">int</span>&#123;&#123;<span class="number">-1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">1</span>, <span class="number">0</span>&#125;, &#123;<span class="number">0</span>, <span class="number">1</span>&#125;, &#123;<span class="number">0</span>, <span class="number">-1</span>&#125;&#125;</span><br><span class="line">	<span class="keyword">var</span> dfs <span class="function"><span class="keyword">func</span><span class="params">(i, j, k <span class="type">int</span>)</span></span> <span class="type">bool</span></span><br><span class="line">	dfs = <span class="function"><span class="keyword">func</span><span class="params">(i, j, k <span class="type">int</span>)</span></span> <span class="type">bool</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> board[i][j] != word[k] &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> k &gt;= <span class="built_in">len</span>(word)<span class="number">-1</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">for</span> _, dir := <span class="keyword">range</span> dirs &#123;</span><br><span class="line">			nextI := i + dir[<span class="number">0</span>]</span><br><span class="line">			nextJ := j + dir[<span class="number">1</span>]</span><br><span class="line">			<span class="keyword">if</span> nextI &gt;= <span class="number">0</span> &amp;&amp; nextI &lt; row &amp;&amp; nextJ &gt;= <span class="number">0</span> &amp;&amp; nextJ &lt; col &amp;&amp; board[nextI][nextJ] != <span class="string">&#x27;*&#x27;</span> &#123;</span><br><span class="line">				old := board[i][j]</span><br><span class="line">				board[i][j] = <span class="string">&#x27;*&#x27;</span></span><br><span class="line">				<span class="keyword">if</span> dfs(nextI, nextJ, k+<span class="number">1</span>) &#123;</span><br><span class="line">					<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">				&#125;</span><br><span class="line">				board[i][j] = old</span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; row; i++ &#123;</span><br><span class="line">		<span class="keyword">for</span> j := <span class="number">0</span>; j &lt; col; j++ &#123;</span><br><span class="line">			<span class="keyword">if</span> res := dfs(i, j, <span class="number">0</span>); res &#123;</span><br><span class="line">				<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">			&#125;</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="literal">false</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
 </search>
