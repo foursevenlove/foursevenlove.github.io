@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"foursevenlove.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="DRL-3.Policy Gradient with Baseline1. Policy Gradient with Baseline1.1 Policy Gradientrecall：使用策略函数$\pi(a|s;\theta)$来控制agent的行为； 状态价值函数：  Policy gradient：">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DRL-3.Policy Gradient with Baseline">
+<meta property="og:url" content="https://foursevenlove.github.io/2022/10/30/DRL-3-Policy-Gradient-with-Baseline/index.html">
+<meta property="og:site_name" content="foursevenlove">
+<meta property="og:description" content="DRL-3.Policy Gradient with Baseline1. Policy Gradient with Baseline1.1 Policy Gradientrecall：使用策略函数$\pi(a|s;\theta)$来控制agent的行为； 状态价值函数：  Policy gradient：">
+<meta property="og:locale">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209162106947.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209162108173.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191105034.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191107871.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191108712.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191108683.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191111136.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191113918.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191117952.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191119065.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191120421.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191125908.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191447542.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191449369.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191449969.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191453654.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191457610.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191457189.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191459384.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191459988.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191502972.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191502606.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191503260.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191526157.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191527728.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191539093.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191540918.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211415457.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211416056.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211416643.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211419078.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211419403.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211421260.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211422041.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211426589.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211432052.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211433250.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211434586.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211435854.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211435171.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211513150.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211514744.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211515663.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211535467.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211535996.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211536691.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211536175.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211537635.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211537367.png">
+<meta property="article:published_time" content="2022-10-30T06:33:18.000Z">
+<meta property="article:modified_time" content="2022-10-30T06:33:45.620Z">
+<meta property="article:author" content="foursevenlove">
+<meta property="article:tag" content="Deep Reinforcement Learning">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209162106947.png">
+
+<link rel="canonical" href="https://foursevenlove.github.io/2022/10/30/DRL-3-Policy-Gradient-with-Baseline/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>DRL-3.Policy Gradient with Baseline | foursevenlove</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">foursevenlove</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/aboutMe/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/30/DRL-3-Policy-Gradient-with-Baseline/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DRL-3.Policy Gradient with Baseline
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-30 14:33:18 / Modified: 14:33:45" itemprop="dateCreated datePublished" datetime="2022-10-30T14:33:18+08:00">2022-10-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Deep-Reinforcement-Learning/" itemprop="url" rel="index"><span itemprop="name">Deep Reinforcement Learning</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="DRL-3-Policy-Gradient-with-Baseline"><a href="#DRL-3-Policy-Gradient-with-Baseline" class="headerlink" title="DRL-3.Policy Gradient with Baseline"></a>DRL-3.Policy Gradient with Baseline</h1><h2 id="1-Policy-Gradient-with-Baseline"><a href="#1-Policy-Gradient-with-Baseline" class="headerlink" title="1. Policy Gradient with Baseline"></a>1. Policy Gradient with Baseline</h2><h3 id="1-1-Policy-Gradient"><a href="#1-1-Policy-Gradient" class="headerlink" title="1.1 Policy Gradient"></a>1.1 Policy Gradient</h3><p>recall：使用策略函数$\pi(a|s;\theta)$来控制agent的行为；</p>
+<p>状态价值函数：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209162106947.png" style="zoom:33%;" /></p>
+<p>Policy gradient：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209162108173.png" style="zoom:33%;" /><br><span id="more"></span></p>
+<h3 id="1-2-Baseline"><a href="#1-2-Baseline" class="headerlink" title="1.2 Baseline"></a>1.2 Baseline</h3><p>Baseline $b$，可以是任意一个函数，并且独立与$A$。</p>
+<p>那么：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191105034.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191107871.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191108712.png" style="zoom:33%;" /></p>
+<p>因此得到结论：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191108683.png" style="zoom:33%;" /></p>
+<p>那么policy gradient就可以写成：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191111136.png" style="zoom:33%;" /></p>
+<p>计算这个梯度不好算，所以采用蒙特卡洛近似。</p>
+<h3 id="1-3-Monte-Carlo-Approximation"><a href="#1-3-Monte-Carlo-Approximation" class="headerlink" title="1.3 Monte Carlo Approximation"></a>1.3 Monte Carlo Approximation</h3><p>令：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191113918.png" style="zoom:33%;" /></p>
+<p>随机sample出一个样本$a_t\sim\pi$，然后计算$g(a_t)$，就得到了policy gradient的无偏估计。</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191117952.png" style="zoom:33%;" /></p>
+<h3 id="1-4-Stochastic-Policy-Gradient"><a href="#1-4-Stochastic-Policy-Gradient" class="headerlink" title="1.4 Stochastic Policy Gradient"></a>1.4 Stochastic Policy Gradient</h3><p>随机策略梯度：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191119065.png" style="zoom:33%;" /></p>
+<p>随机策略梯度上升：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191120421.png" style="zoom:33%;" /></p>
+<p>不管我们采取什么Baseline $b$，策略梯度的值都是一样的，但是Baseline $b$影响了$g(a_t)$，选择一个好的Baseline $b$可以使得算法收敛速度更快。</p>
+<h3 id="1-5-Choices-of-Baselines"><a href="#1-5-Choices-of-Baselines" class="headerlink" title="1.5 Choices of Baselines"></a>1.5 Choices of Baselines</h3><ul>
+<li>$b=0$</li>
+</ul>
+<p>​    那么就得到了标准的策略梯度：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191125908.png" style="zoom:33%;" /></p>
+<ul>
+<li>$b$ 是state value</li>
+</ul>
+<p>因为$s_t$已经被观测到了，因此$b=V_{\pi}(s_t)$独立与$A_t$。</p>
+<h2 id="2-REINFORCE-with-Baseline"><a href="#2-REINFORCE-with-Baseline" class="headerlink" title="2. REINFORCE with Baseline"></a>2. REINFORCE with Baseline</h2><h3 id="2-1-Approximations"><a href="#2-1-Approximations" class="headerlink" title="2.1 Approximations"></a>2.1 Approximations</h3><p>上一节学习了随机策略梯度，在其中有一项$Q_\pi$，还记得：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191447542.png" style="zoom:33%;" /></p>
+<p>如果采用蒙特卡洛近似$Q\pi$，这种做法就叫做REINFORCE：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191449369.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191449969.png" style="zoom:33%;" /></p>
+<p>在随机策略梯度中还有一项$V\pi(s;\theta)$，可以采用神经网络$v(s;w)$来近。</p>
+<p>那么现在策略梯度就变成了近似策略梯度：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191453654.png" style="zoom:33%;" /></p>
+<p>在这其中，一共做了三次近似：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191457610.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191457189.png" style="zoom:33%;" /></p>
+<h3 id="2-2-Policy-and-Value-Networks"><a href="#2-2-Policy-and-Value-Networks" class="headerlink" title="2.2 Policy and Value Networks"></a>2.2 Policy and Value Networks</h3><p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191459384.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191459988.png" style="zoom:33%;" /></p>
+<h3 id="2-3-REINFORCE-with-Baseline"><a href="#2-3-REINFORCE-with-Baseline" class="headerlink" title="2.3 REINFORCE with Baseline"></a>2.3 REINFORCE with Baseline</h3><p>使用近似随机梯度上升来更新策略网络：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191502972.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191502606.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191503260.png" style="zoom:33%;" /></p>
+<p>使用梯度下降来更新状态价值网络：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191526157.png" style="zoom:33%;" /></p>
+<h3 id="2-4-Summary-of-Algorithm"><a href="#2-4-Summary-of-Algorithm" class="headerlink" title="2.4 Summary of Algorithm"></a>2.4 Summary of Algorithm</h3><p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191527728.png" style="zoom:33%;" /></p>
+<h2 id="3-Advantage-Actor-Critic-A2C"><a href="#3-Advantage-Actor-Critic-A2C" class="headerlink" title="3. Advantage Actor-Critic(A2C)"></a>3. Advantage Actor-Critic(A2C)</h2><h3 id="3-1-Actor-and-Critic"><a href="#3-1-Actor-and-Critic" class="headerlink" title="3.1 Actor and Critic"></a>3.1 Actor and Critic</h3><p>Policy network(actor)：$\pi(a|s;\theta)$，是对策略函数的近似，用于控制agent。</p>
+<p>Value network(critic)：$v(s;w)$，是对状态价值函数的近似，用于评估当前状态好坏。</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191539093.png" style="zoom:33%;" /></p>
+<h3 id="3-2-Training-of-A2C"><a href="#3-2-Training-of-A2C" class="headerlink" title="3.2 Training of A2C"></a>3.2 Training of A2C</h3><p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191540918.png" style="zoom:33%;" /></p>
+<h3 id="3-3-Properties-of-Value-Functions"><a href="#3-3-Properties-of-Value-Functions" class="headerlink" title="3.3 Properties of Value Functions"></a>3.3 Properties of Value Functions</h3><h4 id="3-3-1-Properties-of-Action-Value-Functions"><a href="#3-3-1-Properties-of-Action-Value-Functions" class="headerlink" title="3.3.1 Properties of Action-Value Functions"></a>3.3.1 Properties of Action-Value Functions</h4><p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211415457.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211416056.png" style="zoom:33%;" /></p>
+<p>定理1：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211416643.png" style="zoom:33%;" /></p>
+<h4 id="3-3-2-Prooerties-of-State-Value-Functions"><a href="#3-3-2-Prooerties-of-State-Value-Functions" class="headerlink" title="3.3.2 Prooerties of State-Value Functions"></a>3.3.2 Prooerties of State-Value Functions</h4><p>根据定义1，可得到：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211419078.png" style="zoom:33%;" /></p>
+<p>因此定理2：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211419403.png" style="zoom:33%;" /></p>
+<h3 id="3-4-Monte-Carlo-Approximations"><a href="#3-4-Monte-Carlo-Approximations" class="headerlink" title="3.4 Monte Carlo Approximations"></a>3.4 Monte Carlo Approximations</h3><h4 id="3-4-1-Approximation-to-Action-Value"><a href="#3-4-1-Approximation-to-Action-Value" class="headerlink" title="3.4.1 Approximation to Action-Value"></a>3.4.1 Approximation to Action-Value</h4><p>根据定理1：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211421260.png" style="zoom:33%;" /></p>
+<h4 id="3-4-2-Approximation-to-State-Value"><a href="#3-4-2-Approximation-to-State-Value" class="headerlink" title="3.4.2 Approximation to State-Value"></a>3.4.2 Approximation to State-Value</h4><p>根据定理2：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211422041.png" style="zoom:33%;" /></p>
+<h3 id="3-5-Updating-Policy-Network"><a href="#3-5-Updating-Policy-Network" class="headerlink" title="3.5 Updating Policy Network"></a>3.5 Updating Policy Network</h3><p>还记得之前的随机策略梯度：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211426589.png" style="zoom:33%;" /></p>
+<p>由于优势函数是不知道的，所以还不能计算随机策略梯度，但是当我们有了关于$Q_{\pi}$和$V_{\pi}$的近似后，就可以估计随机策略梯度了。</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211432052.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211433250.png" style="zoom:33%;" /></p>
+<p>再用$v(s;w)$来近似估计$V_{\pi}(s)$：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211434586.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211435854.png" style="zoom:33%;" /></p>
+<p>采用策略梯度上升来更新策略网络：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211435171.png" style="zoom:33%;" /></p>
+<h3 id="3-6-Updating-Value-Network"><a href="#3-6-Updating-Value-Network" class="headerlink" title="3.6 Updating Value Network"></a>3.6 Updating Value Network</h3><p>前面由蒙特卡洛近似得到：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211513150.png" style="zoom:33%;" /></p>
+<p>用$v(s;w)$来近似就得到：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211514744.png" style="zoom:33%;" /></p>
+<p>实际上等式的右边就是TD Target $y_t$。</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211515663.png" style="zoom:33%;" /></p>
+<h3 id="3-7-REINFORCE-versus-A2C"><a href="#3-7-REINFORCE-versus-A2C" class="headerlink" title="3.7 REINFORCE versus A2C"></a>3.7 REINFORCE versus A2C</h3><p>REINFORCE和A2C最大的区别就是TD Target的定义不一样，REINFORCE定义TD Target时考虑了全部时刻的reward，而A2C只考虑了部分时刻的reward。在A2C中，又分为one-step TD Target和multi-step TD Target，二者的区别在于：one-step TD Target就是上面说的A2C的版本，只考虑当前时刻的reward，而multi-step TD Target考虑了从当前时刻开始到未来某一时刻的reward。</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211535467.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211535996.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211536691.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211536175.png" style="zoom:33%;" /></p>
+<p>区别就在于：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211537635.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211537367.png" style="zoom:33%;" /></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Deep-Reinforcement-Learning/" rel="tag"># Deep Reinforcement Learning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/10/30/DRL-2-Advanced-Topics-on-Value-Based-Learning/" rel="prev" title="DRL-2.Advanced Topics on Value-Based Learning">
+      <i class="fa fa-chevron-left"></i> DRL-2.Advanced Topics on Value-Based Learning
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DRL-3-Policy-Gradient-with-Baseline"><span class="nav-text">DRL-3.Policy Gradient with Baseline</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Policy-Gradient-with-Baseline"><span class="nav-text">1. Policy Gradient with Baseline</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-Policy-Gradient"><span class="nav-text">1.1 Policy Gradient</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-Baseline"><span class="nav-text">1.2 Baseline</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-3-Monte-Carlo-Approximation"><span class="nav-text">1.3 Monte Carlo Approximation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-4-Stochastic-Policy-Gradient"><span class="nav-text">1.4 Stochastic Policy Gradient</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-5-Choices-of-Baselines"><span class="nav-text">1.5 Choices of Baselines</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-REINFORCE-with-Baseline"><span class="nav-text">2. REINFORCE with Baseline</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-Approximations"><span class="nav-text">2.1 Approximations</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Policy-and-Value-Networks"><span class="nav-text">2.2 Policy and Value Networks</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-REINFORCE-with-Baseline"><span class="nav-text">2.3 REINFORCE with Baseline</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-4-Summary-of-Algorithm"><span class="nav-text">2.4 Summary of Algorithm</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Advantage-Actor-Critic-A2C"><span class="nav-text">3. Advantage Actor-Critic(A2C)</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-Actor-and-Critic"><span class="nav-text">3.1 Actor and Critic</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-Training-of-A2C"><span class="nav-text">3.2 Training of A2C</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-3-Properties-of-Value-Functions"><span class="nav-text">3.3 Properties of Value Functions</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-1-Properties-of-Action-Value-Functions"><span class="nav-text">3.3.1 Properties of Action-Value Functions</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-3-2-Prooerties-of-State-Value-Functions"><span class="nav-text">3.3.2 Prooerties of State-Value Functions</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-4-Monte-Carlo-Approximations"><span class="nav-text">3.4 Monte Carlo Approximations</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-1-Approximation-to-Action-Value"><span class="nav-text">3.4.1 Approximation to Action-Value</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#3-4-2-Approximation-to-State-Value"><span class="nav-text">3.4.2 Approximation to State-Value</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-5-Updating-Policy-Network"><span class="nav-text">3.5 Updating Policy Network</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-6-Updating-Value-Network"><span class="nav-text">3.6 Updating Value Network</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-7-REINFORCE-versus-A2C"><span class="nav-text">3.7 REINFORCE versus A2C</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="foursevenlove"
+      src="/uploads/funs.jpg">
+  <p class="site-author-name" itemprop="name">foursevenlove</p>
+  <div class="site-description" itemprop="description">Keep on going never give up!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/foursevenlove" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;foursevenlove" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:foursevenlove@gmail.com" title="E-Mail → mailto:foursevenlove@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.foursevenlove.top/" title="http:&#x2F;&#x2F;blog.foursevenlove.top" rel="noopener" target="_blank">Another Blog</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">foursevenlove</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>

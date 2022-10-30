@@ -1,0 +1,633 @@
+<!DOCTYPE html>
+<html lang="zh-Hans">
+<head>
+  <meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 6.3.0">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"foursevenlove.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="DRL-2.Advanced Topics on Value-Based Learning1. Experience Replay (ER) &amp; Prioritized ER1.1 Experience Replay A transition：$(s_t, a_t,r_t,s_{t+1})$  重复使用之前已经利用过的transition。将n个transition保存到replay bu">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DRL-2.Advanced Topics on Value-Based Learning">
+<meta property="og:url" content="https://foursevenlove.github.io/2022/10/30/DRL-2-Advanced-Topics-on-Value-Based-Learning/index.html">
+<meta property="og:site_name" content="foursevenlove">
+<meta property="og:description" content="DRL-2.Advanced Topics on Value-Based Learning1. Experience Replay (ER) &amp; Prioritized ER1.1 Experience Replay A transition：$(s_t, a_t,r_t,s_{t+1})$  重复使用之前已经利用过的transition。将n个transition保存到replay bu">
+<meta property="og:locale">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151641708.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151644846.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151656925.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151658443.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151701837.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151703106.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161139700.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161416706.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161418262.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161419583.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161421850.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161432568.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161433591.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161446166.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161452999.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161453510.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161458946.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161459856.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161500471.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161502827.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161508496.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161509110.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161510351.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161511852.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161515371.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161516249.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161518833.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161519846.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161532623.png">
+<meta property="article:published_time" content="2022-10-30T06:32:19.000Z">
+<meta property="article:modified_time" content="2022-10-30T06:32:46.172Z">
+<meta property="article:author" content="foursevenlove">
+<meta property="article:tag" content="Deep Reinforcement Learning">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151641708.png">
+
+<link rel="canonical" href="https://foursevenlove.github.io/2022/10/30/DRL-2-Advanced-Topics-on-Value-Based-Learning/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-Hans'
+  };
+</script>
+
+  <title>DRL-2.Advanced Topics on Value-Based Learning | foursevenlove</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="Toggle navigation bar">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">foursevenlove</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>Home</a>
+
+  </li>
+        <li class="menu-item menu-item-about">
+
+    <a href="/aboutMe/" rel="section"><i class="fa fa-user fa-fw"></i>About</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>Categories</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>Archives</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>Search
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="Searching..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/30/DRL-2-Advanced-Topics-on-Value-Based-Learning/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          DRL-2.Advanced Topics on Value-Based Learning
+        </h1>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-30 14:32:19 / Modified: 14:32:46" itemprop="dateCreated datePublished" datetime="2022-10-30T14:32:19+08:00">2022-10-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Deep-Reinforcement-Learning/" itemprop="url" rel="index"><span itemprop="name">Deep Reinforcement Learning</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="DRL-2-Advanced-Topics-on-Value-Based-Learning"><a href="#DRL-2-Advanced-Topics-on-Value-Based-Learning" class="headerlink" title="DRL-2.Advanced Topics on Value-Based Learning"></a>DRL-2.Advanced Topics on Value-Based Learning</h1><h2 id="1-Experience-Replay-ER-amp-Prioritized-ER"><a href="#1-Experience-Replay-ER-amp-Prioritized-ER" class="headerlink" title="1. Experience Replay (ER) &amp; Prioritized ER"></a>1. Experience Replay (ER) &amp; Prioritized ER</h2><h3 id="1-1-Experience-Replay"><a href="#1-1-Experience-Replay" class="headerlink" title="1.1 Experience Replay"></a>1.1 Experience Replay</h3><ul>
+<li>A transition：$(s_t, a_t,r_t,s_{t+1})$</li>
+</ul>
+<p>重复使用之前已经利用过的transition。将n个transition保存到replay buffer中，n是一个可调节超参数，通常取$10^5 - 10^6$。</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151641708.png" style="zoom: 25%;" /></p>
+<ul>
+<li>TD with Experience Replay</li>
+</ul>
+<p>在使用Stochastic gradient desenct（SGD）时，从过去的经验中随机sample一条transition来更新梯度：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151644846.png" style="zoom:33%;" /></p>
+<p>使用Experience Replay的好处：</p>
+<ol>
+<li>让梯度更新是不相关的</li>
+<li>多次使用收集到的经验<span id="more"></span>
+</li>
+</ol>
+<h3 id="1-2-Prioritized-Experience-Replay"><a href="#1-2-Prioritized-Experience-Replay" class="headerlink" title="1.2 Prioritized Experience Replay"></a>1.2 Prioritized Experience Replay</h3><ul>
+<li>Importance Sampling</li>
+</ul>
+<p>虽然要重复使用之前的transition，但并不是所有的transition的重要性是一致的。因此在sample时要使用importance sampling而不是uniform sampling。</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151656925.png" style="zoom: 33%;" /></p>
+<p>总的来说，误差越大，被sample到的可能性就越大。</p>
+<ul>
+<li>Scaling Learning Rate</li>
+</ul>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151658443.png" style="zoom:33%;" /></p>
+<p>如果是uniform sampling，$\alpha$应该是相同的。如果是Importance Sampling，那么$\alpha$应该随着重要性调整。</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151701837.png" style="zoom:33%;" /></p>
+<p>这样：重要性高的transition学习率就低，并且一开始$\beta$很小，慢慢增大到1。</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151703106.png" style="zoom: 25%;" /></p>
+<h2 id="2-Overestimation-Target-Network-amp-Double-DQN"><a href="#2-Overestimation-Target-Network-amp-Double-DQN" class="headerlink" title="2.Overestimation, Target Network, &amp; Double DQN"></a>2.Overestimation, Target Network, &amp; Double DQN</h2><h3 id="2-1-Problem-of-Overestimation"><a href="#2-1-Problem-of-Overestimation" class="headerlink" title="2.1 Problem of Overestimation"></a>2.1 Problem of Overestimation</h3><p> 使用TD算法来更新会使得action-values的值变大。</p>
+<p>原因1：maximization</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161139700.png" style="zoom:33%;" /></p>
+<p>原因2：Bootstrapping</p>
+<p>随着迭代次数的增大，overesitimation会越来越大。为了解决这个问题，有两种解决方法：</p>
+<p>方法一：使用target network来计算TD targets（解决了Bootstrapping的问题）。</p>
+<p>方法二：使用Double DQN来消除maximization。</p>
+<h3 id="2-2-Target-Network"><a href="#2-2-Target-Network" class="headerlink" title="2.2 Target Network"></a>2.2 Target Network</h3><p>不使用参数为$w$的$Q$网络计算TD Target，这样更新参数$w$时就不会用到$Q$函数。使用一个新的网络Target Network来计算TD Target，参数为$w^-$，并且$w^-$和$w$ 不一样。</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161416706.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161418262.png" style="zoom:33%;" /></p>
+<p>使用Target Network来计算更新梯度：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161419583.png" style="zoom:33%;" /></p>
+<p>在上面的流程中，原本的$Q$网络可以正常更新参数，那么Target Network如何更新参数呢？用两种选择定期更新参数$w^-$：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161421850.png" style="zoom:33%;" /></p>
+<p>虽然采用Target Network的方法，但是并不能完全消除采用TD算法导致overestimate的问题。</p>
+<h3 id="2-3-Double-DQN"><a href="#2-3-Double-DQN" class="headerlink" title="2.3 Double DQN"></a>2.3 Double DQN</h3><p>在上一节里，使用了Target Network来计算TD Target，如果这里不仅采用它来计算TD Target，并且使用它来选择action。之前是采用$Q$网络来选择action，选择使得$Q$函数分数最高的action。现在是使用参数为$w^-$的Target Network来做选择：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161432568.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161433591.png" style="zoom:33%;" /></p>
+<p>这么做效果不错，但还不够好，下面介绍Double DQN。其实就是在使用Target Network计算TD Target的基础上，再选择出使得Target Network分数最高的action $a^<em>$，然后使用这个$a^</em>$加上Target Network来计算TD Target：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161446166.png" style="zoom:33%;" /></p>
+<p>这样做的效果会好一点：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161452999.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161453510.png" style="zoom:33%;" /></p>
+<h2 id="3-Dueling-Network"><a href="#3-Dueling-Network" class="headerlink" title="3. Dueling Network"></a>3. Dueling Network</h2><h3 id="3-1-Optimal-Value-Functions"><a href="#3-1-Optimal-Value-Functions" class="headerlink" title="3.1 Optimal Value Functions"></a>3.1 Optimal Value Functions</h3><ul>
+<li>Optimal action-value function:</li>
+</ul>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161458946.png" style="zoom:33%;" /></p>
+<ul>
+<li>Optimal state-value function:</li>
+</ul>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161459856.png" style="zoom:33%;" /></p>
+<ul>
+<li>Optimal advantage function:</li>
+</ul>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161500471.png" style="zoom:33%;" /></p>
+<ul>
+<li>Advantage Function的性质：</li>
+</ul>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161502827.png" style="zoom:33%;" /></p>
+<p>​    首先由这个性质可以推出：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161508496.png" style="zoom:33%;" /></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161509110.png" style="zoom:33%;" /></p>
+<p>接着，由$A^*$的定义可以得到：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161510351.png" style="zoom:33%;" /></p>
+<p>因此第二个性质：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161511852.png" style="zoom:33%;" /></p>
+<h3 id="3-2-Dueling-Network"><a href="#3-2-Dueling-Network" class="headerlink" title="3.2 Dueling Network"></a>3.2 Dueling Network</h3><p>可以借鉴之前采用$Q(s,a;w)$来模拟$Q$的思想，采用$A(s,a;w)$来模拟$A$：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161515371.png" style="zoom:33%;" /></p>
+<p>采用$V(s;w)$来模拟$V$：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161516249.png" style="zoom:33%;" /></p>
+<p>这样，上面的性质2就可以采用Dueling Network来模拟$Q^*$：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161518833.png" style="zoom:33%;" /></p>
+<p>令$W=(W^A,W^V)$，就得到：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161519846.png" style="zoom:33%;" /></p>
+<p>实际上$Q(s,a;w)$是对$Q^*$的近似。</p>
+<p>有个问题，为啥在$Q^<em>$里加上最后恒等于0的这一项$\mathop{max} \limits_a A^</em>(s,a)$呢？答案是为了是结果唯一。</p>
+<p>要想近似$Q^*$还有一个方法：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209161532623.png" style="zoom:33%;" /></p>
+
+    </div>
+
+    
+    
+    
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/Deep-Reinforcement-Learning/" rel="tag"># Deep Reinforcement Learning</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2022/10/30/DRL-1-Overview/" rel="prev" title="DRL-1.Overview">
+      <i class="fa fa-chevron-left"></i> DRL-1.Overview
+    </a></div>
+      <div class="post-nav-item">
+    <a href="/2022/10/30/DRL-3-Policy-Gradient-with-Baseline/" rel="next" title="DRL-3.Policy Gradient with Baseline">
+      DRL-3.Policy Gradient with Baseline <i class="fa fa-chevron-right"></i>
+    </a></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          Table of Contents
+        </li>
+        <li class="sidebar-nav-overview">
+          Overview
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#DRL-2-Advanced-Topics-on-Value-Based-Learning"><span class="nav-text">DRL-2.Advanced Topics on Value-Based Learning</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#1-Experience-Replay-ER-amp-Prioritized-ER"><span class="nav-text">1. Experience Replay (ER) &amp; Prioritized ER</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#1-1-Experience-Replay"><span class="nav-text">1.1 Experience Replay</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#1-2-Prioritized-Experience-Replay"><span class="nav-text">1.2 Prioritized Experience Replay</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#2-Overestimation-Target-Network-amp-Double-DQN"><span class="nav-text">2.Overestimation, Target Network, &amp; Double DQN</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#2-1-Problem-of-Overestimation"><span class="nav-text">2.1 Problem of Overestimation</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-2-Target-Network"><span class="nav-text">2.2 Target Network</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#2-3-Double-DQN"><span class="nav-text">2.3 Double DQN</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#3-Dueling-Network"><span class="nav-text">3. Dueling Network</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#3-1-Optimal-Value-Functions"><span class="nav-text">3.1 Optimal Value Functions</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#3-2-Dueling-Network"><span class="nav-text">3.2 Dueling Network</span></a></li></ol></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="foursevenlove"
+      src="/uploads/funs.jpg">
+  <p class="site-author-name" itemprop="name">foursevenlove</p>
+  <div class="site-description" itemprop="description">Keep on going never give up!</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">32</span>
+          <span class="site-state-item-name">posts</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">categories</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+        <span class="site-state-item-count">8</span>
+        <span class="site-state-item-name">tags</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="https://github.com/foursevenlove" title="GitHub → https:&#x2F;&#x2F;github.com&#x2F;foursevenlove" rel="noopener" target="_blank"><i class="fab fa-github fa-fw"></i>GitHub</a>
+      </span>
+      <span class="links-of-author-item">
+        <a href="mailto:foursevenlove@gmail.com" title="E-Mail → mailto:foursevenlove@gmail.com" rel="noopener" target="_blank"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+
+
+  <div class="links-of-blogroll motion-element">
+    <div class="links-of-blogroll-title"><i class="fa fa-link fa-fw"></i>
+      Links
+    </div>
+    <ul class="links-of-blogroll-list">
+        <li class="links-of-blogroll-item">
+          <a href="http://blog.foursevenlove.top/" title="http:&#x2F;&#x2F;blog.foursevenlove.top" rel="noopener" target="_blank">Another Blog</a>
+        </li>
+    </ul>
+  </div>
+
+      </div>
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2022</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">foursevenlove</span>
+</div>
+  <div class="powered-by">Powered by <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://muse.theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Muse</a>
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/muse.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+</body>
+</html>
