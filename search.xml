@@ -2514,4 +2514,1123 @@
         <tag>offer</tag>
       </tags>
   </entry>
+  <entry>
+    <title>网络是怎样连接的-1.浏览器生成消息</title>
+    <url>/2022/11/11/%E7%BD%91%E7%BB%9C%E6%98%AF%E6%80%8E%E6%A0%B7%E8%BF%9E%E6%8E%A5%E7%9A%84-1-%E6%B5%8F%E8%A7%88%E5%99%A8%E7%94%9F%E6%88%90%E6%B6%88%E6%81%AF/</url>
+    <content><![CDATA[<h1 id="第一章-浏览器生成消息"><a href="#第一章-浏览器生成消息" class="headerlink" title="第一章 浏览器生成消息"></a>第一章 浏览器生成消息</h1><ul>
+<li>本章讲的是HTTP消息长啥样、往哪里发消息、怎么发消息</li>
+</ul>
+<h2 id="1-1-生成HTTP消息"><a href="#1-1-生成HTTP消息" class="headerlink" title="1.1 生成HTTP消息"></a>1.1 生成HTTP消息</h2><ul>
+<li>主要讲的是HTTP消息长啥样。</li>
+<li><p>HTTP是啥？</p>
+<ul>
+<li>Hypertext Transfer Protocol，超文本传送协议。</li>
+</ul>
+</li>
+<li><p>URL是啥？</p>
+<ul>
+<li>Uniform Resource Locator，统一资源定位符。</li>
+</ul>
+</li>
+<li>URL常见格式？</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327182430.png" style="zoom:80%;" /><br><span id="more"></span></p>
+<ul>
+<li>Web浏览器解析URL的过程？</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327182626.png" style="zoom:80%;" /></p>
+<ul>
+<li><p>几种省略文件名的情况：</p>
+<ul>
+<li><a href="http://www.lab.glasscom.com/dir/：访问dir路径下的index.html之类的默认文件。">http://www.lab.glasscom.com/dir/：访问dir路径下的index.html之类的默认文件。</a></li>
+<li><a href="http://www.lab.glasscom.com/：同上">http://www.lab.glasscom.com/：同上</a></li>
+<li><a href="http://www.lab.glasscom.com：同上">http://www.lab.glasscom.com：同上</a></li>
+<li><a href="http://www.lab.glasscom.com/whatisthis：如果根路径下有whatisthis的文件，就按照访问该文件处理，如果有whatisthis的目录，就按目录来处理。">http://www.lab.glasscom.com/whatisthis：如果根路径下有whatisthis的文件，就按照访问该文件处理，如果有whatisthis的目录，就按目录来处理。</a></li>
+</ul>
+</li>
+<li><p>HTTP的基本思路：</p>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327183144.png" style="zoom:80%;" /></p>
+<p>​    HTTP消息主要包含两个部分：“对什么”和“进行怎样的操作”。其中，“对什么”的部分称为Uniform Resource Identifier，统一资源标识符。“进行怎样的操作”的部分称为方法。</p>
+<ul>
+<li>HTTP的主要方法：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327183548.png" style="zoom:80%;" /></p>
+<ul>
+<li><strong>HTTP请求消息到底长啥样？</strong><ul>
+<li>第一行称为请求行。这里表明了请求方法以及HTTP的版本行。</li>
+<li>第二行为消息头。这里表明了如日期、客户端支持的数据类型、语言、压缩格式、客户端和服务器的软件名称和版本、数据有效期和最后更新时间等。</li>
+<li>第三行为空行。</li>
+<li>最后一部分为消息体。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327184013.png" style="zoom:80%;" /></p>
+<ul>
+<li><strong>HTTP响应消息到底长啥样？</strong><ul>
+<li>第一行为状态码和响应短语，二者表示内容一致，即成功或失败。状态码是一个数字，响应短语是一段文字。</li>
+<li>第二行为空行。</li>
+<li>最后一部分为消息体。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327184237.png" style="zoom:80%;" /></p>
+<ul>
+<li><p>注意：1 条请求消息中只能写 1 个 URI。如果需要获取多个文件，必须对每个文件单独发送 1 条请求。</p>
+</li>
+<li><p>一个浏览器与Web服务器进行消息交互的实例：</p>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327184458.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327184518.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327184707.png" style="zoom:80%;" /></p>
+<h2 id="1-2-向-DNS-服务器查询-Web-服务器的-IP-地址"><a href="#1-2-向-DNS-服务器查询-Web-服务器的-IP-地址" class="headerlink" title="1.2 向 DNS 服务器查询 Web 服务器的 IP 地址"></a>1.2 向 DNS 服务器查询 Web 服务器的 IP 地址</h2><ul>
+<li><p>主要讲的是向哪里发消息。</p>
+</li>
+<li><p><strong>TCP/IP的结构：</strong></p>
+<ul>
+<li>路由器：一种对包进行转发的设备</li>
+<li><p>集线器：一种对包进行转发的设备</p>
+</li>
+<li><p>子网：用集线器连起来的几台计算机</p>
+</li>
+<li>网络：用路由器把子网连起来</li>
+<li>IP地址：某一台计算机在网络中的地址</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327185536.png" style="zoom:80%;" /></p>
+<ul>
+<li>先简单看一下消息发送的具体过程：<ul>
+<li>发送者发出的消息经过子网的集线器，发到最近的路由器上。</li>
+<li>路由器会根据消息的目的地判断下一个路由器的位置，然后将消息发送到下一个路由器上。</li>
+<li>第二步不断重复，消息就到了目的地。</li>
+</ul>
+</li>
+<li><strong>IP地址的组成：</strong><ul>
+<li>本质是一串32比特的数字，按照8比特也就是1字节为一组分成4组。</li>
+<li>4组数字分别用十进制表示，再用圆点隔开。</li>
+<li>在32比特中，包括了网络号和主机号。因此还需要额外的信息来表明哪一部分是网络号，哪一部分是主机号。</li>
+<li><strong>子网掩码</strong>用于表明网络号和主机号的组成形式<ul>
+<li>子网掩码中为1的部分代表网络号，为0的部分代表主机号，如下图b</li>
+<li>或者表明左数多少个比特是网络号，如下图c</li>
+</ul>
+</li>
+<li>IP地址的主机号全0表示整个子网，全1表示向子网上的所有设备发送包，即广播。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327190452.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327190709.png" style="zoom:80%;" /></p>
+<ul>
+<li>为什么有了域名还要IP？<ul>
+<li>因为IP只要处理32比特的地址，而域名往往更长，处理地址的时间更长。</li>
+</ul>
+</li>
+<li>那为啥不干脆直接用IP？<ul>
+<li>IP太难记，偷懒记个域名比较方便。</li>
+</ul>
+</li>
+<li><strong>DNS是啥？</strong><ul>
+<li>Domain Name System，域名服务系统。</li>
+</ul>
+</li>
+</ul>
+<p>​        对于DNS服务器，计算机上有相应的DNS客户端。这个客户端就叫做DNS解析器或者解析器，通过DNS查询IP地址的操作就叫<strong>域名解析</strong>。负责执行解析这一操作的就是解析器。</p>
+<p>​        解析器实际上是一段程序，存在于OS的Socket库中。Socket 库是用于调用网络功能的程序组件集合。</p>
+<ul>
+<li>如何才能知道域名和IP地址的对应关系？<ul>
+<li>问问最近的DNS服务器就知道了。</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327191434.png" style="zoom:80%;" /></p>
+<ul>
+<li>解析器内部原理：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327191532.png" style="zoom:80%;" /></p>
+<ul>
+<li>Btw，向DNS服务发消息的时候当然也要知道DNS服务器的IP。不过这个IP是提前设置好的，如windows中：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327191708.png" style="zoom:80%;" /></p>
+<h2 id="1-3-全世界-DNS-服务器的大接力"><a href="#1-3-全世界-DNS-服务器的大接力" class="headerlink" title="1.3 全世界 DNS 服务器的大接力"></a>1.3 全世界 DNS 服务器的大接力</h2><ul>
+<li>主要讲的还是往哪里发消息</li>
+<li>DNS服务器接收来自客户端的消息，包含以下三种：<ul>
+<li>域名</li>
+<li>Class：早期设计DNS时，考虑了除互联网以外的其他网络，Class用于识别网络类型，互联网的Class值为IN。</li>
+<li>记录类型：表示域名是何种类型的记录。比如当类型为A（Address）代表域名对应的是IP地址，当类型为MX（Mail eXchange）时，表示域名对应的时邮件服务器。</li>
+</ul>
+</li>
+<li>DNS工作流程：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327192626.png" style="zoom:80%;" /></p>
+<ul>
+<li>域名的层次结构：</li>
+</ul>
+<p>​        在域名中，越靠右的位置表示层级越高。其中，相当与一个层级的部分称为域。比如www.lab.glasscom.com 这个域名，公有4个域，www、lab、glasscom、com，其中com层级最高，www最低。每个域的信息作为整体存放在DNS服务器中，一台DNS服务器可以保存多个域的信息。简单起见，我们默认一台DNS服务器只保存一个域的信息。</p>
+<ul>
+<li>域名千千万，DNS服务器千千万，如何知道我们想找的域名对应的Web服务器的信息在哪一台DNS服务器上？<ul>
+<li>首先，将下级域的DNS服务器的IP地址注册到它们的上级DNS服务器中。</li>
+<li>再将上级DNS服务器的IP地址注册到更上级，以此类推形成树状结构。</li>
+<li>这样就就可以按照层级结构，从高到低查询IP。</li>
+</ul>
+</li>
+<li>一般来说，com等域貌似是顶级域了，但其实在com之类的域之上还有一级域，称为根域，通常被省略。如果不省略就加一个点，如 <strong>www.lab.glasscom.com.</strong>  。</li>
+<li>首先将根域的IP地址保存到所有DNS服务器中，这样每一台DNS服务器可以从根域开始向下搜索，找到一个域名对应的IP。</li>
+<li>分配给根域服务器的IP地址全世界只有<strong>13</strong>个。（虽然IP地址只有13个，但是服务器是非常多的）</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327193843.png" style="zoom:80%;" /></p>
+<ul>
+<li>具体查询域名对应IP地址的流程如下：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327194011.png" style="zoom:80%;" /></p>
+<ul>
+<li>DNS服务器存在缓存功能，如果之前查过的，可以直接返回。但是注意，原本注册的信息可能发生改变，所以DNS服务器应该给缓存设置有效期。并且，DNS响应查询时，应该告诉客户端响应结果是来自缓存还是查出来的。</li>
+</ul>
+<h2 id="1-4-委托协议栈发送消息"><a href="#1-4-委托协议栈发送消息" class="headerlink" title="1.4 委托协议栈发送消息"></a>1.4 委托协议栈发送消息</h2><ul>
+<li>主要讲的是怎么发消息。</li>
+<li>使用TCP协议来收发数据的过程如下图：<ul>
+<li>创建套接字（创建套接字阶段）</li>
+<li>将管道连接到服务器端的套接字上（连接阶段） </li>
+<li>收发数据（通信阶段） </li>
+<li>断开管道并删除套接字（断开阶段）</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327194507.png" style="zoom:80%;" /></p>
+<ul>
+<li>在发送数据前，两台计算机之间应当建立<strong>管道</strong>。管道两端的数据出入口称为<strong>套接字</strong>。</li>
+<li>首先，服务器端创建套接字，然后客户端创建套接字，最后套接字连接形成管道。</li>
+</ul>
+<h3 id="1-4-1-创建套接字阶段"><a href="#1-4-1-创建套接字阶段" class="headerlink" title="1.4.1 创建套接字阶段"></a>1.4.1 创建套接字阶段</h3><ul>
+<li>只需要调用Socket库中的socket程序组件即可。调用后返回一个描述符用于识别不同套接字。</li>
+</ul>
+<h3 id="1-4-2-连接阶段：把管道接上去"><a href="#1-4-2-连接阶段：把管道接上去" class="headerlink" title="1.4.2 连接阶段：把管道接上去"></a>1.4.2 连接阶段：把管道接上去</h3><ul>
+<li>调用Socket库中connect组件，须传入三个参数：<ul>
+<li>描述符，即表明用哪一个套接字和服务器端的套接字连接</li>
+<li>IP</li>
+<li>端口号</li>
+</ul>
+</li>
+</ul>
+<h3 id="1-4-3-通信阶段：传递消息"><a href="#1-4-3-通信阶段：传递消息" class="headerlink" title="1.4.3 通信阶段：传递消息"></a>1.4.3 通信阶段：传递消息</h3><ul>
+<li>发送消息，调用Socket库中的write程序组件，传入两个参数：<ul>
+<li>描述符</li>
+<li>发送数据</li>
+</ul>
+</li>
+<li>接收消息，调用Socket库中的read程序组件，传入两个参数<ul>
+<li>描述符</li>
+<li>保存响应消息的内存地址。</li>
+</ul>
+</li>
+</ul>
+<h3 id="1-4-4-断开阶段：收发数据结束"><a href="#1-4-4-断开阶段：收发数据结束" class="headerlink" title="1.4.4 断开阶段：收发数据结束"></a>1.4.4 断开阶段：收发数据结束</h3><ul>
+<li>调用Socket库中的close程序组件，传入一个参数，描述符。</li>
+</ul>
+<h3 id="1-4-5-一图胜千言"><a href="#1-4-5-一图胜千言" class="headerlink" title="1.4.5 一图胜千言"></a>1.4.5 一图胜千言</h3><p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220327195733.png" style="zoom:80%;" /></p>
+]]></content>
+      <categories>
+        <category>Network</category>
+        <category>网络是怎样连接的</category>
+      </categories>
+      <tags>
+        <tag>Network</tag>
+        <tag>网络是怎样连接的</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>网络是怎样连接的-2.探索协议栈和网卡</title>
+    <url>/2022/11/11/%E7%BD%91%E7%BB%9C%E6%98%AF%E6%80%8E%E6%A0%B7%E8%BF%9E%E6%8E%A5%E7%9A%84-2-%E6%8E%A2%E7%B4%A2%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%92%8C%E7%BD%91%E5%8D%A1/</url>
+    <content><![CDATA[<h1 id="第二章-探索协议栈和网卡"><a href="#第二章-探索协议栈和网卡" class="headerlink" title="第二章 探索协议栈和网卡"></a>第二章 探索协议栈和网卡</h1><ul>
+<li>这章主要讲的是在收发数据过程中的具体工作流程，比如怎么创建套接字、怎么建立连接、怎么将数据发送出去等等。</li>
+</ul>
+<h2 id="2-1-创建套接字"><a href="#2-1-创建套接字" class="headerlink" title="2.1 创建套接字"></a>2.1 创建套接字</h2><ul>
+<li>协议栈的内部结构：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403111356.png" style="zoom:80%;" /></p>
+<p>浏览器、邮件等一般应用程序收发数据时用TCP；DNS查询等收发较短的控制数据时用UDP。<br><span id="more"></span></p>
+<ul>
+<li>到底啥是套接字？</li>
+</ul>
+<p>​        套接字是实体就是通信控制信息。协议栈的内部有一块空间用于存放控制信息的内存空间，记录了控制通信操作的控制信息，其实体就是套接字。举个栗子，使用netstat命令可以显示套接字：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403111926.png" style="zoom:80%;" /></p>
+<ul>
+<li>调用socket来创建套接字时到底发生了什么？</li>
+</ul>
+<p>​        首先看看消息收发操作的整个流程：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403135124.png" style="zoom:80%;" /></p>
+<p>​        </p>
+<p>​        消息收发流程中，先调用socket创建套接字，其本质就是协议栈为改套接字分配一块内存空间，用于存放控制信息，并向其中写入初始状态。接着确定一个该套接字的唯一标识，并将该标识告诉应用程序，这样应用程序就知道该和谁进行通信了。</p>
+<h2 id="2-2-连接服务器"><a href="#2-2-连接服务器" class="headerlink" title="2.2 连接服务器"></a>2.2 连接服务器</h2><ul>
+<li>什么是连接？</li>
+</ul>
+<p>​    创建套接字之后，应用程序（浏览器）就会调用 connect，随后协议栈会将本地的套接字与服务器的套接字进行连接。连接就是让客户端也就是应用程序和服务器端知道该和谁通信，这些信息都是保存在套接字中的。</p>
+<ul>
+<li><p>有关控制信息：</p>
+<ul>
+<li>第一类是客户端和服务器相互联络时交换的控制信息。该信息不仅在连接时需要，在收发和断开阶段都需要，这些内容在TCP协议的规格中定义，如下表。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403140138.png" style="zoom:80%;" /></p>
+<p>这些信息会放在网络包的开头，如下图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403140245.png" style="zoom:80%;" /></p>
+<p>当处于连接阶段网络包还没有数据的时候，网络包长这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403140347.png" style="zoom:80%;" /></p>
+<ul>
+<li>第二类，保存在套接字中，用来控制协议栈操作的信息，协议栈会根据这些信息来执行每一步的操作。就是第一节中的套接字。</li>
+</ul>
+</li>
+<li><p>连接操作的实际过程，调用Socket库中的connect：</p>
+<ul>
+<li>首先，客户端创建一个包，其中包含表示开始数据收发操作的控制信息的头部，就是上面那张表中的信息。重点是发送方和接收方的端口号，这样客户端就能知道连接服务器端的哪个套接字了。</li>
+<li>然后，将头部控制位中的SYN比特设置为1，用来表示进行来连接操作。此外，还要设置序号和窗口大小。</li>
+<li>TCP头部创建好后，TCP模块将信息传递给IP模块，委托它进行发送。IP模块将网络包发送给服务器端。</li>
+<li>服务器端IP模块将接收到的数据传递给服务器端的TCP模块，TCP模块根据TCP头部的信息找到端口号对应的套接字，并且修改该套接字为正在连接的状态。</li>
+<li>上述完成后，服务器端的TCP模块会返回响应，整个过程和客户端一样，设置TCP头部的控制信息，比如双方的端口号和SYN比特，以及将ACK控制位设置为1。然后委托IP模块进行发送。</li>
+<li>然后，客户端就会收到该网络包，通过IP模块到达TCP模块。通过TCP头部信息判断连接操作是否成功，如果SYN为1表示成功，那么客户端就像套接字中写入服务器的IP、端口等信息，将状态改为连接完毕。至此，客户端的连接操作完毕。</li>
+<li>最后一步，刚刚服务器端返回响应时将ACK设置为1，相应地，客户端也需要将ACK设置为1发给服务器，代表服务器刚刚发的包已经收到。当服务器收到这个返回包之后，连接操作才算全部完成。</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-3-收发数据"><a href="#2-3-收发数据" class="headerlink" title="2.3 收发数据"></a>2.3 收发数据</h2><ul>
+<li>建立连接之后，下一步就该收发数据了。主要就是应用程序把要发送的数据通过调用write先交给协议栈，协议栈收到数据后再执行发送操作。</li>
+<li>协议栈发送数据时：<ul>
+<li>首先，协议栈不关心数据中到底是啥，一切都只是二进制字节序列。</li>
+<li>其次，协议栈并不是一收到数据就马上发送，先放在内部的发送缓冲区，累计到一定量再发出去，根据以下两个要素判断，二者不可得兼。<ul>
+<li>第一，每个网络包能容纳的数据长度。</li>
+<li>第二，时间，应用程序发送数据的频率。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>对较大的数据进行拆分：</li>
+</ul>
+<p>​        当要发送的数据超过一个网络包能容纳的最大数据时，就要对较大数据进行拆分。对拆分出来的数据，加上TCP头部，设置发送方和接收方的端口号，然后交给IP模块进行发送。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403152850.png" style="zoom:80%;" /></p>
+<ul>
+<li>使用ACK号确认网络包已收到：</li>
+</ul>
+<p>​        原理如下图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403153535.png" style="zoom:80%;" /></p>
+<p>​        序号用于表明当前从第几个字节开始发送，长度表明发送的数据包有多长，ACK号表明下一次数据该从第多少字节发送，在这之前的数据已经收到。</p>
+<p>​        然而实际情况要更复杂一点。实际上序号并不会从1开始，而是用随机数计算一个初始值。如果序号从1开始，通信过程是可以预测的，很不安全。</p>
+<p>​        当数据双向传输的时候原理如下图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403154007.png" style="zoom:80%;" /></p>
+<p>​        实际工作过程如下：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403154104.png" style="zoom:80%;" /></p>
+<p>​        如果对方没有返回某些包对应的ACK号，那么就重新发送这些包。</p>
+<ul>
+<li>根据网络包平均往返时间调整 ACK 号等待时间：</li>
+</ul>
+<p>​        当网络堵塞的时候，ACK号返回就会变慢，就需要将等待时间设置的稍长，但是也不能过长也不能过短。TCP采用动态调整等待时间的方法，这个等待时间是根据 ACK 号返回所需的时间来判断的。具体来说，TCP 会在发送数据的过程中持续测量 ACK 号的返回时间，如果 ACK 号返回变慢，则相应延长等待时间；相对地，如果 ACK 号马上就能返回，则相应缩短等待时间。</p>
+<ul>
+<li>使用窗口有效管理 ACK 号：</li>
+</ul>
+<p>​        发送一个包就等待一个包的ACK号的方式虽然简单，但是在等待ACK的时候什么也不做，效率太低，于是采用滑动窗口的方式来操作，如下图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403154745.png" style="zoom:80%;" /></p>
+<p>​        但是有个问题，如果发送方发送的太快，接收方处理不过来咋办？</p>
+<p>​        接收方的TCP收到包后先将包放到接收缓冲区中，如果缓冲区满，那么发来的数据就丢失了。所以接收方应该先告诉发送方自己最多能接收多少数据。思路如下图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403155035.png" style="zoom:80%;" /></p>
+<p>​        接收方能够接受的最大数据量称为窗口大小，一般和缓冲区大小一致。</p>
+<ul>
+<li>ACK 与窗口的合并：</li>
+</ul>
+<p>​        发送方可以根据自己发送出去的数据计算窗口减小了多少，那么增大呢？当接收方的应用程序从缓冲区中取出数据时，窗口应该增大。而ACK号是当接收方收到数据时计算，然后发送给发送方的。要是分开发送这两个参数给发送方，效率太低，所以要想办法结合在一起发送。</p>
+<p>​        并且当有多个ACK号要发送时，只需要发送最后一个即可；有多个窗口更新要发送时只需要发送最后一个即可。</p>
+<ul>
+<li>接收 HTTP 响应消息：</li>
+</ul>
+<p>​        下面来讲讲接收响应。</p>
+<p>​        首先，调用read程序来获取响应消息。然后该协议栈上场了，协议栈尝试从接收缓冲区中取出数据传递给应用程序，如果没有数据就i将应用程序挂起。</p>
+<p>​        接收数据和发送数据比较相似，总结如下：</p>
+<p>​        首先，协议栈检查收到的数据块和TCP头部的内容，判断是否有数据丢失，没有则返回ACK号。然后，协议栈将数据块暂存到接收缓冲区中，并将数据块连接起来还原出原始书数据。最后交给应用程序。</p>
+<h2 id="2-4-从服务器断开并删除套接字"><a href="#2-4-从服务器断开并删除套接字" class="headerlink" title="2.4 从服务器断开并删除套接字"></a>2.4 从服务器断开并删除套接字</h2><ul>
+<li>双方都可以首先发起断开连接，下面以服务器乙方发起断开过程为例：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403161826.png" style="zoom:80%;" /></p>
+<p>​        第一，服务器方的应用程序会调用Socket库的close程序。然后协议栈登场，生成包含断开信息的TCP头部，也就是将控制位的FIN比特设置为1。接着，TPC模块委托IP模块向客户端发送数据，同时，服务器的套接字记录断开的相关信息。</p>
+<p>​        第二，就是客户端，返回ACK号表明收到了上一个有断开信息的包。</p>
+<p>​        第三，客户端调用close，之后的过程就和第一步一样了。</p>
+<p>​        第四，同第二步。</p>
+<ul>
+<li>删除套接字：</li>
+</ul>
+<p>​        通信结束后，等待一段时间就删除套接字。之所以等待，是为了防止误操作。</p>
+<ul>
+<li>至此，整个连接、收发、断开过程如下：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403162557.png" style="zoom:80%;" /></p>
+<h2 id="2-5-IP-与以太网的包收发操作"><a href="#2-5-IP-与以太网的包收发操作" class="headerlink" title="2.5 IP 与以太网的包收发操作"></a>2.5 IP 与以太网的包收发操作</h2><ul>
+<li>包的基本知识：</li>
+</ul>
+<p>​        网络包的结构：头部就相当于快递的快递单，数据就相当于快递的货物。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404105325.png" style="zoom:80%;" /></p>
+<p>​        一个包发往目的地的过程：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404105234.png" style="zoom:80%;" /></p>
+<p>​        发送方和接收方统称为终端节点。</p>
+<p>​        对于转发设备：1.路由器根据目标地址判断下一个路由器的位置 2.集线器在子网中将网络包传输到下一个路由。</p>
+<p>​        实际上，集线器是按照以太网规则传输包的设备，而路由器是按照IP规则传输包的设备，因此：1. IP 协议根据目标地址判断下一个 IP 转发设备的位置  2. 子网中的以太网协议将包传输到下一个转发设备</p>
+<p>​        TCP/IP包：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404105605.png" style="zoom:80%;" /></p>
+<p>其中，包含两个头部：MAC头部（用于以太网协议），IP头部（用于IP协议）。对于IP协议，发送方将包的目的地也就是要访问的服务器的IP地址写入IP头部，IP协议就可以根据这一地址查找包的传输方向，找到下一个路由器的位置。接下来，IP 协议会委托以太网协议将包传输过去。这时，IP 协议会查找下一个路由器的以太网地址（MAC 地址），并将这个地址写入 MAC 头部中。这样一来，以太网协议就知道要将这个包发到哪一个路由器上了。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404112933.png" style="zoom:80%;" /></p>
+<ul>
+<li>包收发操作的整体过程：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404113743.png" style="zoom:80%;" /></p>
+<ul>
+<li>生成包含接收方 IP 地址的 IP 头部:</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404114006.png" style="zoom:80%;" /></p>
+<p>最重要的头部是IP地址，这是根据网卡来决定的。那么该如何判断应该把包交给哪块网卡呢？用路由表，具体在第三章再说。</p>
+<ul>
+<li>生成以太网用的 MAC 头部</li>
+</ul>
+<p>​        MAC 头部是以太网使用的头部，它包含了接收方和发送方的 MAC 地址等信息。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404114305.png" style="zoom:80%;" /></p>
+<p>发送方的MAC地址是网卡生产时写入ROM里的，只要读出来即可。对于接收方的MAC地址，是根据接收方的IP地址查询到的。那么怎么查询呢？</p>
+<ul>
+<li>通过 ARP 查询目标路由器的 MAC 地址：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404140305.png" style="zoom:80%;" /></p>
+<p>​        广播：把包发送给连接在同一以太网中的所有设备。</p>
+<p>​        ARP(Address Resolution Protocol，地址解析协议)就是利用广播，对所有设备提问：“×× 这个 IP 地址是谁的？请把你的 MAC 地址告诉我。”然后就会有人回答：“这个 IP 地址是我的，我的 MAC 地址是××××”。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404140123.png" style="zoom:80%;" /></p>
+<p>​        同时设置MAC地址缓存，持续时间几分钟。</p>
+<ul>
+<li>以太网的基本知识：</li>
+</ul>
+<p>​        原型：谁都可以接收</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404141125.png" style="zoom:80%;" /></p>
+<p>​        改进后：还是谁都可以接收</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404141316.png" style="zoom:80%;" /></p>
+<p>​        再改进：只有特定设备可以接收</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404141342.png" style="zoom:80%;" /></p>
+<p>可以认为，具备以下三个性质的就是以太网：1. 将包发送到MAC头部的接收方MAC地址代表的目的地；2. 用发送方地址识别发送方；3. 用以太类型识别包的内容</p>
+<ul>
+<li>将 IP 包转换成电或光信号发送出去：</li>
+</ul>
+<p>​        最终到底是怎么把数据发出去的？需要将数字信息转换为光电信号，才能在网线上传输。</p>
+<p>​        负责执行上述操作的就是网卡，而网卡必须要有网卡驱动程序来控制。网卡的概念结构如下图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404141835.png" style="zoom:80%;" /></p>
+<p>网卡的 ROM 中保存着全世界唯一的 MAC 地址，这是在生产网卡时写入的。</p>
+<p>网卡中保存的 MAC 地址会由网卡驱动程序读取并分配给 MAC模块。</p>
+<p>在启动时，驱动程序初始化，在MAC模块中设置MAC地址，网卡就可以等待来自IP的委托了。</p>
+<ul>
+<li>如何将包转换成电信号并发送到网线中？</li>
+</ul>
+<p>首先，MAC 模块会将包从缓冲区中取出，并在开头加上报头和起始帧分界符，在末尾加上用于检测错误的帧校验序列。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404142318.png" style="zoom:80%;" /></p>
+<p>报头和起始帧分节符：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404142823.png" style="zoom:80%;" /></p>
+<p>报头是一串像 10101010…这样 1 和 0 交替出现的比特序列，长度为 56比特，它的作用是确定包的读取时机。起始帧分界符是一个用来表示包起始位置的标记。</p>
+<p>末尾的 FCS（帧校验序列）用来检查包传输过程中因噪声导致的波形紊乱、数据错误，它是一串 32 比特的序列，是通过一个公式对包中从头到尾的所有内容进行计算而得出来的。</p>
+<p>略去如何根据电信号读取数据…</p>
+<ul>
+<li>向集线器发送网络包</li>
+</ul>
+<p>加上报头、起始帧分界符和 FCS 之后，我们就可以将包用电信号通过网线发送出去了。使用网卡中的PHY(MAU)模块。</p>
+<ul>
+<li>接收返回包：</li>
+</ul>
+<p>首先，PHY（MAU）模块会将信号转换成通用格式并发送给 MAC 模块，MAC 模块再头开始将信号转换为数字信息，并存放到缓冲区中。当到达信号的末尾时，还需要检查 FCS。如果 FCS 校验没有问题，接下来就要看一下 MAC 头部中接收方MAC 地址与网卡在初始化时分配给自己的 MAC 地址是否一致，以判断这个包是不是发给自己的。接下来网卡会通知计算机收到了一个包。</p>
+<p>网卡驱动程序发起中断，该中断被处理程序处理后，会从缓冲区取出收到的包。根据MAC头部中的以太类型判断协议栈的类型，然后发送给响应协议栈。</p>
+<ul>
+<li>将服务器的响应包从 IP 传递给 TCP</li>
+</ul>
+<p>现在来到了协议栈中，IP模块检查包的IP头部，确认格式，接着确定接收方IP地址是不是客户端网卡地址。如果一切没问题，IP模块处理分片的包，当属于同一个包的所有分片都到了，将其拼成完整的包然后交给TCP模块。</p>
+<p>TCP模块根据TCP头部信息来查找对应的套接字，找到对应的套接字之后，就可以根据套接字中记录的通信状态，执行相应的操作了。例如，如果包的内容是应用程序数据，则返回确认接收的包，并将数据放入缓冲区，等待应用程序来读取；如果是建立或断开连接的控制包，则返回相应的响应控制包，并告知应用程序建立和断开连接的操作状态。</p>
+<h2 id="2-6-UDP-协议的收发操作"><a href="#2-6-UDP-协议的收发操作" class="headerlink" title="2.6 UDP 协议的收发操作"></a>2.6 UDP 协议的收发操作</h2><ul>
+<li><p>不需要重发的数据用 UDP 发送更高效</p>
+</li>
+<li><p>控制用的短数据</p>
+</li>
+<li><p>音频和视频数据</p>
+</li>
+</ul>
+<p>以上情况比较适合用UDP协议来发送。</p>
+]]></content>
+      <categories>
+        <category>Network</category>
+        <category>网络是怎样连接的</category>
+      </categories>
+      <tags>
+        <tag>Network</tag>
+        <tag>网络是怎样连接的</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>计算机网络-1.基本概念</title>
+    <url>/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-1-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<h1 id="1-基本概念"><a href="#1-基本概念" class="headerlink" title="1.基本概念"></a>1.基本概念</h1><ul>
+<li><p><strong>ISP</strong> (Internet Service Provider)：因特网服务提供者，国内如中国电信、中国移动、中国联通。</p>
+</li>
+<li><p>因特网的组成：</p>
+<ul>
+<li>边缘部分：用户的主机</li>
+<li>核心部分：大量网络和路由器</li>
+</ul>
+</li>
+<li><p>三种交换方式：</p>
+<ul>
+<li>电话交换</li>
+<li>分组交换（使用这种）</li>
+<li>报文交换</li>
+</ul>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220413194532.png" style="zoom:80%;" /><br><span id="more"></span></p>
+<ul>
+<li>计算机网络定义（无标准）：一些<strong>互联</strong>、<strong>自治</strong>的计算机的<strong>集合</strong>。</li>
+<li>计网的分类：</li>
+</ul>
+<p>按交换技术分类：电路交换网络、报文交换网络、分组交换网络；</p>
+<p>按使用者分类：公用网、专用网；</p>
+<p>按传输介质分类：有线网络、无线网络；</p>
+<p>按覆盖范围分类：广域网WAN、城域网MAN、局域网LAN、个域网PAN；</p>
+<p>按拓扑结构分类：总线型网络、星型网络、环形网络、网状型网络；</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220413195006.png" style="zoom:80%;" /></p>
+<ul>
+<li><p>常见的性能指标：</p>
+<ul>
+<li>速率：传送比特的速率，常用单位比特每秒等。</li>
+<li>带宽：单位时间内从网络的某一点到另一点所能通过的最高数据率。</li>
+<li>吞吐量：单位时间内通过某个网络（或信道、接口）的数据量。</li>
+<li>时延：<ul>
+<li>发送时延：分组长度/发送速率</li>
+<li>传播时延：信道长度/电磁波传播速率</li>
+<li>处理时延：一般不方便计算，忽略</li>
+</ul>
+</li>
+<li>时延带宽积：传播时延*带宽，若发送端连续发送数据，则在所发送的第一个比特到达终点时，发送端就已经发送了时延带宽积个比特。</li>
+<li>往返时间：Round-Trip Time，RTT</li>
+<li>利用率：<ul>
+<li>信道利用率：某信道有百分之几的时间是被利用的。</li>
+<li>网络利用率：全网络的信道利用率的加权平均。</li>
+<li>信道利用率并非越高越好，越高则时延越大。</li>
+</ul>
+</li>
+<li>丢包率：在一定时间范围内，传输过程中丢失的分组数量与总分组数量的比率。<ul>
+<li>分组在传输过程中出现误码，被结点丢弃。</li>
+<li>分组到达一台队列已满的分组交换机时被丢弃。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>计算机网络体系结构：</p>
+<ul>
+<li>常见的计算机网络体系结构：</li>
+</ul>
+<p>OSI体系结构、TCP/IP体系结构与原理体系结构：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416185253.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416185337.png" style="zoom:80%;" /></p>
+<ul>
+<li>分层的必要性：</li>
+</ul>
+<p>分层可将复杂问题转为较小的局部问题，方便处理和研究。各层解决的问题如下：</p>
+<p><strong>物理层</strong>：1.采用怎样的传输媒体（介质）2.采用怎样的物理接口 3.使用怎样的信号表示比特0和1</p>
+<p><strong>数据链路层</strong>：1.如何标识网络中各主机（主机编制问题，例如MAC地址）2.如何从信号所表示的一连串比特流中区分出地址和数据 3.如何协调各主机征用总线</p>
+<p><strong>网络层</strong>：1.如何标识各网络以及各网络中的各主机（网络和主机共同编址的问题，例如IP地址）2.路由器如何转发分组，如何进行路由器选择</p>
+<p><strong>运输层</strong>：1.如何解决进程之间基于网络的通信问题 2.出现传输错误时，如何处理</p>
+<p><strong>应用层</strong>：通过应用进程之间的交互来完成特定的网络应用。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416190042.png" style="zoom:80%;" /></p>
+<ul>
+<li><p>专用术语：</p>
+<p>实体：任何可发送或接受信息的硬件或软件进程</p>
+<p>对等实体：收发双发相同层次中的实体</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416190323.png" style="zoom:80%;" /></p>
+<p>协议：控制两个对等实体进行逻辑通信的规则的集合。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416190402.png" style="zoom:80%;" /></p>
+<p>协议三要素：语法、语义、同步</p>
+<p>语法定义交换信息的格式；语义定义收发双方所要完成的操作；同步定义收发双方的时序关系。</p>
+<p>服务：在协议的控制下，两个对等实体间的逻辑通信使得本层能够向上一层提供服务；要实现本层协议，还需要使用下一层所提供的服务。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416190702.png" style="zoom:80%;" /></p>
+</li>
+</ul>
+<p>协议数据单元PDU：对等层次之间传送的数据包</p>
+<p>服务数据单元SDU：同一系统内，层与层之间交换的数据包</p>
+<p>多个SDU可合成一个PDU，一个SDU也可划分几个PDU。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416190918.png" alt=""></p>
+</li>
+</ul>
+]]></content>
+      <categories>
+        <category>Network</category>
+        <category>计算机网络</category>
+      </categories>
+      <tags>
+        <tag>Network</tag>
+        <tag>计算机网络</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>计算机网络-2.物理层</title>
+    <url>/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-2-%E7%89%A9%E7%90%86%E5%B1%82/</url>
+    <content><![CDATA[<h1 id="2-物理层"><a href="#2-物理层" class="headerlink" title="2.物理层"></a>2.物理层</h1><h2 id="2-1-基本概念"><a href="#2-1-基本概念" class="headerlink" title="2.1 基本概念"></a>2.1 基本概念</h2><ul>
+<li>传输媒体：</li>
+</ul>
+<p><strong>导引型传输媒体</strong>：双绞线、同轴电缆、光纤</p>
+<p><strong>非导引型传输媒体</strong>：微波通信（2~40GHz）</p>
+<ul>
+<li>物理层协议的主要任务：</li>
+</ul>
+<p><strong>机械特性</strong>：指明接口所用接线器的形状和尺寸、引脚数目和排列、固定和锁定装置。</p>
+<p><strong>电气特性</strong>：指明在接口电缆的各条线上出现的电压范围。</p>
+<p><strong>功能特性</strong>：指明某条线上出现的某一电平的电压表示何种意义。</p>
+<p><strong>过程特性</strong>：指明对于不同功能的各种可能事件的出现顺序。</p>
+<ul>
+<li>物理层考虑的是怎样才能在连接各种计算机的传输媒体上传输数据比特流。</li>
+<li>物理层为数据链路层屏蔽了各种传输媒体的差异，使数据链路层只需要考虑如何完成本层的协议和服务，而不必考虑网络传输的传输媒体是什么。<span id="more"></span>
+</li>
+</ul>
+<h2 id="2-2-物理层下面的传输媒体"><a href="#2-2-物理层下面的传输媒体" class="headerlink" title="2.2 物理层下面的传输媒体"></a>2.2 物理层下面的传输媒体</h2><ul>
+<li>导引型传输媒体：同轴电缆、双绞线、光纤、电力线</li>
+<li>非导引型传输媒体：无线电波、微波、红外线、可见光</li>
+</ul>
+<h2 id="2-3-传输方式"><a href="#2-3-传输方式" class="headerlink" title="2.3 传输方式"></a>2.3 传输方式</h2><ul>
+<li>串行传输与并行传输：</li>
+</ul>
+<p>串行速度慢，价格低，适用于长距离传输；</p>
+<p>并行速度快，价格贵，适用于短距离传输。</p>
+<ul>
+<li>同步传输与异步传输：</li>
+</ul>
+<p>同步传输字节连续发送；</p>
+<p>异步传输字节分开发送。</p>
+<ul>
+<li>单工、半双工、全双工：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220419152224.png" style="zoom:80%;" /></p>
+<h2 id="2-4-编码与调制"><a href="#2-4-编码与调制" class="headerlink" title="2.4 编码与调制"></a>2.4 编码与调制</h2><ul>
+<li>编码：将信号转为数字信号。</li>
+<li>调制：将信号转为模拟信号。</li>
+<li>码元：在使用时间域的波形表示数字信号时，代表不同离散数值的基本波形。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220419152541.png" alt=""></p>
+<ul>
+<li>常用编码：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220419152701.png" style="zoom:80%;" /></p>
+<ul>
+<li>基本调制方法：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220419152940.png" style="zoom:80%;" /></p>
+<h2 id="2-5-信道的极限容量"><a href="#2-5-信道的极限容量" class="headerlink" title="2.5 信道的极限容量"></a>2.5 信道的极限容量</h2><ul>
+<li>信号失真严重时，无法识别原信号。</li>
+<li>失真因素：码元传输速率、信号传输距离、噪声干扰、传输媒体质量。</li>
+<li>奈氏准则：在理想情况下，为了避免码间串扰，码元的传输速率是有上限的。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220419153410.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220419153422.png" style="zoom:80%;" /></p>
+<ul>
+<li>香农公式：带宽受限且有高斯白噪声干扰的信道的极限信息传输速率。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220419153446.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220419153500.png" style="zoom:80%;" /></p>
+]]></content>
+      <categories>
+        <category>Network</category>
+        <category>计算机网络</category>
+      </categories>
+      <tags>
+        <tag>Network</tag>
+        <tag>计算机网络</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>计算机网络-4. 网络层</title>
+    <url>/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-4-%E7%BD%91%E7%BB%9C%E5%B1%82/</url>
+    <content><![CDATA[<h1 id="4-网络层"><a href="#4-网络层" class="headerlink" title="4. 网络层"></a>4. 网络层</h1><h2 id="4-1-概述"><a href="#4-1-概述" class="headerlink" title="4.1 概述"></a>4.1 概述</h2><ul>
+<li>主要任务：实现网络互连，进而实现数据包在各网络之间的传输。</li>
+<li>需要解决的问题：<ul>
+<li>网络层向运输层提供怎样的服务（可靠传输还是不可靠传输）。</li>
+<li>网络层寻址问题。</li>
+<li>路由器选择问题。<span id="more"></span>
+</li>
+</ul>
+</li>
+</ul>
+<h2 id="4-2-网络层提供的两种服务"><a href="#4-2-网络层提供的两种服务" class="headerlink" title="4.2 网络层提供的两种服务"></a>4.2 网络层提供的两种服务</h2><h3 id="4-2-1-面向连接的虚电路服务"><a href="#4-2-1-面向连接的虚电路服务" class="headerlink" title="4.2.1 面向连接的虚电路服务"></a>4.2.1 面向连接的虚电路服务</h3><ul>
+<li>可靠通信由网络来保证。</li>
+<li>必须建立网络层的连接—虚电路VC。</li>
+<li>通信双方沿着已建立的虚电路发送分组。</li>
+<li>目的主机的地址仅在连接建立阶段使用，之后每个分组的首部只需携带一条电路的编号。</li>
+<li><p>这种通信方式如果在使用可靠传输的网络协议，就可使所发送的分组最终达到接收方。</p>
+</li>
+<li><p>通信结束后，需要释放之前所建立的虚电路。</p>
+</li>
+<li>很多广域分组交换网都是用面向连接的虚电路服务。</li>
+</ul>
+<h3 id="4-2-2-无连接的数据报服务"><a href="#4-2-2-无连接的数据报服务" class="headerlink" title="4.2.2 无连接的数据报服务"></a>4.2.2 无连接的数据报服务</h3><ul>
+<li>可靠通信应当由主机来保证</li>
+<li>不需要建立网络层连接</li>
+<li>每个分组可走不同的路径</li>
+<li>每个分组的首部必须携带目的主机的完整地址</li>
+<li>这种通信方式所传送的分组可能误码、丢失、重复和失序</li>
+<li>由于网络本身不提供端到端的可靠传输服务，这就使网络中的路由器可以做的比较简单，而且价格低廉。</li>
+<li>因特网采用了这种设计思想，将复杂的网络处理功能置于因特网的边缘（用户主机和其内部的运输层），而将相对简单的尽最大努力的分组交付功能置于因特网核心。</li>
+</ul>
+<h2 id="4-3-IPv4地址"><a href="#4-3-IPv4地址" class="headerlink" title="4.3 IPv4地址"></a>4.3 IPv4地址</h2><h3 id="4-3-1-概述"><a href="#4-3-1-概述" class="headerlink" title="4.3.1 概述"></a>4.3.1 概述</h3><ul>
+<li>IPv4地址就是因特网上的每一台主机（或路由器）的每一个接口分配一个在全世界范围内唯一的32比特的标识符。</li>
+<li>IPv4地址的编制方法经历了如下三个阶段：分类编址、划分子网、无分类编制。</li>
+<li>32比特的IPv4地址不方便阅读、记录以及输入，因此采用点分十进制表示方法以便用户使用：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427151556.png" style="zoom:80%;" /></p>
+<h3 id="4-3-2-分类编制的IPv4地址"><a href="#4-3-2-分类编制的IPv4地址" class="headerlink" title="4.3.2 分类编制的IPv4地址"></a>4.3.2 分类编制的IPv4地址</h3><ul>
+<li>一共分为A、B、C、D、E共五类：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427151719.png" style="zoom:80%;" /></p>
+<p>根据左起的第一个十进制数的值，可以判断出网络类别：小于127的为A类，128~191的为B类，192-223的为C类。</p>
+<p>只有A、B、C类地址可分配给网络中的主机或路由器的各接口。</p>
+<p>主机号为全0的地址是网络地址不能分配给主机或路由器的各接口；主机号为全1的地址是广播地址，不能分配给主机或路由器的各接口。</p>
+<ul>
+<li>A类地址：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427152312.png" style="zoom:80%;" /></p>
+<ul>
+<li>B类地址：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427153322.png" style="zoom:80%;" /></p>
+<ul>
+<li>C类地址：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427153417.png" style="zoom:80%;" /></p>
+<h3 id="4-3-3-划分子网的IPv4地址"><a href="#4-3-3-划分子网的IPv4地址" class="headerlink" title="4.3.3 划分子网的IPv4地址"></a>4.3.3 划分子网的IPv4地址</h3><ul>
+<li>32位的子网掩码可以表明分类IP地址的<strong>主机号部分</strong>被借用了几个比特作为子网号：</li>
+</ul>
+<p>子网掩码使用连续的比特1来对应网络号和子网号；使用连续的比特0来对应主机号；</p>
+<p>将划分子网的IPv4地址与其相应的子网掩码进行逻辑与运算就可得到IPv4地址所在子网的网络地址。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427153740.png" style="zoom:80%;" /></p>
+<p>举个栗子：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427154103.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427154132.png" style="zoom:80%;" /></p>
+<ul>
+<li>默认子网掩码：指未划分子网的情况下使用的子网掩码。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220427154512.png" style="zoom:80%;" /></p>
+<h3 id="4-3-4-无分类编制的IPv4地址"><a href="#4-3-4-无分类编制的IPv4地址" class="headerlink" title="4.3.4 无分类编制的IPv4地址"></a>4.3.4 无分类编制的IPv4地址</h3><ul>
+<li>划分子网在一定程度上缓解了因特网在发展中遇到的困难，但是数量巨大的C类网因为其地址空间大小并没有得到充分使用，而因特网的 IP地址仍在加速消耗，整个IPv4地址面临全部耗尽的威胁。因此因特网工程任务组IETF提出采用<strong>无分类编制</strong>的方法来解决IP地址紧张的问题，同时还专门成立IPv6工作组研究新版本IP以彻底解决地址耗尽问题。</li>
+<li>无分类域间路由选择CIDR（Classless Inter-Domain Routing），消除了传统的A、B、C类地址以及划分子网的概念，使用斜线记法，或称CIDR记法。在IPv4地址后面加上斜线“/”，在斜线后面写上网络前缀所占的比特数量。实际上，将网络前缀都相同的连续IP地址组成一个CIDR地址块。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220428092028.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220428093200.png" style="zoom:80%;" /></p>
+<ul>
+<li>路由聚合（构造超网） </li>
+</ul>
+<p>可将路由表中多条记录合成一条：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220428093419.png" style="zoom:80%;" /></p>
+<p>网络前缀越长，地址块越小，路由越具体。</p>
+<h2 id="4-4-IP数据报的发送和转发过程"><a href="#4-4-IP数据报的发送和转发过程" class="headerlink" title="4.4 IP数据报的发送和转发过程"></a>4.4 IP数据报的发送和转发过程</h2><ul>
+<li>主要包含两个部分：1.主机发送IP数据报 2.路由器转IP数据报</li>
+<li>主机发送IP数据报：</li>
+</ul>
+<p>判断目的主机是否与自己在同一个网络，若在同一个网络，属于直接交付；若不在同一个网络，则属于间接交付，传输主机所在网络的默认网关（路由器），由默认网关帮忙转发。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220428151612.png" style="zoom:80%;" /></p>
+<ul>
+<li>路由器转发IP数据报：</li>
+</ul>
+<p>检查IP数据报首部是否出错，若出错则直接丢弃该IP数据报并通告源主机；若没有出错，则进行转发。</p>
+<p>根据IP数据报的目的地址在路由表中查找匹配的条目，若找到匹配的条目，则转发给条目中指示的吓一跳；若找不到，则丢弃该IP数据报并通告源主机。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220428151923.png" style="zoom:80%;" /></p>
+<h2 id="4-6-路由选择协议"><a href="#4-6-路由选择协议" class="headerlink" title="4.6 路由选择协议"></a>4.6 路由选择协议</h2><ul>
+<li>分为两类：静态路由选择和动态路由选择。</li>
+<li>静态路由选择：由人工配置的网络路由、默认路由、特定主机路由、黑洞路由等都属于静态路由；配置方式简单、开销小，但不能及时适应网络状态的变化；一般只在小规模网络中使用。</li>
+<li>动态路由选择：路由器通过路由选择协议自动获取路由信息；比较复杂、开销比较大，能较好地适应网络状态的变化；适用于大规模网络。</li>
+<li>因特网所采用的路由选择协议的主要特点：</li>
+</ul>
+<p>自适应：动态路由选择，能较好地适应网络状态的变化；</p>
+<p>分布式：路由器之间交换路由信息；</p>
+<p>分层次：将整个因特网划分为许多较小的自治系统AS（Autonomous System）。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220428152501.png" style="zoom:80%;" /></p>
+<ul>
+<li>路由器的基本结构：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220428152604.png" style="zoom:80%;" /></p>
+<h2 id="4-7-IPv4数据报的首部格式"><a href="#4-7-IPv4数据报的首部格式" class="headerlink" title="4.7 IPv4数据报的首部格式"></a>4.7 IPv4数据报的首部格式</h2><p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220430161615.png" style="zoom:80%;" /></p>
+<h2 id="4-8-网际控制保温协议ICMP"><a href="#4-8-网际控制保温协议ICMP" class="headerlink" title="4.8 网际控制保温协议ICMP"></a>4.8 网际控制保温协议ICMP</h2><ul>
+<li>网际层的一个协议，目的是为了更有效地转发IP数据报和提高交付成功的机会。</li>
+<li>ICMP应用：分组网间探测PING、跟踪路由traceroute。</li>
+</ul>
+<h2 id="4-9-虚拟专用网VPN与网络地址转换NAT"><a href="#4-9-虚拟专用网VPN与网络地址转换NAT" class="headerlink" title="4.9 虚拟专用网VPN与网络地址转换NAT"></a>4.9 虚拟专用网VPN与网络地址转换NAT</h2><h3 id="4-9-1-虚拟专用网VPN（Virtual-Private-Network）"><a href="#4-9-1-虚拟专用网VPN（Virtual-Private-Network）" class="headerlink" title="4.9.1  虚拟专用网VPN（Virtual Private Network）"></a>4.9.1  虚拟专用网VPN（Virtual Private Network）</h3><ul>
+<li>利用公用的因特网作为本机构各专用网之间的通信载体，这样的专用网又称为虚拟专用网。</li>
+</ul>
+<p>专用（私有）地址：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220430162726.png" style="zoom:80%;" /></p>
+<p>给一个内部网络中的主机分配专用地址，然后让该内部网络接入一个使用公用因特网地址的路由器，这样内部网络之间就可以通过使用公用因特网地址的路由器进行通信。</p>
+<h3 id="4-9-2-网络地址转换NAT（Network-Address-Translation）"><a href="#4-9-2-网络地址转换NAT（Network-Address-Translation）" class="headerlink" title="4.9.2 网络地址转换NAT（Network Address Translation）"></a>4.9.2 网络地址转换NAT（Network Address Translation）</h3><p>对于VPN，给一个内部网络的专用地址，如何翻译成公用的因特网地址？</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220430163123.png" style="zoom:80%;" /></p>
+]]></content>
+      <categories>
+        <category>Network</category>
+        <category>计算机网络</category>
+      </categories>
+      <tags>
+        <tag>Network</tag>
+        <tag>计算机网络</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>计算机网络-3.数据链路层</title>
+    <url>/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-3-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/</url>
+    <content><![CDATA[<h1 id="3-数据链路层"><a href="#3-数据链路层" class="headerlink" title="3.数据链路层"></a>3.数据链路层</h1><h2 id="3-1-概述"><a href="#3-1-概述" class="headerlink" title="3.1 概述"></a>3.1 概述</h2><ul>
+<li>链路：从一个结点到相邻结点的一段物理线路，而中间没有任何其他的交换结点。</li>
+<li>数据链路：把实现通信协议的硬件和软件加到链路上。</li>
+<li>数据链路层以帧为单位传输和处理数据。</li>
+<li>数据链路层要解决的三个问题：封装成帧、差错检测、可靠传输。</li>
+</ul>
+<span id="more"></span>
+<h2 id="3-2-封装成帧"><a href="#3-2-封装成帧" class="headerlink" title="3.2 封装成帧"></a>3.2 封装成帧</h2><ul>
+<li>封装成帧：将上层交付的协议数据单元添加帧头和帧尾使之成为帧。其中帧头和帧尾包含有重要的控制信息，作用之一是帧定界。</li>
+<li>透明传输是指数据链路层对上层交付的传输数据没有任何限制，就好像数据链路层不存在一样。</li>
+</ul>
+<p>面向字节的物理链路使用字节填充法实现透明传输；面向比特的物理链路使用比特填充的方法实现透明传输。</p>
+<ul>
+<li>为了提高帧的传输效率，应当使帧的数据部分尽可能大些。</li>
+<li>每一种数据链路层协议都规定了帧的数据部分的长度上限，即最大传送单元MTU（Maximum Transfer Unit）。</li>
+</ul>
+<h2 id="3-3-差错检测"><a href="#3-3-差错检测" class="headerlink" title="3.3 差错检测"></a>3.3 差错检测</h2><ul>
+<li>比特在传输过程中可能会产生差错，1变成0，0变成1，这称为比特差错。</li>
+<li>奇偶校验：在待发送的数据后面添加1位奇偶校验位，使整个数据中1的个数为奇数或偶数。有奇数个位发生误码，可以检查出误码；偶数个位发生误码，检查不出误码。</li>
+<li>循环冗余校验CRC（Cyclic Redundancy Check）：收发双方预定好一个生成多项式，发送方基于发送数据和生成多项式计算出差错检测码，将其添加到待传输的数据后面一起传输；接收方通过生成多项式来计算收到的而数据是否产生了误码。</li>
+<li>检错码只能检测出是否出现差错并不能定位差错，因此无法纠正错误。</li>
+</ul>
+<h2 id="3-4-可靠传输"><a href="#3-4-可靠传输" class="headerlink" title="3.4 可靠传输"></a>3.4 可靠传输</h2><h3 id="3-4-1-基本概念"><a href="#3-4-1-基本概念" class="headerlink" title="3.4.1 基本概念"></a>3.4.1 基本概念</h3><ul>
+<li>不可靠传输：仅仅丢弃有误码的帧。</li>
+<li><p>可靠传输：想办法实现发送端发送什么，接收端就收到什么。</p>
+</li>
+<li><p>一般情况有线链路误码率较低，无须实现可靠传输；无线链路误码率高，必须实现可靠传输。</p>
+</li>
+<li>传输差错：比特差错、分组丢失、分组失序、分组重复。</li>
+<li>可靠传输并不仅局限于数据链路层，其他各层均可选择实现可靠传输。</li>
+</ul>
+<h3 id="3-4-2-停止-等待协议SW（Stop-and-Wait）"><a href="#3-4-2-停止-等待协议SW（Stop-and-Wait）" class="headerlink" title="3.4.2 停止-等待协议SW（Stop-and-Wait）"></a>3.4.2 停止-等待协议SW（Stop-and-Wait）</h3><p>思想很简单，发送端收到接收端发来的上一帧确认信号才可以发送下一帧，并且加入了超时重传机制。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220423184250.png" alt=""></p>
+<h3 id="3-4-3-回退N帧协议GBN（Go-Back-N）"><a href="#3-4-3-回退N帧协议GBN（Go-Back-N）" class="headerlink" title="3.4.3 回退N帧协议GBN（Go-Back-N）"></a>3.4.3 回退N帧协议GBN（Go-Back-N）</h3><p>设置一个窗口，在窗口内的分组可以发送通过流水线的方式发送出去。接收方的通过一个窗口大小为1的接收窗口来接收。接收方每接收一个分组就向发送方发回一个对应分组的ACK。只有当发送窗口内所有分组的ACK都接收到，发送窗口才可以向前滑动。</p>
+<h3 id="3-4-4-选择重传协议SR（Selective-Request）"><a href="#3-4-4-选择重传协议SR（Selective-Request）" class="headerlink" title="3.4.4 选择重传协议SR（Selective Request）"></a>3.4.4 选择重传协议SR（Selective Request）</h3><p>和回退N帧类似，但是接收方的接收窗口可以大于1。</p>
+<h2 id="3-5-点对点协议PPP"><a href="#3-5-点对点协议PPP" class="headerlink" title="3.5 点对点协议PPP"></a>3.5 点对点协议PPP</h2><ul>
+<li>主要由三部分组成：1.对各种协议数据报的封装方法（封装成帧）2.链路控制协议LCP，用于建立、配置以及测试数据链路的连接。 3.一套网络控制协议NCPS，其中的么额欸一个协议支持不同的网络层协议。</li>
+</ul>
+<h2 id="3-6-媒体接入控制-Media-Access-Control（MAC）"><a href="#3-6-媒体接入控制-Media-Access-Control（MAC）" class="headerlink" title="3.6 媒体接入控制 Media Access Control（MAC）"></a>3.6 媒体接入控制 Media Access Control（MAC）</h2><h3 id="3-6-1-基本概念"><a href="#3-6-1-基本概念" class="headerlink" title="3.6.1 基本概念"></a>3.6.1 基本概念</h3><ul>
+<li>共享信道要考虑的一个问题就是如何协调多个发送和接收站点对一个共享传输媒体的占用，即媒体接入控制。</li>
+<li>MAC分为两种：<ul>
+<li>静态划分信道：频分多址、时分多址、码分多址</li>
+<li>动态接入控制：<del>受控接入（已淘汰）</del>、随机接入</li>
+</ul>
+</li>
+</ul>
+<h3 id="3-6-2-静态划分信道"><a href="#3-6-2-静态划分信道" class="headerlink" title="3.6.2 静态划分信道"></a>3.6.2 静态划分信道</h3><ul>
+<li>频分复用FDM：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424140604.png" style="zoom:80%;" /></p>
+<ul>
+<li>时分复用TDM：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424140630.png" style="zoom:80%;" /></p>
+<ul>
+<li>波分复用WDM：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424140708.png" style="zoom:80%;" /></p>
+<ul>
+<li>码分复用CDM：</li>
+</ul>
+<p>每一个比特时间再划分为m个短的间隔，称为码片（Chip）。通常m取64或128，简单起见我们m取8。</p>
+<p>一个站如果要发送比特1，则发送它自己的m bit码片序列；一个站如果要发送比特00，则发送他自己的m bit码片序列的二进制反码。</p>
+<p>分配给每个站的码片序列必须各不相同；分配给每个站的码片序列必须相互正交（规格化内积为0）。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220424143219.png" style="zoom:80%;" /></p>
+<h3 id="3-6-3-动态接入控制-随机接入"><a href="#3-6-3-动态接入控制-随机接入" class="headerlink" title="3.6.3 动态接入控制-随机接入"></a>3.6.3 动态接入控制-随机接入</h3><ul>
+<li>要解决的问题是在信道复用时， 信道上发送信息冲突的问题。</li>
+<li>载波监听多址接入/碰撞检测 CSMA/CD（Carrier Sense Multiple Access/Collidion Detection）</li>
+</ul>
+<p>多址接入MA：多个站连接在一条总线上，竞争使用总线。</p>
+<p>载波监听CS：每一个站在发送帧之前要检测一下总线上是否有其他站点在发送帧。</p>
+<p>碰撞检测CD：每一个正在发送帧的站边发送边检测碰撞。</p>
+<ul>
+<li>载波监听多址接入/碰撞避免 CSMA/CA（Carrier Sense Multiple Access/Collidion Avoidance），一般用于无线局域网。</li>
+</ul>
+<h2 id="3-7-MAC地址、IP地址以及ARP协议"><a href="#3-7-MAC地址、IP地址以及ARP协议" class="headerlink" title="3.7 MAC地址、IP地址以及ARP协议"></a>3.7 MAC地址、IP地址以及ARP协议</h2><h3 id="3-7-1-MAC地址"><a href="#3-7-1-MAC地址" class="headerlink" title="3.7.1 MAC地址"></a>3.7.1 MAC地址</h3><ul>
+<li>属于数据链路层的地址，当多个主机连接在同一个广播信道上，要想实现两个主机之间对的通信，则每个主机必须有一个唯一标识，即一个数据链路层地址。</li>
+<li>在每个主机发送的帧中必须携带标识发送主机和接收主机的地址，由于这类地址是用于媒体接入控制MAC，因此这类地址被称为MAC地址。也称硬件地址，一般被固化在网卡中。</li>
+<li>严格来说，MAC地址是对网络上个接口的唯一标识，而不是对网络上各设备的唯一标识。</li>
+<li>IEEE 802局域网的MAC地址格式：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425142818.png" style="zoom:80%;" /></p>
+<h3 id="3-7-1-IP地址"><a href="#3-7-1-IP地址" class="headerlink" title="3.7.1 IP地址"></a>3.7.1 IP地址</h3><ul>
+<li>IP地址属于络层的地址，是因特网上的主机和路由器所使用的地址，用于标识两部分信息：1.网络编号，标识因特网上数以百万计的网络。2.主机编号，标识同一网络上的不同主机（或路由器各接口）。</li>
+<li>IP地址和MAC地址的区别？</li>
+</ul>
+<p>1.IP地址和MAC地址都可以区分设备，但是MAC地址不具备区分各网络的功能，而IP地址可以。</p>
+<p>2.数据包转发过程中源IP地址和目的IP地址保持不变；而源MAC地址和目的MAC地址逐个链路或逐个网络改变。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425143310.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425143328.png" style="zoom:80%;" /></p>
+<p>​                                                 </p>
+<h3 id="3-7-3-ARP协议"><a href="#3-7-3-ARP协议" class="headerlink" title="3.7.3 ARP协议"></a>3.7.3 ARP协议</h3><ul>
+<li>ARP协议用于解决知道IP地址，如何求出MAC地址的问题。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425143517.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425143550.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425143605.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425143632.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425143657.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425143718.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425143735.png" style="zoom:80%;" /></p>
+<h2 id="3-8-集线器与交换机"><a href="#3-8-集线器与交换机" class="headerlink" title="3.8 集线器与交换机"></a>3.8 集线器与交换机</h2><h3 id="3-8-1-集线器"><a href="#3-8-1-集线器" class="headerlink" title="3.8.1 集线器"></a>3.8.1 集线器</h3><ul>
+<li>使用集线器的以太网在逻辑上仍是一个总线网，各站共享总线资源，使用的还是CSMA/CD协议；并且只工作在物理层；一般有少量的容错能力和网络管理能力。</li>
+</ul>
+<p>使用双绞线和集线器HUB的星型以太网：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425144035.png" style="zoom:80%;" /></p>
+<p>使用集线器HUB在物理层扩展以太网：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425144143.png" style="zoom:80%;" /></p>
+<h3 id="3-8-2-以太网交换机"><a href="#3-8-2-以太网交换机" class="headerlink" title="3.8.2 以太网交换机"></a>3.8.2 以太网交换机</h3><ul>
+<li>和集线器的区别在于，集线器给所有设备发送信息，交换机只给目标地址发送信息。交换机比集线器的优势很大，因此集线器基本被淘汰了。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425144600.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425144617.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425144630.png" style="zoom:80%;" /></p>
+<p>以太网交换机通常有多个接口，每个接口可直接与一台主机或另一个以太网交换机相连，一般以全双工方式工作。</p>
+<p>具有并行性，能同时连通多对接口，使多对主机能同时通信，无碰撞（不适用CSMA/CD协议）。</p>
+<p>工作在数据链路层（也包括物理层），它收到帧后，在帧交换表中查找目的MAC地址所对应的接口号，然后通过该接口转发帧。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425144734.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220425144748.png" style="zoom:80%;" /></p>
+<h2 id="3-9-以太网交换机自学习和转发帧的流程"><a href="#3-9-以太网交换机自学习和转发帧的流程" class="headerlink" title="3.9 以太网交换机自学习和转发帧的流程"></a>3.9 以太网交换机自学习和转发帧的流程</h2><ul>
+<li>以太网交换机工作在数据链路层（也包括物理层）。</li>
+<li>以太网交换机收到帧后，在帧交换表中查找帧的目的MAC地址所对应的接口号，然后通过该接口转发帧。</li>
+<li>以太网交换机是一种即插即用设备，刚上电启动时其内部的帧交换表是空的。随着网络中各主机间的通信，以太网交换机通过自学习算法逐渐建立起帧交换表。</li>
+<li>帧交换表中的每条记录都有自己的有效时间，到期自动删除，这是因为MAC地址与交换机接口的对应关系并不是永久性的。比如交换机的接口改接了另一台主机或者主机更换了网卡。</li>
+</ul>
+<h2 id="3-10-以太网交换机的生成树协议STP"><a href="#3-10-以太网交换机的生成树协议STP" class="headerlink" title="3.10 以太网交换机的生成树协议STP"></a>3.10 以太网交换机的生成树协议STP</h2><ul>
+<li>本节讲的是如何提高以太网的可靠性。</li>
+<li>通过添加冗余链路可以提高以太网的可靠性，但是同时带来了问题—形成了网络环路。网络环路会带来以下问题：广播风暴、主机收到重复的广播帧、交换机的帧交换表震荡（漂移）。</li>
+<li>因此，使用以太网交换机的生成树协议STP可以既增加冗余链路又避免网络环路。</li>
+</ul>
+<h2 id="3-11-虚拟局域网VLAN"><a href="#3-11-虚拟局域网VLAN" class="headerlink" title="3.11 虚拟局域网VLAN"></a>3.11 虚拟局域网VLAN</h2><h3 id="3-11-1-概述"><a href="#3-11-1-概述" class="headerlink" title="3.11.1 概述"></a>3.11.1 概述</h3><ul>
+<li>当广播域过大时会带来很多问题，比如广播风暴、难以管理和维护以及潜在的安全问题。因此需要分割广播域。</li>
+<li>分割广播域的方法：</li>
+</ul>
+<p>使用路由器可以隔离广播域，但是路由器的成本较高。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220426143947.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220426144004.png" style="zoom:80%;" /></p>
+<p>使用虚拟局域网VLAN（Virtual Local Area Networl）技术也可以分割广播域。VLAN将局域网内的设备分成与物理位置无关的逻辑组，这些逻辑组有某些共同的需求。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220426144211.png" style="zoom:80%;" /></p>
+<h3 id="3-11-2-实现机制"><a href="#3-11-2-实现机制" class="headerlink" title="3.11.2 实现机制"></a>3.11.2 实现机制</h3><ul>
+<li>IEEE 802.1Q帧（也称Dot One Q帧）</li>
+</ul>
+<p>通过对以太网的MAC帧格式进行扩展，加入4字节的VLAN标记：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220426144344.png" style="zoom:80%;" /></p>
+<p>当交换机收到普通的以太网帧时，会将其插入4字节的VLAN标记转变成802.1Q帧，称为“打标签”；</p>
+<p>当交换机转发802.1Q帧时，<strong>可能</strong>会删除其4字节的VLAN标记转变为普通以太网帧，称为“去标签”。</p>
+<ul>
+<li>交换机的端口类型：Access、Trunk、Hybrid</li>
+</ul>
+<p>Access端口一般用于连接用户计算机，并且只能属于一个VLAN。</p>
+<p>Trunk端口一般用于交换机之间或交换机与路由器之间的互联，可以属于多个VLAN。</p>
+<p>Hybrid端口既可用于交换机之间或交换机与路由器之间的互联（同Trunk），也可用于交换机与用户计算机之间的互联（同Access），可以属于多个VLAN。</p>
+]]></content>
+      <categories>
+        <category>Network</category>
+        <category>计算机网络</category>
+      </categories>
+      <tags>
+        <tag>Network</tag>
+        <tag>计算机网络</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>计算机网络-5.运输层</title>
+    <url>/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-5-%E8%BF%90%E8%BE%93%E5%B1%82/</url>
+    <content><![CDATA[<h1 id="5-运输层"><a href="#5-运输层" class="headerlink" title="5.运输层"></a>5.运输层</h1><h2 id="5-1-概述"><a href="#5-1-概述" class="headerlink" title="5.1 概述"></a>5.1 概述</h2><ul>
+<li>之前的物理层、数据链路层以及网络层它们共同解决了主机通过异构网络互联所面临的问题，实现了主机到主机的通信。但实际上计算机网络中的通信时位于通信两段主机中的进程。</li>
+<li><p>运输层任务：为运行在不同主机上的应用进程提供直接的通信服务。运输层协议又称端到端协议。</p>
+</li>
+<li><p>因特网的运输层为应用层提供了两种不同的运输协议，即面向连接的TCP和无连接的UDP。</p>
+<span id="more"></span>
+</li>
+</ul>
+<h2 id="5-2-端口号、复用与分用"><a href="#5-2-端口号、复用与分用" class="headerlink" title="5.2 端口号、复用与分用"></a>5.2 端口号、复用与分用</h2><ul>
+<li>运行在计算机上的进程用进程标识符PID来标志，到那时不同操作系统使用不同格式的进程标识符，因此需要用统一的方法对TCP/IP体系的应用进程进行标识。</li>
+<li>TCP/IP体系的运输层使用<strong>端口号</strong>来区分应用层的不同应用进程。</li>
+</ul>
+<p>端口号用16比特标识，取值范围0-65535。其中，熟知端口号：0-1023，用于TCP/IP体系中最重要的一些应用协议，例如FTP使用21/20，HTTP使用80，DNS使用53；登记端口号：1024-49151；短暂端口号：49152-65535，留给客户进程选择暂时使用。</p>
+<p>端口号只具有本地意义，只是为了标识本计算机应用层中的各进程，在因特网中，不同计算机中的相同端口号是没有联系的。</p>
+<ul>
+<li>发送方的复用和接收方的分用：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220503152757.png" style="zoom:80%;" /></p>
+<ul>
+<li>运输层熟知端口号：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220503152843.png" style="zoom:80%;" /></p>
+<h2 id="5-3-UDP和TCP的对比"><a href="#5-3-UDP和TCP的对比" class="headerlink" title="5.3 UDP和TCP的对比"></a>5.3 UDP和TCP的对比</h2><p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220503153002.png" style="zoom:80%;" /></p>
+<ul>
+<li><p>UDP支持单播、多播以及广播，也就是支持一对一，一对多，多对一和多对多交互通信；TCP仅支持单播，也就是只能一对一通信。</p>
+</li>
+<li><p>UDP是面向应用报文的；TCP是面向字节流的。</p>
+</li>
+<li>UDP向上层提供无连接不可靠传输服务（适用于IP电话、视频会议等实时应用）；TCP向上层提供面向连接的可靠传输服务（适用于要求可靠传输的应用，例如文件传输）。</li>
+<li>UDP用户数据报首部仅8字节；TCP报文段首部最小20字节，最大60字节。</li>
+</ul>
+<h2 id="5-4-TCP的流量控制"><a href="#5-4-TCP的流量控制" class="headerlink" title="5.4 TCP的流量控制"></a>5.4 TCP的流量控制</h2><ul>
+<li>一般来说，我们希望数据发的更快一些，但是如果发送方的数据发送的过快，接收方就可能来不及接收，就会造成数据的丢失。所以要进行流量控制，让发送方的发送速率不要太快，要让接收方来得及接收。利用滑动窗口机制可以实现流量控制。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220503153802.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220503153829.png" style="zoom:80%;" /></p>
+<h2 id="5-5-TCP的拥塞控制"><a href="#5-5-TCP的拥塞控制" class="headerlink" title="5.5 TCP的拥塞控制"></a>5.5 TCP的拥塞控制</h2><ul>
+<li>在某段时间，若对网络中某一资源的需求超过了该资源所能提供的可用部分，网络性能就要变坏，这种情况就叫做拥塞。</li>
+<li>有四种基本拥塞控制算法，细节略去：慢开始、拥塞避免、快重传、快恢复。</li>
+</ul>
+<h2 id="5-6-TCP超时重传时间的选择"><a href="#5-6-TCP超时重传时间的选择" class="headerlink" title="5.6 TCP超时重传时间的选择"></a>5.6 TCP超时重传时间的选择</h2><ul>
+<li>超时重传时间不能太久也不能太短，一般应该略大于往返时间。</li>
+<li>如何设置超时重传时间？一般根据往返时间计算得出，是有公式的，并且随着时间的变化超时重传时间计算出来也是不一样的，具体怎么计算的细节略去。</li>
+</ul>
+<h2 id="5-7-TCP可靠传输的实现"><a href="#5-7-TCP可靠传输的实现" class="headerlink" title="5.7 TCP可靠传输的实现"></a>5.7 TCP可靠传输的实现</h2><ul>
+<li>TCP基于以字节为单位的滑动窗口来实现可靠传输。</li>
+</ul>
+<p>发送方和接收方均设置滑动窗口，并且分别设置窗口大小。发送方滑动窗口内的字节代表可以发送，接收方滑动窗口内的字节代表可以接收。</p>
+<p>接收方必须有累计确认和捎带确认机制。</p>
+<p>TCP的通信是全双工通信。</p>
+<h2 id="5-8-TCP的运输连接管理"><a href="#5-8-TCP的运输连接管理" class="headerlink" title="5.8 TCP的运输连接管理"></a>5.8 TCP的运输连接管理</h2><ul>
+<li>TCP是面向连接的协议，它基于运输连接来传送TCP报文段。</li>
+<li>TCP运输连接的建立和释放是每一次面向连接的通信中必不可少的过程。</li>
+<li>TCP的运输连接有三个阶段：1.建立TCP连接 2.数据传送 3.释放TCP连接</li>
+<li>TCP的运输连接管理就是使运输连接的建立和释放都能正常地运行。</li>
+</ul>
+<h3 id="5-8-1-TCP的连接建立—三次握手"><a href="#5-8-1-TCP的连接建立—三次握手" class="headerlink" title="5.8.1 TCP的连接建立—三次握手"></a>5.8.1 TCP的连接建立—三次握手</h3><ul>
+<li>连接建立主要解决三个问题：1.使TCP双方能够确知对方的存在；2.使TCP双方能够协商一些参数；3.使TCP双方能够对运输实体资源进行分配。</li>
+<li>三次握手过程：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220504191701.png" style="zoom:80%;" /></p>
+<p>第一次握手：客户端向服务器发送TCP连接数据报，代表客户端想要建立连接，其中要将SYN设置为1，代表是在建立连接，并且将seq初始化一个x值。</p>
+<p>第二次握手：服务器像客户端发送TCP连接数据报，代表服务器想要建立连接，其中将SYN设置为1，代表是在建立连接；将ACK设为1代表数据报中含有ack；将seq初始化一个y值，将ack设置为x+1。</p>
+<p>第三次握手：客户端像服务器发送TCP普通数据报，代表服务器的TCP连接数据报已收到，其中ACK为1，代表存在ack，将seq设置为x+1，ack设置为y+1。</p>
+<ul>
+<li>能不能取消第三次握手，只采用两次握手？</li>
+</ul>
+<p>当然是不能的，不然大家就说两次握手不说三次握手了（啊不是）。确实是不能，但是为啥不能？</p>
+<p>现在假设我们只采用两次握手，那么考虑下图这种情况：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220504192408.png" style="zoom:80%;" /></p>
+<p>假设第一次握手由于网络原因很久才会到达服务器，而在它到达之前，客户端已经重发了第一次握手并且已经和服务器完成了连接建立，完成了数据传输，完成了释放连接，一切都已经结束。这时，服务器收到了原本的第一次握手，这时服务器向客户端发起第二次握手，但是由于客户端已经关闭了不会理睬，那么服务器就会一直向客户端发送第二次握手，实在是浪费资源。（服务器属实是舔🐶了）。</p>
+<h3 id="5-8-2-TCP的连接释放—四次挥手"><a href="#5-8-2-TCP的连接释放—四次挥手" class="headerlink" title="5.8.2 TCP的连接释放—四次挥手"></a>5.8.2 TCP的连接释放—四次挥手</h3><p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220504193108.png" style="zoom:80%;" /></p>
+<p>第一次挥手：客户端发送TCP释放连接数据报，代表客户端没有数据要向服务器发送了，其中将FIN位设置为1，代表是释放连接；将ACK设置为1，代表存在ack；将seq设置为u，将ack设置为v。</p>
+<p>第二次挥手：服务器发送TCP普通数据报，代表服务器收到客户端的释放连接数据报，其中将ACK设置为1，代表存在ack；将seq设置为v，将ack设置为u+1。</p>
+<p>在这中间，如果服务器还有数据要发送给客户端，那么将继续发送给客户端，奉献自己最后的一点爱。</p>
+<p>第三次挥手：服务器发送TCP释放连接数据报，代表服务器没有数据要向服务器发送了，其中将FIN位设置为1，代表是释放连接；将ACK设置为1，代表存在ack；将seq设置为w，将ack设置为u+1。</p>
+<p>第四次挥手：客户端发送TCP普通数据报，代表客户端收到服务器的释放连接数据报，其中将ACK设置为1，代表存在ack；将seq设置为u+1，将ack设置为w+1。</p>
+<p>在服务器接收到第四次挥手后就关闭连接，而客户端等待2MSL时间后也关闭连接。</p>
+<ul>
+<li>为什么客户端要等待2MSL时间后在关闭连接？可不可以不等待，在发出第四次挥手后就立刻关闭呢？</li>
+</ul>
+<p>不行。假设客户端立刻关闭连接的话，假如客户端发起的第四次挥手丢失了， 那么服务器由于舔🐶属性（啊不是）会一直等待客户端的第四次挥手，如果等不到，就会反复地向客户端发送第三次挥手，但是由于客户端已关闭，无法相应服务器的第三次挥手，就无法进入关闭状态。所以当客户端等待2MSL时间，在这个时间段内如果收到服务器的第三次挥手就会重发第四次挥手。</p>
+<ul>
+<li>当客户端出现故障时，服务器端如何才能知道呢？</li>
+</ul>
+<p>TCP服务器进程没收到一次TCP客户端进程的数据，就重新设置并启动保活计时器（2小时定时）。</p>
+<p>若保活计时器定时周期内未收到TCP客户端发来的数据，则当保活计时器到时后，TCP服务器进程就向TCP客户进程发送一个探测报文段，以后则每个75秒钟发送一次。若一连发送10个探测报文段后仍无TCP客户端进程的响应，TCP服务器进程就认为TCP客户进程所在主机出了故障，接着就关闭这个连接。</p>
+<h2 id="5-9-TCP报文段的首部格式"><a href="#5-9-TCP报文段的首部格式" class="headerlink" title="5.9 TCP报文段的首部格式"></a>5.9 TCP报文段的首部格式</h2><p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220504194635.png" style="zoom:80%;" /></p>
+]]></content>
+      <categories>
+        <category>Network</category>
+        <category>计算机网络</category>
+      </categories>
+      <tags>
+        <tag>Network</tag>
+        <tag>计算机网络</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>计算机网络-6.应用层</title>
+    <url>/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-6-%E5%BA%94%E7%94%A8%E5%B1%82/</url>
+    <content><![CDATA[<h1 id="6-应用层"><a href="#6-应用层" class="headerlink" title="6.应用层"></a>6.应用层</h1><h2 id="6-1-概述"><a href="#6-1-概述" class="headerlink" title="6.1 概述"></a>6.1 概述</h2><ul>
+<li>各层解决的问题：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220505193051.png" style="zoom:80%;" /></p>
+<span id="more"></span>
+<h2 id="6-2-客户-服务器方式（C-S方式）和对等方式（P2P方式）"><a href="#6-2-客户-服务器方式（C-S方式）和对等方式（P2P方式）" class="headerlink" title="6.2 客户/服务器方式（C/S方式）和对等方式（P2P方式）"></a>6.2 客户/服务器方式（C/S方式）和对等方式（P2P方式）</h2><h3 id="6-2-1-客户-服务器方式（C-S方式）"><a href="#6-2-1-客户-服务器方式（C-S方式）" class="headerlink" title="6.2.1 客户/服务器方式（C/S方式）"></a>6.2.1 客户/服务器方式（C/S方式）</h3><ul>
+<li><p>客户和服务器是指通信中所设计的两个应用进程。服务器总是处于运行状态，并等待客户的服务请求。服务器具有固定端口号，而运行服务器的主机也具有固定的IP地址。</p>
+</li>
+<li><p>C/S方式通常是服务集中型的，也就是说应用服务集中在网络中比客户计算机少得多的服务器计算机上。常会出现服务器计算机跟不上众多客户机请求的情况，因此常用集群构建一个强大的虚拟服务器。</p>
+</li>
+</ul>
+<h3 id="6-2-2-对等方式（P2P方式）"><a href="#6-2-2-对等方式（P2P方式）" class="headerlink" title="6.2.2 对等方式（P2P方式）"></a>6.2.2 对等方式（P2P方式）</h3><ul>
+<li>没有固定的服务请求者和服务提供者，分布在网格边缘各端系统中的应用进程是对等的，被称为对等放。对等方直接通信，每个对等放既是服务的请求者，又是服务的提供者。</li>
+<li>P2P是服务分散型的，服务不是集中在少数几个服务器计算机中，而是分散在大量对等计算机中。</li>
+<li>P2P最突出的特性之一就是可扩展性，系统性能不会因规模的增大而降低。</li>
+<li>P2P具有成本上的优势，因为不需要庞大的服务器设施和服务器带宽。</li>
+</ul>
+<h2 id="6-3-动态主机配置协议DHCP"><a href="#6-3-动态主机配置协议DHCP" class="headerlink" title="6.3 动态主机配置协议DHCP"></a>6.3 动态主机配置协议DHCP</h2><ul>
+<li><p>DHCP可以为局域网中的各主机配置以下信息：IP地址、子网掩码、默认网关、DNS服务器。</p>
+</li>
+<li><p>工作流程：</p>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220505200507.png" style="zoom:80%;" /></p>
+<ul>
+<li>DHCP中继代理</li>
+</ul>
+<p>当我们不希望在网络中设置太多的DHCP服务器时，就采用DHCP中继代理，也就是说在路由器中配置DHCP服务器的IP地址使之成为DHCP中继代理。</p>
+<h2 id="6-4-域名系统DNS（Domain-Name-System）"><a href="#6-4-域名系统DNS（Domain-Name-System）" class="headerlink" title="6.4 域名系统DNS（Domain Name System）"></a>6.4 域名系统DNS（Domain Name System）</h2><ul>
+<li>关于DNS，可以看看<a href="http://blog.foursevenlove.top/?p=160这里的1.3节。这里偷个懒不再写了。">http://blog.foursevenlove.top/?p=160这里的1.3节。这里偷个懒不再写了。</a></li>
+</ul>
+<h2 id="6-5-文件传送协议FTP"><a href="#6-5-文件传送协议FTP" class="headerlink" title="6.5 文件传送协议FTP"></a>6.5 文件传送协议FTP</h2><ul>
+<li>将某台计算机中的文件通过网络传送到可能相距很远的另一台计算机中，是一项基本的网络应用，即文件传送。</li>
+<li>文件传送协议FTP（File Transfer Protocol）是因特网上使用得最广泛得文件传送协议。FTP提供交互式的访问，允许客户指明文件的类型与格式（如指明是否使用ASCII码），并允许文件具有存取权限。FTP屏蔽了各计算机系统的细节，因而适用于在各异构网络中任意计算机之间传送文件。</li>
+<li>工作原理：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220506154952.png" style="zoom:80%;" /></p>
+<h2 id="6-6-电子邮件"><a href="#6-6-电子邮件" class="headerlink" title="6.6 电子邮件"></a>6.6 电子邮件</h2><ul>
+<li>电子邮件采用客户/服务器方式。</li>
+<li><p>三个主要组成构件：用户代理、邮件服务器以及电子邮件所需的协议。</p>
+</li>
+<li><p>用户代理：用户与电子邮件系统的接口，又称为电子邮件客户端软件。</p>
+</li>
+<li><p>邮件服务器：电子邮件系统的基础设施，因特网上的所有ISP都有邮件服务器，其功能是发送和接收邮件，同时还要负责维护用户的邮箱。</p>
+</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220506160148.png" style="zoom:80%;" /></p>
+<ul>
+<li>协议：</li>
+</ul>
+<p>简单邮件传送协议SMTP（Simple Mail Transfer Protocol）基本工作原理：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220506160306.png" style="zoom:80%;" /></p>
+<p>SMTP只能传送ASCII码文本数据，不能传送可执行文件或其他的二进制对象。未来解决SMTP传送非ASCII码文本的问题，提出了多用途英特网邮件扩展MIME（Multipurpose Internet Mail Extensions）。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220506161028.png" style="zoom:80%;" /></p>
+<p>常见的邮件读取协议：</p>
+<p>邮局协议POP（Post Office Protocol），POP3是其第三个版本，是因特网正式标准，基于TCP连接的客户/服务器方式，使用熟知端口110。</p>
+<p>因特网邮件访问协议IMAP（Internet Message Access Protocol），只是因特网建议标准，基于TCP连接的客户/服务器方式，使用熟知端口143。</p>
+<ul>
+<li>基于万维网的电子邮件：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220506161821.png" style="zoom:80%;" /></p>
+<h2 id="6-7-万维网WWW"><a href="#6-7-万维网WWW" class="headerlink" title="6.7 万维网WWW"></a>6.7 万维网WWW</h2><ul>
+<li>万维网WWW（World Wide Web）并非某种特殊的计算机网络。它是一个大规模的、联机式的信息储藏所，是运行在因特网上的一个分布式应用。利用网页之间的超链接将不同网站的网页链接成一张逻辑上的信息网。使用统一资源定位符URL来指明因特网上任何种类资源的位置。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220506162056.png" style="zoom:80%;" /></p>
+<ul>
+<li>超文本传输协议HTTP（Hyper Text Transfer Protocol）</li>
+</ul>
+<p>HTTP定义了浏览器（即万维网客户进程）怎样向万维网服务器请求万维网文档，以及万维网服务器怎样把万维网文档传送给浏览器。</p>
+<p>HTTP/1.0 采用非持续链接方式，每次浏览器要请求一个文件都要与服务器建立TCP连接，当收到响应后就立即关闭连接。</p>
+<p>HTTP/1.1采用持续连接方式，在该方式下，万维网服务器在发送响应后仍然保持这条连接，使同ing一个客户（浏览器）和该服务器之间可以继续在这条连接上传送后续的HTTP请求报文和响应报文。这并不局限于传送同一个页面上引用的对象，只要这些文档在同一个服务器上就行。为了进一步提高效率，该方式还可以使用流水线方式工作。</p>
+<p>HTTP报文格式：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220506162609.png" style="zoom:80%;" /></p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220506162625.png" style="zoom:80%;" /></p>
+<ul>
+<li>使用Cookie在服务器上记录用户信息</li>
+</ul>
+<p>早期的万维网应用非常简单，仅仅是用户查看存放在不同服务器上的各种静态的文档。因此HTTP被设计为一种无状态的协议。但是现在往往很多应用都需要万维网服务器能够识别用户。</p>
+<p>Cookie提供了一种机制能够使万维网能够记住用户，也就是说Cookie对无状态的HTTP状态化。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220506162918.png" style="zoom:80%;" /></p>
+<ul>
+<li>万维网缓存与代理服务器</li>
+</ul>
+<p>可以使用缓存机制提高万维网效率。万维网缓存又称Web缓存，可位于客户机，也可位于中间系统上，位于中间系统上的Web缓存又称代理服务器。Web缓存把最近一些请求和响应暂存在本地磁盘中。当新请求到达时，若发现这个请求与暂存的请求相同，就返回暂存的响应。当然，缓存是有过期时间的，过期后需要重新去服务器访问。</p>
+]]></content>
+      <categories>
+        <category>Network</category>
+        <category>计算机网络</category>
+      </categories>
+      <tags>
+        <tag>Network</tag>
+        <tag>计算机网络</tag>
+      </tags>
+  </entry>
 </search>
