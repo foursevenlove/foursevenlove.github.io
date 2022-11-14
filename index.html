@@ -189,6 +189,100 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/11/14/GitLab-CI-CD%E4%B9%8BRunner/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/11/14/GitLab-CI-CD%E4%B9%8BRunner/" class="post-title-link" itemprop="url">GitLab CI/CD之Runner</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-11-14 16:08:29 / Modified: 16:09:13" itemprop="dateCreated datePublished" datetime="2022-11-14T16:08:29+08:00">2022-11-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/DevOps/" itemprop="url" rel="index"><span itemprop="name">DevOps</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/DevOps/runner/" itemprop="url" rel="index"><span itemprop="name">runner</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="GitLab-CI-CD之Runner"><a href="#GitLab-CI-CD之Runner" class="headerlink" title="GitLab CI/CD之Runner"></a>GitLab CI/CD之Runner</h1><h2 id="1-什么是Runner以及为什么需要Runner？"><a href="#1-什么是Runner以及为什么需要Runner？" class="headerlink" title="1.什么是Runner以及为什么需要Runner？"></a>1.什么是Runner以及为什么需要Runner？</h2><ul>
+<li><a target="_blank" rel="noopener" href="https://docs.gitlab.com/runner/">官方解释</a>：</li>
+</ul>
+<blockquote>
+<p>GitLab Runner is an application that works with GitLab CI/CD to run jobs in a pipeline.</p>
+</blockquote>
+<ul>
+<li><p>几个概念：</p>
+<ul>
+<li>GitLab Job：流水线的最小单元，每个job中可能包含一条或多条待执行的命令。</li>
+<li>GitLab Runner：与Gitlab CI/CD一起工作，用于运行流水线中的job一种应用。</li>
+<li>Runner Executor：每一个Runner都会定义一个Executor，Executor其实就是job的运行环境，GitLab中可以使用如下不同的Executor：Shell、SSH、Docker、Kubernetes等等。</li>
+</ul>
+</li>
+<li><p>Runner到底是做什么用的？</p>
+<p>在GitLab项目中，我们定义了 <strong>.gitlab-ci.yml</strong> 文件。<strong>.gitlab-ci.yml</strong>文件中又定义了在执行CI/CD流水线时我们想去运行的stage，以及在每个stage中需要做什么事情。那么GitLab Runner 会将项目克隆下来并且读取 <strong>.gitlab-ci.yml</strong>文件，去执行我们在文件中定义的那些job。</p>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/11/14/GitLab-CI-CD%E4%B9%8BRunner/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/11/14/K8S%E4%BF%AE%E7%82%BC%E4%B9%8B%E8%B7%AF-2-%E7%AD%91%E5%9F%BA%E6%9C%9F-kube-apiserver/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -912,90 +1006,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-4-%E7%BD%91%E7%BB%9C%E5%B1%82/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/uploads/funs.jpg">
-      <meta itemprop="name" content="foursevenlove">
-      <meta itemprop="description" content="Keep on going never give up!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="foursevenlove">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-4-%E7%BD%91%E7%BB%9C%E5%B1%82/" class="post-title-link" itemprop="url">计算机网络-4. 网络层</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-11-11 14:07:05 / Modified: 14:07:57" itemprop="dateCreated datePublished" datetime="2022-11-11T14:07:05+08:00">2022-11-11</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Network/" itemprop="url" rel="index"><span itemprop="name">Network</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Network/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="4-网络层"><a href="#4-网络层" class="headerlink" title="4. 网络层"></a>4. 网络层</h1><h2 id="4-1-概述"><a href="#4-1-概述" class="headerlink" title="4.1 概述"></a>4.1 概述</h2><ul>
-<li>主要任务：实现网络互连，进而实现数据包在各网络之间的传输。</li>
-<li>需要解决的问题：<ul>
-<li>网络层向运输层提供怎样的服务（可靠传输还是不可靠传输）。</li>
-<li>网络层寻址问题。</li>
-<li>路由器选择问题。
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-4-%E7%BD%91%E7%BB%9C%E5%B1%82/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1067,19 +1077,19 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">59</span>
+          <span class="site-state-item-count">60</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
       <div class="site-state-item site-state-categories">
             <a href="/categories/">
           
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">categories</span></a>
       </div>
       <div class="site-state-item site-state-tags">
             <a href="/tags/">
-        <span class="site-state-item-count">14</span>
+        <span class="site-state-item-count">16</span>
         <span class="site-state-item-name">tags</span></a>
       </div>
   </nav>
