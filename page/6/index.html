@@ -189,6 +189,176 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/21-Beyond-Physical-Memory-Mechanisms/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/10/27/21-Beyond-Physical-Memory-Mechanisms/" class="post-title-link" itemprop="url">21. Beyond Physical Memory: Mechanisms</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-27 15:41:11 / Modified: 15:41:36" itemprop="dateCreated datePublished" datetime="2022-10-27T15:41:11+08:00">2022-10-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/" itemprop="url" rel="index"><span itemprop="name">Virtualization</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/Memory/" itemprop="url" rel="index"><span itemprop="name">Memory</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="21-Beyond-Physical-Memory-Mechanisms"><a href="#21-Beyond-Physical-Memory-Mechanisms" class="headerlink" title="21. Beyond Physical Memory: Mechanisms"></a>21. Beyond Physical Memory: Mechanisms</h1><ul>
+<li>目前为止，我们一直假设page是全部保存在内存中的。但是，由于内存有限的原因，再加上可能运行的进程数很多导致有许多page，实际上内存往往还保存在 <strong>hard disk</strong>中。那么问题来了，OS如何通过像hard disk之类的低速设备，来提供一个很大的地址空间的假象？</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/10/27/21-Beyond-Physical-Memory-Mechanisms/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/20-Paging-Smaller-Tables/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/10/27/20-Paging-Smaller-Tables/" class="post-title-link" itemprop="url">20. Paging: Smaller Tables</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-27 15:40:26 / Modified: 15:40:44" itemprop="dateCreated datePublished" datetime="2022-10-27T15:40:26+08:00">2022-10-27</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/" itemprop="url" rel="index"><span itemprop="name">Virtualization</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Operating-System/Virtualization/Memory/" itemprop="url" rel="index"><span itemprop="name">Memory</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="20-Paging-Smaller-Tables"><a href="#20-Paging-Smaller-Tables" class="headerlink" title="20. Paging: Smaller Tables"></a>20. Paging: Smaller Tables</h1><ul>
+<li>继续之前的问题，page table可能过大，上一节采用了TLB缓存的方法，这一节来看看不同的方法。问题来了，如何让page table 变小呢？有哪些方法？这些方法又会带来哪些问题？</li>
+</ul>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/10/27/20-Paging-Smaller-Tables/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/19-Paging-Faster-Translations-TLBs/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -877,187 +1047,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/6-Mechanism-Limited-Direct-Execution/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/uploads/funs.jpg">
-      <meta itemprop="name" content="foursevenlove">
-      <meta itemprop="description" content="Keep on going never give up!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="foursevenlove">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/10/27/6-Mechanism-Limited-Direct-Execution/" class="post-title-link" itemprop="url">6.Mechanism: Limited Direct Execution</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-10-27 15:20:48 / Modified: 15:22:05" itemprop="dateCreated datePublished" datetime="2022-10-27T15:20:48+08:00">2022-10-27</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Operating-System/Virtualization/" itemprop="url" rel="index"><span itemprop="name">Virtualization</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Operating-System/Virtualization/Cpu/" itemprop="url" rel="index"><span itemprop="name">Cpu</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="6-Mechanism-Limited-Direct-Execution"><a href="#6-Mechanism-Limited-Direct-Execution" class="headerlink" title="6.Mechanism: Limited Direct Execution"></a>6.Mechanism: Limited Direct Execution</h2><ul>
-<li>受限制的直接执行。</li>
-<li>虚拟化CPU的基本思想：让一个线程上CPU运行一会，下来再让另一个上CPU运行，通过<strong>time sharing</strong>的方法来实现。</li>
-<li>两个问题：<ul>
-<li>第一是性能：实现虚拟化时如何能让系统不用额外的开销？</li>
-<li>第二是控制：如何在高效运行线程时OS可以重新获得对CPU的控制？</li>
-</ul>
-</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/10/27/6-Mechanism-Limited-Direct-Execution/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/4-The-Abstraction-The-Process/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/uploads/funs.jpg">
-      <meta itemprop="name" content="foursevenlove">
-      <meta itemprop="description" content="Keep on going never give up!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="foursevenlove">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/10/27/4-The-Abstraction-The-Process/" class="post-title-link" itemprop="url">4.The Abstraction:The Process</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-10-27 15:15:35 / Modified: 15:21:13" itemprop="dateCreated datePublished" datetime="2022-10-27T15:15:35+08:00">2022-10-27</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Operating-System/Virtualization/" itemprop="url" rel="index"><span itemprop="name">Virtualization</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Operating-System/Virtualization/Cpu/" itemprop="url" rel="index"><span itemprop="name">Cpu</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h2 id="4-The-Abstraction-The-Process"><a href="#4-The-Abstraction-The-Process" class="headerlink" title="4.The Abstraction: The Process"></a>4.The Abstraction: The Process</h2><ul>
-<li>线程的定义：正在运行的程序。</li>
-<li>问题来了：如何提供有许多CPU的假象？</li>
-<li>答：通过虚拟化的技术来制造有许多CPU的假象。即通过<strong>time sharing</strong>的方式。</li>
-<li>为了实现虚拟化，OS提供了低层和高层的一些机制。</li>
-<li>低层上主要是提供用来实现功能的方法和协议。比如，提供了如何实现<strong>context switch</strong>来使OS停止运行一个程序从而运行另外一个程序。</li>
-<li>高层上主要是提供了一些智能的policies。policies其实就是一些OS用于做决定的算法。比如说现在有一堆程序，先让哪个程序上CPU运行？在OS上有一系列的算法来决定这些事情。</li>
-</ul>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/10/27/4-The-Abstraction-The-Process/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1129,7 +1118,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">64</span>
+          <span class="site-state-item-count">66</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
