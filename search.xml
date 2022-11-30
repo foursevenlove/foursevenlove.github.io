@@ -4652,4 +4652,22 @@
         <tag>offer</tag>
       </tags>
   </entry>
+  <entry>
+    <title>剑指offer-V2-49-丑数</title>
+    <url>/2022/11/30/%E5%89%91%E6%8C%87offer-V2-49-%E4%B8%91%E6%95%B0/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-49-丑数"><a href="#剑指offer-V2-49-丑数" class="headerlink" title="剑指offer-V2-49-丑数"></a>剑指offer-V2-49-丑数</h1><p><a href="https://leetcode.cn/problems/chou-shu-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202211301328089.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>动态规划，dp[i]代表第i+1个丑数。观察可以发现，排在后面的丑数一定可以由前面的丑数乘以2、3、5中的一个得到。因此，我们只需要计算整个dp数组最终返回最后一个元素即可，计算时应该按照从小到大的顺序放入dp数组。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">nthUglyNumber</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	dp := <span class="built_in">make</span>([]<span class="type">int</span>, n)</span><br><span class="line">	dp[<span class="number">0</span>] = <span class="number">1</span></span><br><span class="line">	a, b, c := <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">1</span>; i &lt; n; i++ &#123;</span><br><span class="line">		dp[i] = min(dp[a]*<span class="number">2</span>, dp[b]*<span class="number">3</span>, dp[c]*<span class="number">5</span>)</span><br><span class="line">		<span class="keyword">if</span> dp[i] == dp[a]*<span class="number">2</span> &#123;</span><br><span class="line">			a++</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> dp[i] == dp[b]*<span class="number">3</span> &#123;</span><br><span class="line">			b++</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> dp[i] == dp[c]*<span class="number">5</span> &#123;</span><br><span class="line">			c++</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> dp[n<span class="number">-1</span>]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">min</span><span class="params">(a, b, c <span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> a &lt;= b &amp;&amp; a &lt;= c &#123;</span><br><span class="line">		<span class="keyword">return</span> a</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> b &lt;= a &amp;&amp; b &lt;= c &#123;</span><br><span class="line">		<span class="keyword">return</span> b</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> c</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
 </search>
