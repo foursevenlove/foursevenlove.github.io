@@ -20,31 +20,25 @@
     var CONFIG = {"hostname":"foursevenlove.github.io","root":"/","scheme":"Muse","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":false,"show_result":false,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":false},"bookmark":{"enable":false,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
   </script>
 
-  <meta name="description" content="1.基本概念 ISP (Internet Service Provider)：因特网服务提供者，国内如中国电信、中国移动、中国联通。  因特网的组成：  边缘部分：用户的主机 核心部分：大量网络和路由器   三种交换方式：  电话交换 分组交换（使用这种） 报文交换">
+  <meta name="description" content="剑指offer-V2-52-两个链表的第一个公共节点原题点这里">
 <meta property="og:type" content="article">
-<meta property="og:title" content="计算机网络-1.基本概念">
-<meta property="og:url" content="https://foursevenlove.github.io/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-1-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/index.html">
+<meta property="og:title" content="剑指offer-V2-52-两个链表的第一个公共节点">
+<meta property="og:url" content="https://foursevenlove.github.io/2022/12/04/%E5%89%91%E6%8C%87offer-V2-52-%E4%B8%A4%E4%B8%AA%E9%93%BE%E8%A1%A8%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%AC%E5%85%B1%E8%8A%82%E7%82%B9/index.html">
 <meta property="og:site_name" content="foursevenlove">
-<meta property="og:description" content="1.基本概念 ISP (Internet Service Provider)：因特网服务提供者，国内如中国电信、中国移动、中国联通。  因特网的组成：  边缘部分：用户的主机 核心部分：大量网络和路由器   三种交换方式：  电话交换 分组交换（使用这种） 报文交换">
+<meta property="og:description" content="剑指offer-V2-52-两个链表的第一个公共节点原题点这里">
 <meta property="og:locale">
-<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220413194532.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220413195006.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416185253.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416185337.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416190042.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416190323.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416190402.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416190702.png">
-<meta property="og:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416190918.png">
-<meta property="article:published_time" content="2022-11-11T06:04:03.000Z">
-<meta property="article:modified_time" content="2022-11-11T06:04:48.293Z">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212041336855.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212041337455.png">
+<meta property="og:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212041338381.png">
+<meta property="article:published_time" content="2022-12-04T05:48:17.000Z">
+<meta property="article:modified_time" content="2022-12-04T05:48:32.885Z">
 <meta property="article:author" content="foursevenlove">
-<meta property="article:tag" content="Network">
-<meta property="article:tag" content="计算机网络">
+<meta property="article:tag" content="leetcode">
+<meta property="article:tag" content="offer">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:image" content="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220413194532.png">
+<meta name="twitter:image" content="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212041336855.png">
 
-<link rel="canonical" href="https://foursevenlove.github.io/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-1-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/">
+<link rel="canonical" href="https://foursevenlove.github.io/2022/12/04/%E5%89%91%E6%8C%87offer-V2-52-%E4%B8%A4%E4%B8%AA%E9%93%BE%E8%A1%A8%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%AC%E5%85%B1%E8%8A%82%E7%82%B9/">
 
 
 <script id="page-configurations">
@@ -57,7 +51,7 @@
   };
 </script>
 
-  <title>计算机网络-1.基本概念 | foursevenlove</title>
+  <title>剑指offer-V2-52-两个链表的第一个公共节点 | foursevenlove</title>
   
 
 
@@ -204,7 +198,7 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-1-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/12/04/%E5%89%91%E6%8C%87offer-V2-52-%E4%B8%A4%E4%B8%AA%E9%93%BE%E8%A1%A8%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%AC%E5%85%B1%E8%8A%82%E7%82%B9/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="image" content="/uploads/funs.jpg">
@@ -217,7 +211,7 @@
     </span>
       <header class="post-header">
         <h1 class="post-title" itemprop="name headline">
-          计算机网络-1.基本概念
+          剑指offer-V2-52-两个链表的第一个公共节点
         </h1>
 
         <div class="post-meta">
@@ -228,7 +222,7 @@
               <span class="post-meta-item-text">Posted on</span>
               
 
-              <time title="Created: 2022-11-11 14:04:03 / Modified: 14:04:48" itemprop="dateCreated datePublished" datetime="2022-11-11T14:04:03+08:00">2022-11-11</time>
+              <time title="Created: 2022-12-04 13:48:17 / Modified: 13:48:32" itemprop="dateCreated datePublished" datetime="2022-12-04T13:48:17+08:00">2022-12-04</time>
             </span>
             <span class="post-meta-item">
               <span class="post-meta-item-icon">
@@ -236,11 +230,11 @@
               </span>
               <span class="post-meta-item-text">In</span>
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Network/" itemprop="url" rel="index"><span itemprop="name">Network</span></a>
+                  <a href="/categories/leetcode/" itemprop="url" rel="index"><span itemprop="name">leetcode</span></a>
                 </span>
                   , 
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Network/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" itemprop="url" rel="index"><span itemprop="name">计算机网络</span></a>
+                  <a href="/categories/leetcode/offer/" itemprop="url" rel="index"><span itemprop="name">offer</span></a>
                 </span>
             </span>
 
@@ -255,97 +249,16 @@
     <div class="post-body" itemprop="articleBody">
 
       
-        <h1 id="1-基本概念"><a href="#1-基本概念" class="headerlink" title="1.基本概念"></a>1.基本概念</h1><ul>
-<li><p><strong>ISP</strong> (Internet Service Provider)：因特网服务提供者，国内如中国电信、中国移动、中国联通。</p>
-</li>
-<li><p>因特网的组成：</p>
-<ul>
-<li>边缘部分：用户的主机</li>
-<li>核心部分：大量网络和路由器</li>
-</ul>
-</li>
-<li><p>三种交换方式：</p>
-<ul>
-<li>电话交换</li>
-<li>分组交换（使用这种）</li>
-<li>报文交换</li>
-</ul>
-</li>
-</ul>
-<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220413194532.png" style="zoom:80%;" /><br><span id="more"></span></p>
-<ul>
-<li>计算机网络定义（无标准）：一些<strong>互联</strong>、<strong>自治</strong>的计算机的<strong>集合</strong>。</li>
-<li>计网的分类：</li>
-</ul>
-<p>按交换技术分类：电路交换网络、报文交换网络、分组交换网络；</p>
-<p>按使用者分类：公用网、专用网；</p>
-<p>按传输介质分类：有线网络、无线网络；</p>
-<p>按覆盖范围分类：广域网WAN、城域网MAN、局域网LAN、个域网PAN；</p>
-<p>按拓扑结构分类：总线型网络、星型网络、环形网络、网状型网络；</p>
-<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220413195006.png" style="zoom:80%;" /></p>
-<ul>
-<li><p>常见的性能指标：</p>
-<ul>
-<li>速率：传送比特的速率，常用单位比特每秒等。</li>
-<li>带宽：单位时间内从网络的某一点到另一点所能通过的最高数据率。</li>
-<li>吞吐量：单位时间内通过某个网络（或信道、接口）的数据量。</li>
-<li>时延：<ul>
-<li>发送时延：分组长度/发送速率</li>
-<li>传播时延：信道长度/电磁波传播速率</li>
-<li>处理时延：一般不方便计算，忽略</li>
-</ul>
-</li>
-<li>时延带宽积：传播时延*带宽，若发送端连续发送数据，则在所发送的第一个比特到达终点时，发送端就已经发送了时延带宽积个比特。</li>
-<li>往返时间：Round-Trip Time，RTT</li>
-<li>利用率：<ul>
-<li>信道利用率：某信道有百分之几的时间是被利用的。</li>
-<li>网络利用率：全网络的信道利用率的加权平均。</li>
-<li>信道利用率并非越高越好，越高则时延越大。</li>
-</ul>
-</li>
-<li>丢包率：在一定时间范围内，传输过程中丢失的分组数量与总分组数量的比率。<ul>
-<li>分组在传输过程中出现误码，被结点丢弃。</li>
-<li>分组到达一台队列已满的分组交换机时被丢弃。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><p>计算机网络体系结构：</p>
-<ul>
-<li>常见的计算机网络体系结构：</li>
-</ul>
-<p>OSI体系结构、TCP/IP体系结构与原理体系结构：</p>
-<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416185253.png" style="zoom:80%;" /></p>
-<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416185337.png" style="zoom:80%;" /></p>
-<ul>
-<li>分层的必要性：</li>
-</ul>
-<p>分层可将复杂问题转为较小的局部问题，方便处理和研究。各层解决的问题如下：</p>
-<p><strong>物理层</strong>：1.采用怎样的传输媒体（介质）2.采用怎样的物理接口 3.使用怎样的信号表示比特0和1</p>
-<p><strong>数据链路层</strong>：1.如何标识网络中各主机（主机编制问题，例如MAC地址）2.如何从信号所表示的一连串比特流中区分出地址和数据 3.如何协调各主机征用总线</p>
-<p><strong>网络层</strong>：1.如何标识各网络以及各网络中的各主机（网络和主机共同编址的问题，例如IP地址）2.路由器如何转发分组，如何进行路由器选择</p>
-<p><strong>运输层</strong>：1.如何解决进程之间基于网络的通信问题 2.出现传输错误时，如何处理</p>
-<p><strong>应用层</strong>：通过应用进程之间的交互来完成特定的网络应用。</p>
-<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416190042.png" style="zoom:80%;" /></p>
-<ul>
-<li><p>专用术语：</p>
-<p>实体：任何可发送或接受信息的硬件或软件进程</p>
-<p>对等实体：收发双发相同层次中的实体</p>
-<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416190323.png" style="zoom:80%;" /></p>
-<p>协议：控制两个对等实体进行逻辑通信的规则的集合。</p>
-<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416190402.png" style="zoom:80%;" /></p>
-<p>协议三要素：语法、语义、同步</p>
-<p>语法定义交换信息的格式；语义定义收发双方所要完成的操作；同步定义收发双方的时序关系。</p>
-<p>服务：在协议的控制下，两个对等实体间的逻辑通信使得本层能够向上一层提供服务；要实现本层协议，还需要使用下一层所提供的服务。</p>
-<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416190702.png" style="zoom:80%;" /></p>
-</li>
-</ul>
-<p>协议数据单元PDU：对等层次之间传送的数据包</p>
-<p>服务数据单元SDU：同一系统内，层与层之间交换的数据包</p>
-<p>多个SDU可合成一个PDU，一个SDU也可划分几个PDU。</p>
-<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220416190918.png" alt=""></p>
-</li>
-</ul>
+        <h1 id="剑指offer-V2-52-两个链表的第一个公共节点"><a href="#剑指offer-V2-52-两个链表的第一个公共节点" class="headerlink" title="剑指offer-V2-52-两个链表的第一个公共节点"></a>剑指offer-V2-52-两个链表的第一个公共节点</h1><p><a target="_blank" rel="noopener" href="https://leetcode.cn/problems/liang-ge-lian-biao-de-di-yi-ge-gong-gong-jie-dian-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212041336855.png" alt=""></p>
+<span id="more"></span>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212041337455.png" alt=""></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212041338381.png" alt=""></p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>遍历两个链表两次，第一次遍历自己，自己走完之后第二次遍历另一个链表。</p>
+<blockquote>
+<p>“我走过我的世界，再从你的世界走一遍”<br>“你走过你的世界，再从我的世界走一遍”<br>“最终我们将相遇，可能在途中（公共节点），可能在结尾（null）”</p>
+</blockquote>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getIntersectionNode</span><span class="params">(headA, headB *ListNode)</span></span> *ListNode &#123;</span><br><span class="line">	<span class="keyword">if</span> headA == <span class="literal">nil</span> || headB == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	pA, pB := headA, headB</span><br><span class="line">	<span class="keyword">for</span> pA != pB &#123;</span><br><span class="line">		<span class="keyword">if</span> pA == <span class="literal">nil</span> &#123;</span><br><span class="line">			pA = headB</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			pA = pA.Next</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> pB == <span class="literal">nil</span> &#123;</span><br><span class="line">			pB = headA</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			pB = pB.Next</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> pA</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
 
     </div>
 
@@ -355,8 +268,8 @@
 
       <footer class="post-footer">
           <div class="post-tags">
-              <a href="/tags/Network/" rel="tag"># Network</a>
-              <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" rel="tag"># 计算机网络</a>
+              <a href="/tags/leetcode/" rel="tag"># leetcode</a>
+              <a href="/tags/offer/" rel="tag"># offer</a>
           </div>
 
         
@@ -365,12 +278,12 @@
         
     <div class="post-nav">
       <div class="post-nav-item">
-    <a href="/2022/11/11/%E7%BD%91%E7%BB%9C%E6%98%AF%E6%80%8E%E6%A0%B7%E8%BF%9E%E6%8E%A5%E7%9A%84-2-%E6%8E%A2%E7%B4%A2%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%92%8C%E7%BD%91%E5%8D%A1/" rel="prev" title="网络是怎样连接的-2.探索协议栈和网卡">
-      <i class="fa fa-chevron-left"></i> 网络是怎样连接的-2.探索协议栈和网卡
+    <a href="/2022/12/02/%E5%89%91%E6%8C%87offer-V2-51-%E6%95%B0%E7%BB%84%E4%B8%AD%E7%9A%84%E9%80%86%E5%BA%8F%E5%AF%B9/" rel="prev" title="剑指offer-V2-51-数组中的逆序对">
+      <i class="fa fa-chevron-left"></i> 剑指offer-V2-51-数组中的逆序对
     </a></div>
       <div class="post-nav-item">
-    <a href="/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-2-%E7%89%A9%E7%90%86%E5%B1%82/" rel="next" title="计算机网络-2.物理层">
-      计算机网络-2.物理层 <i class="fa fa-chevron-right"></i>
+    <a href="/2022/12/04/%E5%89%91%E6%8C%87offer-V2-53-1-%E5%9C%A8%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E6%9F%A5%E6%89%BE%E6%95%B0%E5%AD%97-I/" rel="next" title="剑指offer-V2-53-1-在排序数组中查找数字 I">
+      剑指offer-V2-53-1-在排序数组中查找数字 I <i class="fa fa-chevron-right"></i>
     </a></div>
     </div>
       </footer>
@@ -430,7 +343,7 @@
 
       <!--noindex-->
       <div class="post-toc-wrap sidebar-panel">
-          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#1-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-text">1.基本概念</span></a></li></ol></div>
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%89%91%E6%8C%87offer-V2-52-%E4%B8%A4%E4%B8%AA%E9%93%BE%E8%A1%A8%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%AC%E5%85%B1%E8%8A%82%E7%82%B9"><span class="nav-text">剑指offer-V2-52-两个链表的第一个公共节点</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%80%9D%E8%B7%AF"><span class="nav-text">思路</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E4%BB%A3%E7%A0%81"><span class="nav-text">代码</span></a></li></ol></li></ol></div>
       </div>
       <!--/noindex-->
 

@@ -4706,4 +4706,45 @@
         <tag>offer</tag>
       </tags>
   </entry>
+  <entry>
+    <title>剑指offer-V2-53-1-在排序数组中查找数字 I</title>
+    <url>/2022/12/04/%E5%89%91%E6%8C%87offer-V2-53-1-%E5%9C%A8%E6%8E%92%E5%BA%8F%E6%95%B0%E7%BB%84%E4%B8%AD%E6%9F%A5%E6%89%BE%E6%95%B0%E5%AD%97-I/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-53-1-在排序数组中查找数字-I"><a href="#剑指offer-V2-53-1-在排序数组中查找数字-I" class="headerlink" title="剑指offer-V2-53-1-在排序数组中查找数字 I"></a>剑指offer-V2-53-1-在排序数组中查找数字 I</h1><p><a href="https://leetcode.cn/problems/zai-pai-xu-shu-zu-zhong-cha-zhao-shu-zi-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212041351784.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>使用二分查找找到两个下标，start下标代表数组中第一个等于target的下标，end代表数组中第一个大于target的下标，二者相减代表target的个数。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">search</span><span class="params">(nums []<span class="type">int</span>, target <span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(nums) == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="comment">// start-第一个等于target的下标；end-第一个大于target的下标</span></span><br><span class="line">	start, end := <span class="number">-1</span>, <span class="number">-1</span></span><br><span class="line">	<span class="comment">// 找到第一个等于target的下标</span></span><br><span class="line">	low, high := <span class="number">0</span>, <span class="built_in">len</span>(nums)<span class="number">-1</span></span><br><span class="line">	<span class="keyword">for</span> low &lt; high &#123;</span><br><span class="line">		mid := (low + high) / <span class="number">2</span></span><br><span class="line">		<span class="keyword">if</span> nums[mid] == target &#123;</span><br><span class="line">			high = mid</span><br><span class="line">		&#125; <span class="keyword">else</span> <span class="keyword">if</span> nums[mid] &gt; target &#123;</span><br><span class="line">			high = mid - <span class="number">1</span></span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			low = mid + <span class="number">1</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">if</span> nums[low] != target &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">	&#125;</span><br><span class="line">	start = low</span><br><span class="line">	<span class="comment">// 找到第一个大于target的下标</span></span><br><span class="line">	low, high = <span class="number">0</span>, <span class="built_in">len</span>(nums)<span class="number">-1</span></span><br><span class="line">	<span class="keyword">for</span> low &lt;= high &#123;</span><br><span class="line">		mid := (low + high) / <span class="number">2</span></span><br><span class="line">		<span class="keyword">if</span> nums[mid] &gt; target &#123;</span><br><span class="line">			high = mid - <span class="number">1</span></span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			low = mid + <span class="number">1</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	end = low</span><br><span class="line">	<span class="keyword">return</span> end - start</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>剑指offer-V2-52-两个链表的第一个公共节点</title>
+    <url>/2022/12/04/%E5%89%91%E6%8C%87offer-V2-52-%E4%B8%A4%E4%B8%AA%E9%93%BE%E8%A1%A8%E7%9A%84%E7%AC%AC%E4%B8%80%E4%B8%AA%E5%85%AC%E5%85%B1%E8%8A%82%E7%82%B9/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-52-两个链表的第一个公共节点"><a href="#剑指offer-V2-52-两个链表的第一个公共节点" class="headerlink" title="剑指offer-V2-52-两个链表的第一个公共节点"></a>剑指offer-V2-52-两个链表的第一个公共节点</h1><p><a href="https://leetcode.cn/problems/liang-ge-lian-biao-de-di-yi-ge-gong-gong-jie-dian-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212041336855.png" alt=""></p>
+<span id="more"></span>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212041337455.png" alt=""></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212041338381.png" alt=""></p>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>遍历两个链表两次，第一次遍历自己，自己走完之后第二次遍历另一个链表。</p>
+<blockquote>
+<p>“我走过我的世界，再从你的世界走一遍”<br>“你走过你的世界，再从我的世界走一遍”<br>“最终我们将相遇，可能在途中（公共节点），可能在结尾（null）”</p>
+</blockquote>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">getIntersectionNode</span><span class="params">(headA, headB *ListNode)</span></span> *ListNode &#123;</span><br><span class="line">	<span class="keyword">if</span> headA == <span class="literal">nil</span> || headB == <span class="literal">nil</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">nil</span></span><br><span class="line">	&#125;</span><br><span class="line">	pA, pB := headA, headB</span><br><span class="line">	<span class="keyword">for</span> pA != pB &#123;</span><br><span class="line">		<span class="keyword">if</span> pA == <span class="literal">nil</span> &#123;</span><br><span class="line">			pA = headB</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			pA = pA.Next</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> pB == <span class="literal">nil</span> &#123;</span><br><span class="line">			pB = headA</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			pB = pB.Next</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> pA</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
 </search>
