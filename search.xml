@@ -4747,4 +4747,95 @@
         <tag>offer</tag>
       </tags>
   </entry>
+  <entry>
+    <title>剑指offer-V2-54-二叉搜索树的第k大节点</title>
+    <url>/2022/12/05/%E5%89%91%E6%8C%87offer-V2-54-%E4%BA%8C%E5%8F%89%E6%90%9C%E7%B4%A2%E6%A0%91%E7%9A%84%E7%AC%ACk%E5%A4%A7%E8%8A%82%E7%82%B9/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-54-二叉搜索树的第k大节点"><a href="#剑指offer-V2-54-二叉搜索树的第k大节点" class="headerlink" title="剑指offer-V2-54-二叉搜索树的第k大节点"></a>剑指offer-V2-54-二叉搜索树的第k大节点</h1><p><a href="https://leetcode.cn/problems/er-cha-sou-suo-shu-de-di-kda-jie-dian-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212051021264.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>常规思路是中序遍历二叉树得到一个递增数组，返回这个数组中len(nums)-k下标处的元素即可。但是可以采用<strong>倒中序遍历</strong>来优化，当倒中序遍历到第k个元素时提前返回。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"> * type TreeNode struct &#123;</span></span><br><span class="line"><span class="comment"> *     Val int</span></span><br><span class="line"><span class="comment"> *     Left *TreeNode</span></span><br><span class="line"><span class="comment"> *     Right *TreeNode</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">kthLargest</span><span class="params">(root *TreeNode, k <span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	ret := root.Val</span><br><span class="line">	<span class="keyword">var</span> dfs <span class="function"><span class="keyword">func</span><span class="params">(root *TreeNode)</span></span></span><br><span class="line">	dfs = <span class="function"><span class="keyword">func</span><span class="params">(root *TreeNode)</span></span> &#123;</span><br><span class="line">		<span class="keyword">if</span> root == <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		dfs(root.Right)</span><br><span class="line">		<span class="keyword">if</span> k == <span class="number">0</span> &#123;</span><br><span class="line">			<span class="keyword">return</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> k--; k == <span class="number">0</span> &#123;</span><br><span class="line">			ret = root.Val</span><br><span class="line">		&#125;</span><br><span class="line">		dfs(root.Left)</span><br><span class="line">	&#125;</span><br><span class="line">	dfs(root)</span><br><span class="line">	<span class="keyword">return</span> ret</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>剑指offer-V2-55-2-二叉树的深度</title>
+    <url>/2022/12/06/%E5%89%91%E6%8C%87offer-V2-55-2-%E4%BA%8C%E5%8F%89%E6%A0%91%E7%9A%84%E6%B7%B1%E5%BA%A6/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-55-2-二叉树的深度"><a href="#剑指offer-V2-55-2-二叉树的深度" class="headerlink" title="剑指offer-V2-55-2-二叉树的深度"></a>剑指offer-V2-55-2-二叉树的深度</h1><p><a href="https://leetcode.cn/problems/er-cha-shu-de-shen-du-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212060936428.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>递归</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"> * type TreeNode struct &#123;</span></span><br><span class="line"><span class="comment"> *     Val int</span></span><br><span class="line"><span class="comment"> *     Left *TreeNode</span></span><br><span class="line"><span class="comment"> *     Right *TreeNode</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">maxDepth</span><span class="params">(root *TreeNode)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	max := <span class="function"><span class="keyword">func</span><span class="params">(a, b <span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> a &gt;= b &#123;</span><br><span class="line">			<span class="keyword">return</span> a</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> b</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">var</span> dfs <span class="function"><span class="keyword">func</span><span class="params">(root *TreeNode)</span></span> <span class="type">int</span></span><br><span class="line">	dfs = <span class="function"><span class="keyword">func</span><span class="params">(root *TreeNode)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> root == <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> max(dfs(root.Left), dfs(root.Right)) + <span class="number">1</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> dfs(root)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>剑指offer-V2-56-1-数组中数字出现的次数</title>
+    <url>/2022/12/07/%E5%89%91%E6%8C%87offer-V2-56-1-%E6%95%B0%E7%BB%84%E4%B8%AD%E6%95%B0%E5%AD%97%E5%87%BA%E7%8E%B0%E7%9A%84%E6%AC%A1%E6%95%B0/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-56-1-数组中数字出现的次数"><a href="#剑指offer-V2-56-1-数组中数字出现的次数" class="headerlink" title="剑指offer-V2-56-1-数组中数字出现的次数"></a>剑指offer-V2-56-1-数组中数字出现的次数</h1><p><a href="https://leetcode.cn/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212070907121.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>如果这道题改为除了一个数字之外，其他数字都出现了两次，那么就简单了，可以直接遍历一遍数组，求异或和，最终得到的答案就是结果。因为：a^a=1 a^0=a，相当于是两两相同的数字异或和都是0，最终剩下的那个数字和0异或结果就是本身。</p>
+<p>但是这道题是除了两个数字之外，其他数字都出现了两次，那么稍微复杂一点。假设这两个数字分别是a和b，对数组遍历一遍求异或和的结果就是a^b=z。对于z的二进制表示来说，一定有一位是不为0的（反证法，如果全为0则代表a=b）。那么我们就可以借助这一位，将原数组分为两个子数组，分类方法是如果该数字的这一位是否为0，可以预见的是相同的数字一定会被分到一个子数组里，剩下的a和b一定会分到两个子数组中。这样最后只要对两个子数组分别求异或和就得到了a和b的结果。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">singleNumbers</span><span class="params">(nums []<span class="type">int</span>)</span></span> []<span class="type">int</span> &#123;</span><br><span class="line">	x, y := <span class="number">0</span>, <span class="number">0</span></span><br><span class="line">	z := <span class="number">0</span></span><br><span class="line">	<span class="keyword">for</span> _, num := <span class="keyword">range</span> nums &#123;</span><br><span class="line">		z ^= num</span><br><span class="line">	&#125;</span><br><span class="line">	m := <span class="number">1</span></span><br><span class="line">	<span class="keyword">for</span> z&amp;m == <span class="number">0</span> &#123;</span><br><span class="line">		m &lt;&lt;= <span class="number">1</span></span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> _, num := <span class="keyword">range</span> nums &#123;</span><br><span class="line">		<span class="keyword">if</span> num&amp;m == <span class="number">0</span> &#123;</span><br><span class="line">			x ^= num</span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			y ^= num</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> []<span class="type">int</span>&#123;x, y&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>剑指offer-V2-55-2-平衡二叉树</title>
+    <url>/2022/12/06/%E5%89%91%E6%8C%87offer-V2-55-2-%E5%B9%B3%E8%A1%A1%E4%BA%8C%E5%8F%89%E6%A0%91/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-55-2-平衡二叉树"><a href="#剑指offer-V2-55-2-平衡二叉树" class="headerlink" title="剑指offer-V2-55-2-平衡二叉树"></a>剑指offer-V2-55-2-平衡二叉树</h1><p><a href="https://leetcode.cn/problems/ping-heng-er-cha-shu-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212060940910.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>可以采用较直接的方式，求左子树和右子树的深度，判断差绝对值是否小于2，然后递归判断左子树和右子树。第二种方式，采用剪枝，如果一棵树不是平衡二叉树返回-1。先分别判断左右子树，如果不是直接返回-1，如果是判断下深度差绝对值，同理不满足条件就返回-1，满足条件的话正常返回深度。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * Definition for a binary tree node.</span></span><br><span class="line"><span class="comment"> * type TreeNode struct &#123;</span></span><br><span class="line"><span class="comment"> *     Val int</span></span><br><span class="line"><span class="comment"> *     Left *TreeNode</span></span><br><span class="line"><span class="comment"> *     Right *TreeNode</span></span><br><span class="line"><span class="comment"> * &#125;</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">isBalanced</span><span class="params">(root *TreeNode)</span></span> <span class="type">bool</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> root == <span class="literal">nil</span> || (root.Left == <span class="literal">nil</span> &amp;&amp; root.Right == <span class="literal">nil</span>) &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="literal">true</span></span><br><span class="line">	&#125;</span><br><span class="line">	max := <span class="function"><span class="keyword">func</span><span class="params">(a, b <span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> a &gt;= b &#123;</span><br><span class="line">			<span class="keyword">return</span> a</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> b</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">var</span> recur <span class="function"><span class="keyword">func</span><span class="params">(root *TreeNode)</span></span> <span class="type">int</span></span><br><span class="line">	recur = <span class="function"><span class="keyword">func</span><span class="params">(root *TreeNode)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">		<span class="keyword">if</span> root == <span class="literal">nil</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">		&#125;</span><br><span class="line">		left := recur(root.Left)</span><br><span class="line">		<span class="keyword">if</span> left == <span class="number">-1</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">-1</span></span><br><span class="line">		&#125;</span><br><span class="line">		right := recur(root.Right)</span><br><span class="line">		<span class="keyword">if</span> right == <span class="number">-1</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">-1</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> left-right &gt;= <span class="number">2</span> || right-left &gt;= <span class="number">2</span> &#123;</span><br><span class="line">			<span class="keyword">return</span> <span class="number">-1</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">return</span> max(left, right) + <span class="number">1</span></span><br><span class="line">	&#125;</span><br><span class="line"></span><br><span class="line">	<span class="keyword">return</span> recur(root) != <span class="number">-1</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>剑指offer-V2-53-2-0～n-1中缺失的数字</title>
+    <url>/2022/12/05/%E5%89%91%E6%8C%87offer-V2-53-2-0%EF%BD%9En-1%E4%B8%AD%E7%BC%BA%E5%A4%B1%E7%9A%84%E6%95%B0%E5%AD%97/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-53-2-0～n-1中缺失的数字"><a href="#剑指offer-V2-53-2-0～n-1中缺失的数字" class="headerlink" title="剑指offer-V2-53-2-0～n-1中缺失的数字"></a>剑指offer-V2-53-2-0～n-1中缺失的数字</h1><p><a href="https://leetcode.cn/problems/que-shi-de-shu-zi-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212051016478.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>有序数组一般都可以采用二分查找的思想。在此题中，利用二分查找找到第一个元素不等于下标的元素下标。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">missingNumber</span><span class="params">(nums []<span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	<span class="comment">// 找到第一个元素大于下标的元素下标</span></span><br><span class="line">	low, high := <span class="number">0</span>, <span class="built_in">len</span>(nums)<span class="number">-1</span></span><br><span class="line">	<span class="keyword">for</span> low &lt;= high &#123;</span><br><span class="line">		mid := (low + high) / <span class="number">2</span></span><br><span class="line">		<span class="keyword">if</span> nums[mid] == mid &#123;</span><br><span class="line">			<span class="comment">// 说明mid之前的元素都没问题</span></span><br><span class="line">			low = mid + <span class="number">1</span></span><br><span class="line">		&#125; <span class="keyword">else</span> &#123;</span><br><span class="line">			<span class="comment">// 只有可能是nums[mid] &gt; mid</span></span><br><span class="line">			high = mid - <span class="number">1</span></span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> low</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
 </search>
