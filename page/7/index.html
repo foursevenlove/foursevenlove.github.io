@@ -189,6 +189,94 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/30/DRL-2-Advanced-Topics-on-Value-Based-Learning/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/10/30/DRL-2-Advanced-Topics-on-Value-Based-Learning/" class="post-title-link" itemprop="url">DRL-2.Advanced Topics on Value-Based Learning</a>
+        </h2>
+
+        <div class="post-meta">
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-10-30 14:32:19 / Modified: 14:44:56" itemprop="dateCreated datePublished" datetime="2022-10-30T14:32:19+08:00">2022-10-30</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Deep-Reinforcement-Learning/" itemprop="url" rel="index"><span itemprop="name">Deep Reinforcement Learning</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="DRL-2-Advanced-Topics-on-Value-Based-Learning"><a href="#DRL-2-Advanced-Topics-on-Value-Based-Learning" class="headerlink" title="DRL-2.Advanced Topics on Value-Based Learning"></a>DRL-2.Advanced Topics on Value-Based Learning</h1><h2 id="1-Experience-Replay-ER-amp-Prioritized-ER"><a href="#1-Experience-Replay-ER-amp-Prioritized-ER" class="headerlink" title="1. Experience Replay (ER) &amp; Prioritized ER"></a>1. Experience Replay (ER) &amp; Prioritized ER</h2><h3 id="1-1-Experience-Replay"><a href="#1-1-Experience-Replay" class="headerlink" title="1.1 Experience Replay"></a>1.1 Experience Replay</h3><ul>
+<li>A transition：$(s_t, a_t,r_t,s_{t+1})$</li>
+</ul>
+<p>重复使用之前已经利用过的transition。将n个transition保存到replay buffer中，n是一个可调节超参数，通常取$10^5 - 10^6$。</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151641708.png" style="zoom: 25%;" /></p>
+<ul>
+<li>TD with Experience Replay</li>
+</ul>
+<p>在使用Stochastic gradient desenct（SGD）时，从过去的经验中随机sample一条transition来更新梯度：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151644846.png" style="zoom:33%;" /></p>
+<p>使用Experience Replay的好处：</p>
+<ol>
+<li>让梯度更新是不相关的</li>
+<li>多次使用收集到的经验
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/10/30/DRL-2-Advanced-Topics-on-Value-Based-Learning/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/30/DRL-1-Overview/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -905,97 +993,10 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/27/30-Condition-Variables/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/uploads/funs.jpg">
-      <meta itemprop="name" content="foursevenlove">
-      <meta itemprop="description" content="Keep on going never give up!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="foursevenlove">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/10/27/30-Condition-Variables/" class="post-title-link" itemprop="url">30. Condition Variables</a>
-        </h2>
-
-        <div class="post-meta">
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-10-27 16:53:41 / Modified: 16:54:08" itemprop="dateCreated datePublished" datetime="2022-10-27T16:53:41+08:00">2022-10-27</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Operating-System/" itemprop="url" rel="index"><span itemprop="name">Operating System</span></a>
-                </span>
-                  , 
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Operating-System/Concurrency/" itemprop="url" rel="index"><span itemprop="name">Concurrency</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="30-Condition-Variables"><a href="#30-Condition-Variables" class="headerlink" title="30. Condition Variables"></a>30. Condition Variables</h1><ul>
-<li>之前介绍了lock，以及使用lock构建的一些线程安全的数据结构。但是那并不是所有并发的内容，说到并发，怎么能不谈谈同步呢？并发中，一个线程等待另一个线程是很常见的事情。举个栗子，父线程要等待子线程结束才能结束：</li>
-</ul>
-<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510092947.png" style="zoom:80%;" /></p>
-<p>我们希望看到的结果是这样：</p>
-<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510093145.png" style="zoom:80%;" /></p>
-<p>那要怎么做才能实现上述目的呢？首先尝试使用一个共享变量：</p>
-<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220510094817.png" style="zoom:80%;" /></p>
-<p>这种做法基本可以达到我们的目的，但是效率很低，因为父线程一直在spin。实际上，我们应该将父线程sleep，当子线程结束时，再awake父线程。那么问题来了：在多线程程序中，经常出现一个线程要等待另一个线程的。简单的做法就像上面这样，在条件满足前一直spin，但是很低效。那应该用什么方法来代替呢？<br>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/10/27/30-Condition-Variables/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
-    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><a class="page-number" href="/page/9/">9</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
+    <a class="extend prev" rel="prev" href="/page/6/"><i class="fa fa-angle-left" aria-label="Previous page"></i></a><a class="page-number" href="/">1</a><span class="space">&hellip;</span><a class="page-number" href="/page/6/">6</a><span class="page-number current">7</span><a class="page-number" href="/page/8/">8</a><span class="space">&hellip;</span><a class="page-number" href="/page/10/">10</a><a class="extend next" rel="next" href="/page/8/"><i class="fa fa-angle-right" aria-label="Next page"></i></a>
   </nav>
 
 
@@ -1063,7 +1064,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">90</span>
+          <span class="site-state-item-count">91</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>

@@ -4838,4 +4838,23 @@
         <tag>offer</tag>
       </tags>
   </entry>
+  <entry>
+    <title>剑指offer-V2-56-2-数组中数字出现的次数</title>
+    <url>/2022/12/08/%E5%89%91%E6%8C%87offer-V2-56-2-%E6%95%B0%E7%BB%84%E4%B8%AD%E6%95%B0%E5%AD%97%E5%87%BA%E7%8E%B0%E7%9A%84%E6%AC%A1%E6%95%B0/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-56-2-数组中数字出现的次数"><a href="#剑指offer-V2-56-2-数组中数字出现的次数" class="headerlink" title="剑指offer-V2-56-2-数组中数字出现的次数"></a>剑指offer-V2-56-2-数组中数字出现的次数</h1><p><a href="https://leetcode.cn/problems/shu-zu-zhong-shu-zi-chu-xian-de-ci-shu-ii-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212081014866.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>在数组中所有元素的二进制表示中，统计每一位上1的个数，对结果模3，就是结果。很好理解，出现三次的数字在同一位上一定也是相同的，如果在该位上是1，那么三个数在该位上加起来一定是3，最终模3一定是0，剩下的余数就一定是只出现一次的数字导致的。</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212081016764.png" alt=""></p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">singleNumber</span><span class="params">(nums []<span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(nums) == <span class="number">1</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> nums[<span class="number">0</span>]</span><br><span class="line">	&#125;</span><br><span class="line">	digits := <span class="built_in">make</span>([]<span class="type">int</span>, <span class="number">31</span>)</span><br><span class="line">	ret := <span class="number">0</span></span><br><span class="line">	<span class="keyword">for</span> _, num := <span class="keyword">range</span> nums &#123;</span><br><span class="line">		i := <span class="number">0</span></span><br><span class="line">		<span class="keyword">for</span> num != <span class="number">0</span> &#123;</span><br><span class="line">			digits[i] += num &amp; <span class="number">1</span></span><br><span class="line">			num &gt;&gt;= <span class="number">1</span></span><br><span class="line">			i++</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; <span class="built_in">len</span>(digits); i++ &#123;</span><br><span class="line">		<span class="keyword">if</span> digits[i] != <span class="number">0</span> &amp;&amp; digits[i]%<span class="number">3</span> != <span class="number">0</span> &#123;</span><br><span class="line">			ret += <span class="type">int</span>(math.Pow(<span class="number">2</span>, <span class="type">float64</span>(i)))</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> ret</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
 </search>
