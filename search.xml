@@ -4976,4 +4976,42 @@
         <tag>新冠😷</tag>
       </tags>
   </entry>
+  <entry>
+    <title>剑指offer-V2-59-1-滑动窗口的最大值</title>
+    <url>/2022/12/14/%E5%89%91%E6%8C%87offer-V2-59-1-%E6%BB%91%E5%8A%A8%E7%AA%97%E5%8F%A3%E7%9A%84%E6%9C%80%E5%A4%A7%E5%80%BC/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-59-1-滑动窗口的最大值"><a href="#剑指offer-V2-59-1-滑动窗口的最大值" class="headerlink" title="剑指offer-V2-59-1-滑动窗口的最大值"></a>剑指offer-V2-59-1-滑动窗口的最大值</h1><p><a href="https://leetcode.cn/problems/hua-dong-chuang-kou-de-zui-da-zhi-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212141711919.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>维护一个最大堆，将每一个元素加入堆中，此时堆顶为最大元素。但是堆顶元素有可能不在滑动窗口中，因此加入当前元素后，判断一下堆顶元素是否在滑动窗口中，如果不在出堆，循环直到堆顶元素是在滑动窗口中的。如何判断堆顶是否在滑动窗口？可以通过下标来判断。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> data <span class="keyword">struct</span> &#123;</span><br><span class="line">	num   <span class="type">int</span></span><br><span class="line">	index <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> MaxHeap <span class="keyword">struct</span> &#123;</span><br><span class="line">	heap []data</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *MaxHeap)</span></span> Less(i, j <span class="type">int</span>) <span class="type">bool</span> &#123; <span class="keyword">return</span> h.heap[i].num &gt; h.heap[j].num &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *MaxHeap)</span></span> Swap(i, j <span class="type">int</span>) &#123; h.heap[i], h.heap[j] = h.heap[j], h.heap[i] &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *MaxHeap)</span></span> Len() <span class="type">int</span> &#123; <span class="keyword">return</span> <span class="built_in">len</span>(h.heap) &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *MaxHeap)</span></span> Push(x <span class="keyword">interface</span>&#123;&#125;) &#123; h.heap = <span class="built_in">append</span>(h.heap, x.(data)) &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *MaxHeap)</span></span> Pop() <span class="keyword">interface</span>&#123;&#125; &#123;</span><br><span class="line">	x := h.heap[h.Len()<span class="number">-1</span>]</span><br><span class="line">	h.heap = h.heap[:h.Len()<span class="number">-1</span>]</span><br><span class="line">	<span class="keyword">return</span> x</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">maxSlidingWindow</span><span class="params">(nums []<span class="type">int</span>, k <span class="type">int</span>)</span></span> []<span class="type">int</span> &#123;</span><br><span class="line">	ret := <span class="built_in">make</span>([]<span class="type">int</span>, <span class="number">0</span>)</span><br><span class="line">	maxHeap := &amp;MaxHeap&#123;<span class="built_in">make</span>([]data, <span class="number">0</span>)&#125;</span><br><span class="line">	heap.Init(maxHeap)</span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">0</span>; i &lt; k; i++ &#123;</span><br><span class="line">		heap.Push(maxHeap, data&#123;num: nums[i], index: i&#125;)</span><br><span class="line">	&#125;</span><br><span class="line">	ret = <span class="built_in">append</span>(ret, maxHeap.heap[<span class="number">0</span>].num)</span><br><span class="line">	<span class="keyword">for</span> i := k; i &lt; <span class="built_in">len</span>(nums); i++ &#123;</span><br><span class="line">		heap.Push(maxHeap, data&#123;num: nums[i], index: i&#125;)</span><br><span class="line">		<span class="keyword">for</span> i-maxHeap.heap[<span class="number">0</span>].index &gt;= k &#123;</span><br><span class="line">			heap.Pop(maxHeap)</span><br><span class="line">		&#125;</span><br><span class="line">		ret = <span class="built_in">append</span>(ret, maxHeap.heap[<span class="number">0</span>].num)</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> ret</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>剑指offer-V2-58-2-左旋转字符串</title>
+    <url>/2022/12/13/%E5%89%91%E6%8C%87offer-V2-58-2-%E5%B7%A6%E6%97%8B%E8%BD%AC%E5%AD%97%E7%AC%A6%E4%B8%B2/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-58-2-左旋转字符串"><a href="#剑指offer-V2-58-2-左旋转字符串" class="headerlink" title="剑指offer-V2-58-2-左旋转字符串"></a>剑指offer-V2-58-2-左旋转字符串</h1><p><a href="https://leetcode.cn/problems/zuo-xuan-zhuan-zi-fu-chuan-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212131028553.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><h3 id="思路1"><a href="#思路1" class="headerlink" title="思路1"></a>思路1</h3><p>切片函数直接拼接</p>
+<h3 id="思路2"><a href="#思路2" class="headerlink" title="思路2"></a>思路2</h3><p>遍历拼接</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><h3 id="代码1"><a href="#代码1" class="headerlink" title="代码1"></a>代码1</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">reverseLeftWords</span><span class="params">(s <span class="type">string</span>, n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> s[n:] + s[:n+<span class="number">1</span>]</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="代码2"><a href="#代码2" class="headerlink" title="代码2"></a>代码2</h3><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">reverseLeftWords</span><span class="params">(s <span class="type">string</span>, n <span class="type">int</span>)</span></span> <span class="type">string</span> &#123;</span><br><span class="line">	cs := <span class="built_in">make</span>([]<span class="type">byte</span>, <span class="number">0</span>)</span><br><span class="line">	<span class="keyword">for</span> i := n; i &lt; <span class="built_in">len</span>(s)+n; i++ &#123;</span><br><span class="line">		cs = <span class="built_in">append</span>(cs, s[i%<span class="built_in">len</span>(s)])</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> <span class="type">string</span>(cs)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
 </search>
