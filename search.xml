@@ -5032,4 +5032,40 @@
         <tag>offer</tag>
       </tags>
   </entry>
+  <entry>
+    <title>剑指offer-V2-62-圆圈中最后剩下的数字</title>
+    <url>/2022/12/16/%E5%89%91%E6%8C%87offer-V2-62-%E5%9C%86%E5%9C%88%E4%B8%AD%E6%9C%80%E5%90%8E%E5%89%A9%E4%B8%8B%E7%9A%84%E6%95%B0%E5%AD%97/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-62-圆圈中最后剩下的数字"><a href="#剑指offer-V2-62-圆圈中最后剩下的数字" class="headerlink" title="剑指offer-V2-62-圆圈中最后剩下的数字"></a>剑指offer-V2-62-圆圈中最后剩下的数字</h1><p><a href="https://leetcode.cn/problems/yuan-quan-zhong-zui-hou-sheng-xia-de-shu-zi-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212160952098.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>约瑟夫环，直接模拟会超时，采用数学解法。从最后一轮开始，最后一轮只剩下一个元素a，也就是结果，下标为0。那么倒数第二轮有两个元素，并且可以计算出a在这个数组中的下标：(a+m)%2。同理可以一直反推到数组中剩余n个元素，也就是初始状态，得到该状态下a的下标，也就是a的值（因为数组元素从0开始）。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">lastRemaining</span><span class="params">(n <span class="type">int</span>, m <span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	ret := <span class="number">0</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">2</span>; i &lt;= n; i++ &#123;</span><br><span class="line">		ret = (ret + m) % i</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> ret</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>剑指offer-V2-63-股票的最大利润</title>
+    <url>/2022/12/16/%E5%89%91%E6%8C%87offer-V2-63-%E8%82%A1%E7%A5%A8%E7%9A%84%E6%9C%80%E5%A4%A7%E5%88%A9%E6%B6%A6/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-63-股票的最大利润"><a href="#剑指offer-V2-63-股票的最大利润" class="headerlink" title="剑指offer-V2-63-股票的最大利润"></a>剑指offer-V2-63-股票的最大利润</h1><p><a href="https://leetcode.cn/problems/gu-piao-de-zui-da-li-run-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212161010422.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>动态规划，dp[i]代表从当前天数之前的最小价格买入，在第i天卖出的利润。但是可以设置一个变量从而免去dp数组。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">maxProfit</span><span class="params">(prices []<span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> <span class="built_in">len</span>(prices) &lt; <span class="number">2</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> <span class="number">0</span></span><br><span class="line">	&#125;</span><br><span class="line">	minPrice := prices[<span class="number">0</span>]</span><br><span class="line">	ret :=<span class="number">0</span></span><br><span class="line">	<span class="keyword">for</span> i := <span class="number">1</span>; i &lt; <span class="built_in">len</span>(prices); i++ &#123;</span><br><span class="line">		<span class="keyword">if</span> prices[i]-minPrice &gt; ret &#123;</span><br><span class="line">			ret = prices[i] - minPrice</span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> prices[i] &lt; minPrice &#123;</span><br><span class="line">			minPrice = prices[i]</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> ret</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
 </search>
