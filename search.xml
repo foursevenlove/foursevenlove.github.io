@@ -5068,4 +5068,42 @@
         <tag>offer</tag>
       </tags>
   </entry>
+  <entry>
+    <title>剑指offer-V2-64-求1+2+…+n</title>
+    <url>/2022/12/17/%E5%89%91%E6%8C%87offer-V2-64-%E6%B1%821-2-%E2%80%A6-n/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-64-求1-2-…-n"><a href="#剑指offer-V2-64-求1-2-…-n" class="headerlink" title="剑指offer-V2-64-求1+2+…+n"></a>剑指offer-V2-64-求1+2+…+n</h1><p><a href="https://leetcode.cn/problems/qiu-12n-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212171217784.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>可以使用递归，但是不能用常规的判断来做递归终止条件。可以利用逻辑运算符&amp;&amp;的特性，如果&amp;&amp;左边的判断条件不成立就不执行又变的判断，借助这个特性完成递归终止条件。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">sumNums</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	ret := <span class="number">0</span></span><br><span class="line">	<span class="keyword">var</span> recur <span class="function"><span class="keyword">func</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">int</span></span><br><span class="line">	recur = <span class="function"><span class="keyword">func</span><span class="params">(n <span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">		_ = n &gt; <span class="number">1</span> &amp;&amp; recur(n<span class="number">-1</span>) &gt; <span class="number">0</span></span><br><span class="line">		ret += n</span><br><span class="line">		<span class="keyword">return</span> ret</span><br><span class="line">	&#125;</span><br><span class="line">	recur(n)</span><br><span class="line">	<span class="keyword">return</span> ret</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>剑指offer-V2-65-不用加减乘除做加法</title>
+    <url>/2022/12/17/%E5%89%91%E6%8C%87offer-V2-65-%E4%B8%8D%E7%94%A8%E5%8A%A0%E5%87%8F%E4%B9%98%E9%99%A4%E5%81%9A%E5%8A%A0%E6%B3%95/</url>
+    <content><![CDATA[<h1 id="剑指offer-V2-65-不用加减乘除做加法"><a href="#剑指offer-V2-65-不用加减乘除做加法" class="headerlink" title="剑指offer-V2-65-不用加减乘除做加法"></a>剑指offer-V2-65-不用加减乘除做加法</h1><p><a href="https://leetcode.cn/problems/bu-yong-jia-jian-cheng-chu-zuo-jia-fa-lcof/description/">原题点这里</a></p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212171222568.png" alt=""></p>
+<span id="more"></span>
+<h2 id="思路"><a href="#思路" class="headerlink" title="思路"></a>思路</h2><p>位运算。观察二进制求和以及进位的特点：</p>
+<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202212171224301.png" style="zoom:50%;" /></p>
+<p>观察发现，无进位和的运算特点满足异或运算：<code>^</code>，进位的特点满足与运算：<code>&amp;</code>（然后左移）。因此只需要循环计算无进位和和进位相加直到没有进位。</p>
+<h2 id="代码"><a href="#代码" class="headerlink" title="代码"></a>代码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">add</span><span class="params">(a <span class="type">int</span>, b <span class="type">int</span>)</span></span> <span class="type">int</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> b == <span class="number">0</span> &#123;</span><br><span class="line">		<span class="keyword">return</span> a</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> add(a^b, (a&amp;b)&lt;&lt;<span class="number">1</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>leetcode</category>
+        <category>offer</category>
+      </categories>
+      <tags>
+        <tag>leetcode</tag>
+        <tag>offer</tag>
+      </tags>
+  </entry>
 </search>
