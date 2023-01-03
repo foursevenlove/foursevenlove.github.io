@@ -5263,6 +5263,7 @@
 <li>查看docker简要信息</li>
 </ul>
 <figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">docker -v</span><br></pre></td></tr></table></figure>
+<span id="more"></span>
 <ul>
 <li>启动Docker</li>
 </ul>
