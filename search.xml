@@ -5472,7 +5472,8 @@
 <li>researchrabbit <a href="https://researchrabbitapp.com/home">https://researchrabbitapp.com/home</a></li>
 <li>Connected papers <a href="https://www.connectedpapers.com/">https://www.connectedpapers.com/</a></li>
 <li>Paper digest <a href="https://www.paperdigest.org/review/">https://www.paperdigest.org/review/</a></li>
-<li>research paper <a href="https://www.researcher-app.com/feed/all">https://www.researcher-app.com/feed/all</a></li>
+<li>research paper <a href="https://www.researcher-app.com/feed/all">https://www.researcher-app.com/feed/all</a><span id="more"></span>
+</li>
 </ul>
 <h2 id="文章代码"><a href="#文章代码" class="headerlink" title="文章代码"></a>文章代码</h2><p>用于查找文章的代码。</p>
 <ul>
@@ -5496,6 +5497,7 @@
 <h2 id="快速理解"><a href="#快速理解" class="headerlink" title="快速理解"></a>快速理解</h2><p>用于帮助快速理解某篇论文。</p>
 <ul>
 <li>paper digest <a href="https://www.paper-digest.com/">https://www.paper-digest.com/</a></li>
+<li>Read paper <a href="https://readpaper.com/">https://readpaper.com/</a></li>
 </ul>
 <h2 id="万能类"><a href="#万能类" class="headerlink" title="万能类"></a>万能类</h2><ul>
 <li>chatGPT <a href="https://chat.openai.com/">https://chat.openai.com/</a></li>
