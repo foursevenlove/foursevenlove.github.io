@@ -5464,4 +5464,48 @@
         <tag>Docker</tag>
       </tags>
   </entry>
+  <entry>
+    <title>科研实用网站</title>
+    <url>/2023/01/07/%E7%A7%91%E7%A0%94%E5%AE%9E%E7%94%A8%E7%BD%91%E7%AB%99/</url>
+    <content><![CDATA[<h1 id="科研实用网站"><a href="#科研实用网站" class="headerlink" title="科研实用网站"></a>科研实用网站</h1><h2 id="论文发现"><a href="#论文发现" class="headerlink" title="论文发现"></a>论文发现</h2><p>用于相似论文发现，快速找到某关键词下的文章。</p>
+<ul>
+<li>researchrabbit <a href="https://researchrabbitapp.com/home">https://researchrabbitapp.com/home</a></li>
+<li>Connected papers <a href="https://www.connectedpapers.com/">https://www.connectedpapers.com/</a></li>
+<li>Paper digest <a href="https://www.paperdigest.org/review/">https://www.paperdigest.org/review/</a></li>
+<li>research paper <a href="https://www.researcher-app.com/feed/all">https://www.researcher-app.com/feed/all</a></li>
+</ul>
+<h2 id="文章代码"><a href="#文章代码" class="headerlink" title="文章代码"></a>文章代码</h2><p>用于查找文章的代码。</p>
+<ul>
+<li>paper digest <a href="https://www.paperdigest.org/search/">https://www.paperdigest.org/search/</a></li>
+<li>cs paper with code <a href="https://cs.paperswithcode.com/">https://cs.paperswithcode.com/</a></li>
+<li>paper with code <a href="https://paperswithcode.com/">https://paperswithcode.com/</a></li>
+</ul>
+<h2 id="论文写作"><a href="#论文写作" class="headerlink" title="论文写作"></a>论文写作</h2><p>论文写作工具，比如latex、翻译、润色论文等。</p>
+<ul>
+<li>overleaf <a href="https://www.overleaf.com/">https://www.overleaf.com/</a></li>
+<li>DeepL <a href="https://www.deepl.com/translator">https://www.deepl.com/translator</a></li>
+<li>phrasebank <a href="https://www.phrasebank.manchester.ac.uk/">https://www.phrasebank.manchester.ac.uk/</a></li>
+</ul>
+<h2 id="会议-期刊检索"><a href="#会议-期刊检索" class="headerlink" title="会议/期刊检索"></a>会议/期刊检索</h2><p>用于检索会议和期刊。</p>
+<ul>
+<li>ccf <a href="https://www.ccf.org.cn/Academic_Evaluation/By_category/">https://www.ccf.org.cn/Academic_Evaluation/By_category/</a></li>
+<li>huiban <a href="https://www.myhuiban.com/">https://www.myhuiban.com/</a></li>
+<li>Call4paper <a href="http://123.57.137.208/C4PREST/index.html">http://123.57.137.208/C4PREST/index.html</a></li>
+<li>Ccf ddl <a href="https://ccfddl.github.io/">https://ccfddl.github.io/</a></li>
+</ul>
+<h2 id="快速理解"><a href="#快速理解" class="headerlink" title="快速理解"></a>快速理解</h2><p>用于帮助快速理解某篇论文。</p>
+<ul>
+<li>paper digest <a href="https://www.paper-digest.com/">https://www.paper-digest.com/</a></li>
+</ul>
+<h2 id="万能类"><a href="#万能类" class="headerlink" title="万能类"></a>万能类</h2><ul>
+<li>chatGPT <a href="https://chat.openai.com/">https://chat.openai.com/</a></li>
+</ul>
+]]></content>
+      <categories>
+        <category>Paper</category>
+      </categories>
+      <tags>
+        <tag>Paper</tag>
+      </tags>
+  </entry>
 </search>
