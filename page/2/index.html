@@ -191,6 +191,181 @@
   
   
   <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/11/14/K8S%E4%BF%AE%E7%82%BC%E4%B9%8B%E8%B7%AF-2-%E7%AD%91%E5%9F%BA%E6%9C%9F-Etcd-in-Kubernetes/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/11/14/K8S%E4%BF%AE%E7%82%BC%E4%B9%8B%E8%B7%AF-2-%E7%AD%91%E5%9F%BA%E6%9C%9F-Etcd-in-Kubernetes/" class="post-title-link" itemprop="url">K8S修炼之路-2.筑基期-Etcd in Kubernetes</a>
+        </h2>
+
+        <div class="post-meta">
+        <!-- 置顶插件添加 开始 -->
+        
+        <!-- 置顶插件添加 结束 -->
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+
+              <time title="Created: 2022-11-14 16:05:51" itemprop="dateCreated datePublished" datetime="2022-11-14T16:05:51+08:00">2022-11-14</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">Edited on</span>
+                <time title="Modified: 2022-11-17 20:08:46" itemprop="dateModified" datetime="2022-11-17T20:08:46+08:00">2022-11-17</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k8s/" itemprop="url" rel="index"><span itemprop="name">k8s</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k8s/kube-ladder/" itemprop="url" rel="index"><span itemprop="name">kube-ladder</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="Etcd-in-Kubernetes"><a href="#Etcd-in-Kubernetes" class="headerlink" title="Etcd in Kubernetes"></a>Etcd in Kubernetes</h1><p>本阶段学习etcd与kubernetes，简单来说kubernetes可以看作一个应用，任何一个应用都要有数据库，kubernetes也不例外，而etcd就是kubernetes的数据库。</p>
+<p>虽然etcd作为数据库是kubernetes的核心，但是在生产环境中并不直接和etcd打交道，而是通过API来操作资源。</p>
+<p>这篇心法将介绍，etcd是如何工作的、工作流程及原理如何，以及在kubernetes中如何用到了etcd。<br>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/11/14/K8S%E4%BF%AE%E7%82%BC%E4%B9%8B%E8%B7%AF-2-%E7%AD%91%E5%9F%BA%E6%9C%9F-Etcd-in-Kubernetes/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
+    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/11/14/K8S%E4%BF%AE%E7%82%BC%E4%B9%8B%E8%B7%AF-1-%E7%82%BC%E6%B0%94%E6%9C%9F/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/uploads/funs.jpg">
+      <meta itemprop="name" content="foursevenlove">
+      <meta itemprop="description" content="Keep on going never give up!">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="foursevenlove">
+    </span>
+      <header class="post-header">
+        <h2 class="post-title" itemprop="name headline">
+          
+            <a href="/2022/11/14/K8S%E4%BF%AE%E7%82%BC%E4%B9%8B%E8%B7%AF-1-%E7%82%BC%E6%B0%94%E6%9C%9F/" class="post-title-link" itemprop="url">K8S修炼之路-1. 炼气期</a>
+        </h2>
+
+        <div class="post-meta">
+        <!-- 置顶插件添加 开始 -->
+        
+        <!-- 置顶插件添加 结束 -->
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">Posted on</span>
+              
+
+              <time title="Created: 2022-11-14 16:03:21 / Modified: 16:06:20" itemprop="dateCreated datePublished" datetime="2022-11-14T16:03:21+08:00">2022-11-14</time>
+            </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">In</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k8s/" itemprop="url" rel="index"><span itemprop="name">k8s</span></a>
+                </span>
+                  , 
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/k8s/kube-ladder/" itemprop="url" rel="index"><span itemprop="name">kube-ladder</span></a>
+                </span>
+            </span>
+
+          
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+          <h1 id="K8S修炼之路-1-炼气期"><a href="#K8S修炼之路-1-炼气期" class="headerlink" title="K8S修炼之路-1. 炼气期"></a>K8S修炼之路-1. 炼气期</h1><h2 id="修炼须知及目标"><a href="#修炼须知及目标" class="headerlink" title="修炼须知及目标"></a>修炼须知及目标</h2><p>本阶段为k8s修炼之路的开始阶段，不求学会太深奥的原理，只要明白为啥需要k8s以及k8s的基本使用即可。目标如下：</p>
+<ul>
+<li>安装 Kubernetes 环境</li>
+<li>Kubernetes 基本概念和使用方法<br>
+          <!--noindex-->
+            <div class="post-button">
+              <a class="btn" href="/2022/11/14/K8S%E4%BF%AE%E7%82%BC%E4%B9%8B%E8%B7%AF-1-%E7%82%BC%E6%B0%94%E6%9C%9F/#more" rel="contents">
+                Read more &raquo;
+              </a>
+            </div>
+          <!--/noindex-->
+        
+      
+    </div>
+
+    
+    
+    
+      <footer class="post-footer">
+        <div class="post-eof"></div>
+      </footer>
+  </article>
+  
+  
+  
+
+      
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
     <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-6-%E5%BA%94%E7%94%A8%E5%B1%82/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
@@ -915,167 +1090,6 @@
   
   
 
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/11/02/Git%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/uploads/funs.jpg">
-      <meta itemprop="name" content="foursevenlove">
-      <meta itemprop="description" content="Keep on going never give up!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="foursevenlove">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/11/02/Git%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/" class="post-title-link" itemprop="url">Git命令使用</a>
-        </h2>
-
-        <div class="post-meta">
-        <!-- 置顶插件添加 开始 -->
-        
-        <!-- 置顶插件添加 结束 -->
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-11-02 16:30:09 / Modified: 16:31:24" itemprop="dateCreated datePublished" datetime="2022-11-02T16:30:09+08:00">2022-11-02</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Git/" itemprop="url" rel="index"><span itemprop="name">Git</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="Git命令使用"><a href="#Git命令使用" class="headerlink" title="Git命令使用"></a>Git命令使用</h1><h2 id="git-cherry-pick"><a href="#git-cherry-pick" class="headerlink" title="git cherry-pick"></a>git cherry-pick</h2><p><a target="_blank" rel="noopener" href="https://blog.csdn.net/FightFightFight/article/details/81039050">https://blog.csdn.net/FightFightFight/article/details/81039050</a></p>
-<p>通常用于在两个分支之间，比如master和prod，想把master分支上的部分commit合并到prod上。<br>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/11/02/Git%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
-      
-  
-  
-  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-Hans">
-    <link itemprop="mainEntityOfPage" href="https://foursevenlove.github.io/2022/10/30/DRL-3-Policy-Gradient-with-Baseline/">
-
-    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
-      <meta itemprop="image" content="/uploads/funs.jpg">
-      <meta itemprop="name" content="foursevenlove">
-      <meta itemprop="description" content="Keep on going never give up!">
-    </span>
-
-    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
-      <meta itemprop="name" content="foursevenlove">
-    </span>
-      <header class="post-header">
-        <h2 class="post-title" itemprop="name headline">
-          
-            <a href="/2022/10/30/DRL-3-Policy-Gradient-with-Baseline/" class="post-title-link" itemprop="url">DRL-3.Policy Gradient with Baseline</a>
-        </h2>
-
-        <div class="post-meta">
-        <!-- 置顶插件添加 开始 -->
-        
-        <!-- 置顶插件添加 结束 -->
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-calendar"></i>
-              </span>
-              <span class="post-meta-item-text">Posted on</span>
-              
-
-              <time title="Created: 2022-10-30 14:33:18 / Modified: 14:45:01" itemprop="dateCreated datePublished" datetime="2022-10-30T14:33:18+08:00">2022-10-30</time>
-            </span>
-            <span class="post-meta-item">
-              <span class="post-meta-item-icon">
-                <i class="far fa-folder"></i>
-              </span>
-              <span class="post-meta-item-text">In</span>
-                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Deep-Reinforcement-Learning/" itemprop="url" rel="index"><span itemprop="name">Deep Reinforcement Learning</span></a>
-                </span>
-            </span>
-
-          
-
-        </div>
-      </header>
-
-    
-    
-    
-    <div class="post-body" itemprop="articleBody">
-
-      
-          <h1 id="DRL-3-Policy-Gradient-with-Baseline"><a href="#DRL-3-Policy-Gradient-with-Baseline" class="headerlink" title="DRL-3.Policy Gradient with Baseline"></a>DRL-3.Policy Gradient with Baseline</h1><h2 id="1-Policy-Gradient-with-Baseline"><a href="#1-Policy-Gradient-with-Baseline" class="headerlink" title="1. Policy Gradient with Baseline"></a>1. Policy Gradient with Baseline</h2><h3 id="1-1-Policy-Gradient"><a href="#1-1-Policy-Gradient" class="headerlink" title="1.1 Policy Gradient"></a>1.1 Policy Gradient</h3><p>recall：使用策略函数$\pi(a|s;\theta)$来控制agent的行为；</p>
-<p>状态价值函数：</p>
-<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209162106947.png" style="zoom:33%;" /></p>
-<p>Policy gradient：</p>
-<p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209162108173.png" style="zoom:33%;" /><br>
-          <!--noindex-->
-            <div class="post-button">
-              <a class="btn" href="/2022/10/30/DRL-3-Policy-Gradient-with-Baseline/#more" rel="contents">
-                Read more &raquo;
-              </a>
-            </div>
-          <!--/noindex-->
-        
-      
-    </div>
-
-    
-    
-    
-      <footer class="post-footer">
-        <div class="post-eof"></div>
-      </footer>
-  </article>
-  
-  
-  
-
 
   
   <nav class="pagination">
@@ -1147,7 +1161,7 @@
       <div class="site-state-item site-state-posts">
           <a href="/archives/">
         
-          <span class="site-state-item-count">41</span>
+          <span class="site-state-item-count">43</span>
           <span class="site-state-item-name">posts</span>
         </a>
       </div>
@@ -1267,59 +1281,6 @@
   
 
   
-      
-
-<script>
-  if (typeof MathJax === 'undefined') {
-    window.MathJax = {
-      loader: {
-        source: {
-          '[tex]/amsCd': '[tex]/amscd',
-          '[tex]/AMScd': '[tex]/amscd'
-        }
-      },
-      tex: {
-        inlineMath: {'[+]': [['$', '$']]},
-        tags: 'ams'
-      },
-      options: {
-        renderActions: {
-          findScript: [10, doc => {
-            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
-              const display = !!node.type.match(/; *mode=display/);
-              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
-              const text = document.createTextNode('');
-              node.parentNode.replaceChild(text, node);
-              math.start = {node: text, delim: '', n: 0};
-              math.end = {node: text, delim: '', n: 0};
-              doc.math.push(math);
-            });
-          }, '', false],
-          insertedScript: [200, () => {
-            document.querySelectorAll('mjx-container').forEach(node => {
-              let target = node.parentNode;
-              if (target.nodeName.toLowerCase() === 'li') {
-                target.parentNode.classList.add('has-jax');
-              }
-            });
-          }, '', false]
-        }
-      }
-    };
-    (function () {
-      var script = document.createElement('script');
-      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
-      script.defer = true;
-      document.head.appendChild(script);
-    })();
-  } else {
-    MathJax.startup.document.state(0);
-    MathJax.texReset();
-    MathJax.typeset();
-  }
-</script>
-
-    
 
   
 
