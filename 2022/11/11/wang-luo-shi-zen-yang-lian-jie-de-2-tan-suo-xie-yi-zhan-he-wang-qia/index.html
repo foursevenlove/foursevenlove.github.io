@@ -1,0 +1,1516 @@
+<!DOCTYPE HTML>
+<html lang="zh-CN">
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="keywords" content="网络是怎样连接的-2.探索协议栈和网卡, foursevenlove">
+    <meta name="description" content="Keep on going never give up!">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="renderer" content="webkit|ie-stand|ie-comp">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="format-detection" content="telephone=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+
+
+    <title>网络是怎样连接的-2.探索协议栈和网卡 | foursevenlove</title>
+    <link rel="icon" type="image/png" href="/logo.png">
+
+    <link rel="stylesheet" type="text/css" href="/libs/awesome/css/all.css">
+    <link rel="stylesheet" type="text/css" href="/libs/materialize/materialize.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/aos/aos.css">
+    <link rel="stylesheet" type="text/css" href="/libs/animate/animate.min.css">
+    <link rel="stylesheet" type="text/css" href="/libs/lightGallery/css/lightgallery.min.css">
+    <link rel="stylesheet" type="text/css" href="/css/matery.css">
+    <link rel="stylesheet" type="text/css" href="/css/my.css">
+
+    <script src="/libs/jquery/jquery.min.js"></script>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --><meta name="generator" content="Hexo 6.3.0"></head>
+
+
+
+
+<body>
+    <header class="navbar-fixed">
+    <nav id="headNav" class="bg-color nav-transparent">
+        <div id="navContainer" class="nav-wrapper container">
+            <div class="brand-logo">
+                <a href="/" class="waves-effect waves-light">
+                    
+                    <img src="/medias/logo.png" class="logo-img" alt="LOGO">
+                    
+                    <span class="logo-span">foursevenlove</span>
+                </a>
+            </div>
+            
+
+<a href="#" data-target="mobile-nav" class="sidenav-trigger button-collapse"><i class="fas fa-bars"></i></a>
+<ul class="right nav-menu">
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/" class="waves-effect waves-light">
+      
+      <i class="fas fa-home" style="zoom: 0.6;"></i>
+      
+      <span>首页</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/tags" class="waves-effect waves-light">
+      
+      <i class="fas fa-tags" style="zoom: 0.6;"></i>
+      
+      <span>标签</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/categories" class="waves-effect waves-light">
+      
+      <i class="fas fa-bookmark" style="zoom: 0.6;"></i>
+      
+      <span>分类</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/archives" class="waves-effect waves-light">
+      
+      <i class="fas fa-archive" style="zoom: 0.6;"></i>
+      
+      <span>归档</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/about" class="waves-effect waves-light">
+      
+      <i class="fas fa-user-circle" style="zoom: 0.6;"></i>
+      
+      <span>关于</span>
+    </a>
+    
+  </li>
+  
+  <li class="hide-on-med-and-down nav-item">
+    
+    <a href="/contact" class="waves-effect waves-light">
+      
+      <i class="fas fa-comments" style="zoom: 0.6;"></i>
+      
+      <span>留言板</span>
+    </a>
+    
+  </li>
+  
+  <li>
+    <a href="#searchModal" class="modal-trigger waves-effect waves-light">
+      <i id="searchIcon" class="fas fa-search" title="搜索" style="zoom: 0.85;"></i>
+    </a>
+  </li>
+</ul>
+
+
+<div id="mobile-nav" class="side-nav sidenav">
+
+    <div class="mobile-head bg-color">
+        
+        <img src="/medias/logo.png" class="logo-img circle responsive-img">
+        
+        <div class="logo-name">foursevenlove</div>
+        <div class="logo-desc">
+            
+            Keep on going never give up!
+            
+        </div>
+    </div>
+
+    
+
+    <ul class="menu-list mobile-menu-list">
+        
+        <li class="m-nav-item">
+	  
+		<a href="/" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-home"></i>
+			
+			首页
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/tags" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-tags"></i>
+			
+			标签
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/categories" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-bookmark"></i>
+			
+			分类
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/archives" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-archive"></i>
+			
+			归档
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/about" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-user-circle"></i>
+			
+			关于
+		</a>
+          
+        </li>
+        
+        <li class="m-nav-item">
+	  
+		<a href="/contact" class="waves-effect waves-light">
+			
+			    <i class="fa-fw fas fa-comments"></i>
+			
+			留言板
+		</a>
+          
+        </li>
+        
+        
+        <li><div class="divider"></div></li>
+        <li>
+            <a href="https://github.com/blinkfox/hexo-theme-matery" class="waves-effect waves-light" target="_blank">
+                <i class="fab fa-github-square fa-fw"></i>Fork Me
+            </a>
+        </li>
+        
+    </ul>
+</div>
+
+
+        </div>
+
+        
+            <style>
+    .nav-transparent .github-corner {
+        display: none !important;
+    }
+
+    .github-corner {
+        position: absolute;
+        z-index: 10;
+        top: 0;
+        right: 0;
+        border: 0;
+        transform: scale(1.1);
+    }
+
+    .github-corner svg {
+        color: #0f9d58;
+        fill: #fff;
+        height: 64px;
+        width: 64px;
+    }
+
+    .github-corner:hover .octo-arm {
+        animation: a 0.56s ease-in-out;
+    }
+
+    .github-corner .octo-arm {
+        animation: none;
+    }
+
+    @keyframes a {
+        0%,
+        to {
+            transform: rotate(0);
+        }
+        20%,
+        60% {
+            transform: rotate(-25deg);
+        }
+        40%,
+        80% {
+            transform: rotate(10deg);
+        }
+    }
+</style>
+
+<a href="https://github.com/blinkfox/hexo-theme-matery" class="github-corner tooltipped hide-on-med-and-down" target="_blank"
+   data-tooltip="Fork Me" data-position="left" data-delay="50">
+    <svg viewBox="0 0 250 250" aria-hidden="true">
+        <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+        <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2"
+              fill="currentColor" style="transform-origin: 130px 106px;" class="octo-arm"></path>
+        <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z"
+              fill="currentColor" class="octo-body"></path>
+    </svg>
+</a>
+        
+    </nav>
+
+</header>
+
+    
+
+
+
+<div class="bg-cover pd-header post-cover" style="background-image: url('/medias/featureimages/20.jpg')">
+    <div class="container" style="right: 0px;left: 0px;">
+        <div class="row">
+            <div class="col s12 m12 l12">
+                <div class="brand">
+                    <h1 class="description center-align post-title">网络是怎样连接的-2.探索协议栈和网卡</h1>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+
+
+<main class="post-container content">
+
+    
+    <link rel="stylesheet" href="/libs/tocbot/tocbot.css">
+<style>
+    #articleContent h1::before,
+    #articleContent h2::before,
+    #articleContent h3::before,
+    #articleContent h4::before,
+    #articleContent h5::before,
+    #articleContent h6::before {
+        display: block;
+        content: " ";
+        height: 100px;
+        margin-top: -100px;
+        visibility: hidden;
+    }
+
+    #articleContent :focus {
+        outline: none;
+    }
+
+    .toc-fixed {
+        position: fixed;
+        top: 64px;
+    }
+
+    .toc-widget {
+        width: 345px;
+        padding-left: 20px;
+    }
+
+    .toc-widget .toc-title {
+        padding: 35px 0 15px 17px;
+        font-size: 1.5rem;
+        font-weight: bold;
+        line-height: 1.5rem;
+    }
+
+    .toc-widget ol {
+        padding: 0;
+        list-style: none;
+    }
+
+    #toc-content {
+        padding-bottom: 30px;
+        overflow: auto;
+    }
+
+    #toc-content ol {
+        padding-left: 10px;
+    }
+
+    #toc-content ol li {
+        padding-left: 10px;
+    }
+
+    #toc-content .toc-link:hover {
+        color: #42b983;
+        font-weight: 700;
+        text-decoration: underline;
+    }
+
+    #toc-content .toc-link::before {
+        background-color: transparent;
+        max-height: 25px;
+
+        position: absolute;
+        right: 23.5vw;
+        display: block;
+    }
+
+    #toc-content .is-active-link {
+        color: #42b983;
+    }
+
+    #floating-toc-btn {
+        position: fixed;
+        right: 15px;
+        bottom: 76px;
+        padding-top: 15px;
+        margin-bottom: 0;
+        z-index: 998;
+    }
+
+    #floating-toc-btn .btn-floating {
+        width: 48px;
+        height: 48px;
+    }
+
+    #floating-toc-btn .btn-floating i {
+        line-height: 48px;
+        font-size: 1.4rem;
+    }
+</style>
+<div class="row">
+    <div id="main-content" class="col s12 m12 l9">
+        <!-- 文章内容详情 -->
+<div id="artDetail">
+    <div class="card">
+        <div class="card-content article-info">
+            <div class="row tag-cate">
+                <div class="col s7">
+                    
+                    <div class="article-tag">
+                        
+                            <a href="/tags/Network/">
+                                <span class="chip bg-color">Network</span>
+                            </a>
+                        
+                            <a href="/tags/%E7%BD%91%E7%BB%9C%E6%98%AF%E6%80%8E%E6%A0%B7%E8%BF%9E%E6%8E%A5%E7%9A%84/">
+                                <span class="chip bg-color">网络是怎样连接的</span>
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+                <div class="col s5 right-align">
+                    
+                    <div class="post-cate">
+                        <i class="fas fa-bookmark fa-fw icon-category"></i>
+                        
+                            <a href="/categories/Network/" class="post-category">
+                                Network
+                            </a>
+                        
+                            <a href="/categories/Network/%E7%BD%91%E7%BB%9C%E6%98%AF%E6%80%8E%E6%A0%B7%E8%BF%9E%E6%8E%A5%E7%9A%84/" class="post-category">
+                                网络是怎样连接的
+                            </a>
+                        
+                    </div>
+                    
+                </div>
+            </div>
+
+            <div class="post-info">
+                
+                <div class="post-date info-break-policy">
+                    <i class="far fa-calendar-minus fa-fw"></i>发布日期:&nbsp;&nbsp;
+                    2022-11-11
+                </div>
+                
+
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-file-word fa-fw"></i>文章字数:&nbsp;&nbsp;
+                    4.1k
+                </div>
+                
+
+                
+                <div class="info-break-policy">
+                    <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
+                    14 分
+                </div>
+                
+
+                
+            </div>
+        </div>
+        <hr class="clearfix">
+
+        
+
+        
+
+        <div class="card-content article-card-content">
+            <div id="articleContent">
+                <h1 id="第二章-探索协议栈和网卡"><a href="#第二章-探索协议栈和网卡" class="headerlink" title="第二章 探索协议栈和网卡"></a>第二章 探索协议栈和网卡</h1><ul>
+<li>这章主要讲的是在收发数据过程中的具体工作流程，比如怎么创建套接字、怎么建立连接、怎么将数据发送出去等等。</li>
+</ul>
+<h2 id="2-1-创建套接字"><a href="#2-1-创建套接字" class="headerlink" title="2.1 创建套接字"></a>2.1 创建套接字</h2><ul>
+<li>协议栈的内部结构：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403111356.png" style="zoom:80%;" /></p>
+<p>浏览器、邮件等一般应用程序收发数据时用TCP；DNS查询等收发较短的控制数据时用UDP。<br><span id="more"></span></p>
+<ul>
+<li>到底啥是套接字？</li>
+</ul>
+<p>​        套接字是实体就是通信控制信息。协议栈的内部有一块空间用于存放控制信息的内存空间，记录了控制通信操作的控制信息，其实体就是套接字。举个栗子，使用netstat命令可以显示套接字：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403111926.png" style="zoom:80%;" /></p>
+<ul>
+<li>调用socket来创建套接字时到底发生了什么？</li>
+</ul>
+<p>​        首先看看消息收发操作的整个流程：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403135124.png" style="zoom:80%;" /></p>
+<p>​        </p>
+<p>​        消息收发流程中，先调用socket创建套接字，其本质就是协议栈为改套接字分配一块内存空间，用于存放控制信息，并向其中写入初始状态。接着确定一个该套接字的唯一标识，并将该标识告诉应用程序，这样应用程序就知道该和谁进行通信了。</p>
+<h2 id="2-2-连接服务器"><a href="#2-2-连接服务器" class="headerlink" title="2.2 连接服务器"></a>2.2 连接服务器</h2><ul>
+<li>什么是连接？</li>
+</ul>
+<p>​    创建套接字之后，应用程序（浏览器）就会调用 connect，随后协议栈会将本地的套接字与服务器的套接字进行连接。连接就是让客户端也就是应用程序和服务器端知道该和谁通信，这些信息都是保存在套接字中的。</p>
+<ul>
+<li><p>有关控制信息：</p>
+<ul>
+<li>第一类是客户端和服务器相互联络时交换的控制信息。该信息不仅在连接时需要，在收发和断开阶段都需要，这些内容在TCP协议的规格中定义，如下表。</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403140138.png" style="zoom:80%;" /></p>
+<p>这些信息会放在网络包的开头，如下图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403140245.png" style="zoom:80%;" /></p>
+<p>当处于连接阶段网络包还没有数据的时候，网络包长这样：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403140347.png" style="zoom:80%;" /></p>
+<ul>
+<li>第二类，保存在套接字中，用来控制协议栈操作的信息，协议栈会根据这些信息来执行每一步的操作。就是第一节中的套接字。</li>
+</ul>
+</li>
+<li><p>连接操作的实际过程，调用Socket库中的connect：</p>
+<ul>
+<li>首先，客户端创建一个包，其中包含表示开始数据收发操作的控制信息的头部，就是上面那张表中的信息。重点是发送方和接收方的端口号，这样客户端就能知道连接服务器端的哪个套接字了。</li>
+<li>然后，将头部控制位中的SYN比特设置为1，用来表示进行来连接操作。此外，还要设置序号和窗口大小。</li>
+<li>TCP头部创建好后，TCP模块将信息传递给IP模块，委托它进行发送。IP模块将网络包发送给服务器端。</li>
+<li>服务器端IP模块将接收到的数据传递给服务器端的TCP模块，TCP模块根据TCP头部的信息找到端口号对应的套接字，并且修改该套接字为正在连接的状态。</li>
+<li>上述完成后，服务器端的TCP模块会返回响应，整个过程和客户端一样，设置TCP头部的控制信息，比如双方的端口号和SYN比特，以及将ACK控制位设置为1。然后委托IP模块进行发送。</li>
+<li>然后，客户端就会收到该网络包，通过IP模块到达TCP模块。通过TCP头部信息判断连接操作是否成功，如果SYN为1表示成功，那么客户端就像套接字中写入服务器的IP、端口等信息，将状态改为连接完毕。至此，客户端的连接操作完毕。</li>
+<li>最后一步，刚刚服务器端返回响应时将ACK设置为1，相应地，客户端也需要将ACK设置为1发给服务器，代表服务器刚刚发的包已经收到。当服务器收到这个返回包之后，连接操作才算全部完成。</li>
+</ul>
+</li>
+</ul>
+<h2 id="2-3-收发数据"><a href="#2-3-收发数据" class="headerlink" title="2.3 收发数据"></a>2.3 收发数据</h2><ul>
+<li>建立连接之后，下一步就该收发数据了。主要就是应用程序把要发送的数据通过调用write先交给协议栈，协议栈收到数据后再执行发送操作。</li>
+<li>协议栈发送数据时：<ul>
+<li>首先，协议栈不关心数据中到底是啥，一切都只是二进制字节序列。</li>
+<li>其次，协议栈并不是一收到数据就马上发送，先放在内部的发送缓冲区，累计到一定量再发出去，根据以下两个要素判断，二者不可得兼。<ul>
+<li>第一，每个网络包能容纳的数据长度。</li>
+<li>第二，时间，应用程序发送数据的频率。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li>对较大的数据进行拆分：</li>
+</ul>
+<p>​        当要发送的数据超过一个网络包能容纳的最大数据时，就要对较大数据进行拆分。对拆分出来的数据，加上TCP头部，设置发送方和接收方的端口号，然后交给IP模块进行发送。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403152850.png" style="zoom:80%;" /></p>
+<ul>
+<li>使用ACK号确认网络包已收到：</li>
+</ul>
+<p>​        原理如下图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403153535.png" style="zoom:80%;" /></p>
+<p>​        序号用于表明当前从第几个字节开始发送，长度表明发送的数据包有多长，ACK号表明下一次数据该从第多少字节发送，在这之前的数据已经收到。</p>
+<p>​        然而实际情况要更复杂一点。实际上序号并不会从1开始，而是用随机数计算一个初始值。如果序号从1开始，通信过程是可以预测的，很不安全。</p>
+<p>​        当数据双向传输的时候原理如下图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403154007.png" style="zoom:80%;" /></p>
+<p>​        实际工作过程如下：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403154104.png" style="zoom:80%;" /></p>
+<p>​        如果对方没有返回某些包对应的ACK号，那么就重新发送这些包。</p>
+<ul>
+<li>根据网络包平均往返时间调整 ACK 号等待时间：</li>
+</ul>
+<p>​        当网络堵塞的时候，ACK号返回就会变慢，就需要将等待时间设置的稍长，但是也不能过长也不能过短。TCP采用动态调整等待时间的方法，这个等待时间是根据 ACK 号返回所需的时间来判断的。具体来说，TCP 会在发送数据的过程中持续测量 ACK 号的返回时间，如果 ACK 号返回变慢，则相应延长等待时间；相对地，如果 ACK 号马上就能返回，则相应缩短等待时间。</p>
+<ul>
+<li>使用窗口有效管理 ACK 号：</li>
+</ul>
+<p>​        发送一个包就等待一个包的ACK号的方式虽然简单，但是在等待ACK的时候什么也不做，效率太低，于是采用滑动窗口的方式来操作，如下图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403154745.png" style="zoom:80%;" /></p>
+<p>​        但是有个问题，如果发送方发送的太快，接收方处理不过来咋办？</p>
+<p>​        接收方的TCP收到包后先将包放到接收缓冲区中，如果缓冲区满，那么发来的数据就丢失了。所以接收方应该先告诉发送方自己最多能接收多少数据。思路如下图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403155035.png" style="zoom:80%;" /></p>
+<p>​        接收方能够接受的最大数据量称为窗口大小，一般和缓冲区大小一致。</p>
+<ul>
+<li>ACK 与窗口的合并：</li>
+</ul>
+<p>​        发送方可以根据自己发送出去的数据计算窗口减小了多少，那么增大呢？当接收方的应用程序从缓冲区中取出数据时，窗口应该增大。而ACK号是当接收方收到数据时计算，然后发送给发送方的。要是分开发送这两个参数给发送方，效率太低，所以要想办法结合在一起发送。</p>
+<p>​        并且当有多个ACK号要发送时，只需要发送最后一个即可；有多个窗口更新要发送时只需要发送最后一个即可。</p>
+<ul>
+<li>接收 HTTP 响应消息：</li>
+</ul>
+<p>​        下面来讲讲接收响应。</p>
+<p>​        首先，调用read程序来获取响应消息。然后该协议栈上场了，协议栈尝试从接收缓冲区中取出数据传递给应用程序，如果没有数据就i将应用程序挂起。</p>
+<p>​        接收数据和发送数据比较相似，总结如下：</p>
+<p>​        首先，协议栈检查收到的数据块和TCP头部的内容，判断是否有数据丢失，没有则返回ACK号。然后，协议栈将数据块暂存到接收缓冲区中，并将数据块连接起来还原出原始书数据。最后交给应用程序。</p>
+<h2 id="2-4-从服务器断开并删除套接字"><a href="#2-4-从服务器断开并删除套接字" class="headerlink" title="2.4 从服务器断开并删除套接字"></a>2.4 从服务器断开并删除套接字</h2><ul>
+<li>双方都可以首先发起断开连接，下面以服务器乙方发起断开过程为例：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403161826.png" style="zoom:80%;" /></p>
+<p>​        第一，服务器方的应用程序会调用Socket库的close程序。然后协议栈登场，生成包含断开信息的TCP头部，也就是将控制位的FIN比特设置为1。接着，TPC模块委托IP模块向客户端发送数据，同时，服务器的套接字记录断开的相关信息。</p>
+<p>​        第二，就是客户端，返回ACK号表明收到了上一个有断开信息的包。</p>
+<p>​        第三，客户端调用close，之后的过程就和第一步一样了。</p>
+<p>​        第四，同第二步。</p>
+<ul>
+<li>删除套接字：</li>
+</ul>
+<p>​        通信结束后，等待一段时间就删除套接字。之所以等待，是为了防止误操作。</p>
+<ul>
+<li>至此，整个连接、收发、断开过程如下：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220403162557.png" style="zoom:80%;" /></p>
+<h2 id="2-5-IP-与以太网的包收发操作"><a href="#2-5-IP-与以太网的包收发操作" class="headerlink" title="2.5 IP 与以太网的包收发操作"></a>2.5 IP 与以太网的包收发操作</h2><ul>
+<li>包的基本知识：</li>
+</ul>
+<p>​        网络包的结构：头部就相当于快递的快递单，数据就相当于快递的货物。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404105325.png" style="zoom:80%;" /></p>
+<p>​        一个包发往目的地的过程：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404105234.png" style="zoom:80%;" /></p>
+<p>​        发送方和接收方统称为终端节点。</p>
+<p>​        对于转发设备：1.路由器根据目标地址判断下一个路由器的位置 2.集线器在子网中将网络包传输到下一个路由。</p>
+<p>​        实际上，集线器是按照以太网规则传输包的设备，而路由器是按照IP规则传输包的设备，因此：1. IP 协议根据目标地址判断下一个 IP 转发设备的位置  2. 子网中的以太网协议将包传输到下一个转发设备</p>
+<p>​        TCP/IP包：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404105605.png" style="zoom:80%;" /></p>
+<p>其中，包含两个头部：MAC头部（用于以太网协议），IP头部（用于IP协议）。对于IP协议，发送方将包的目的地也就是要访问的服务器的IP地址写入IP头部，IP协议就可以根据这一地址查找包的传输方向，找到下一个路由器的位置。接下来，IP 协议会委托以太网协议将包传输过去。这时，IP 协议会查找下一个路由器的以太网地址（MAC 地址），并将这个地址写入 MAC 头部中。这样一来，以太网协议就知道要将这个包发到哪一个路由器上了。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404112933.png" style="zoom:80%;" /></p>
+<ul>
+<li>包收发操作的整体过程：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404113743.png" style="zoom:80%;" /></p>
+<ul>
+<li>生成包含接收方 IP 地址的 IP 头部:</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404114006.png" style="zoom:80%;" /></p>
+<p>最重要的头部是IP地址，这是根据网卡来决定的。那么该如何判断应该把包交给哪块网卡呢？用路由表，具体在第三章再说。</p>
+<ul>
+<li>生成以太网用的 MAC 头部</li>
+</ul>
+<p>​        MAC 头部是以太网使用的头部，它包含了接收方和发送方的 MAC 地址等信息。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404114305.png" style="zoom:80%;" /></p>
+<p>发送方的MAC地址是网卡生产时写入ROM里的，只要读出来即可。对于接收方的MAC地址，是根据接收方的IP地址查询到的。那么怎么查询呢？</p>
+<ul>
+<li>通过 ARP 查询目标路由器的 MAC 地址：</li>
+</ul>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404140305.png" style="zoom:80%;" /></p>
+<p>​        广播：把包发送给连接在同一以太网中的所有设备。</p>
+<p>​        ARP(Address Resolution Protocol，地址解析协议)就是利用广播，对所有设备提问：“×× 这个 IP 地址是谁的？请把你的 MAC 地址告诉我。”然后就会有人回答：“这个 IP 地址是我的，我的 MAC 地址是××××”。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404140123.png" style="zoom:80%;" /></p>
+<p>​        同时设置MAC地址缓存，持续时间几分钟。</p>
+<ul>
+<li>以太网的基本知识：</li>
+</ul>
+<p>​        原型：谁都可以接收</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404141125.png" style="zoom:80%;" /></p>
+<p>​        改进后：还是谁都可以接收</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404141316.png" style="zoom:80%;" /></p>
+<p>​        再改进：只有特定设备可以接收</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404141342.png" style="zoom:80%;" /></p>
+<p>可以认为，具备以下三个性质的就是以太网：1. 将包发送到MAC头部的接收方MAC地址代表的目的地；2. 用发送方地址识别发送方；3. 用以太类型识别包的内容</p>
+<ul>
+<li>将 IP 包转换成电或光信号发送出去：</li>
+</ul>
+<p>​        最终到底是怎么把数据发出去的？需要将数字信息转换为光电信号，才能在网线上传输。</p>
+<p>​        负责执行上述操作的就是网卡，而网卡必须要有网卡驱动程序来控制。网卡的概念结构如下图：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404141835.png" style="zoom:80%;" /></p>
+<p>网卡的 ROM 中保存着全世界唯一的 MAC 地址，这是在生产网卡时写入的。</p>
+<p>网卡中保存的 MAC 地址会由网卡驱动程序读取并分配给 MAC模块。</p>
+<p>在启动时，驱动程序初始化，在MAC模块中设置MAC地址，网卡就可以等待来自IP的委托了。</p>
+<ul>
+<li>如何将包转换成电信号并发送到网线中？</li>
+</ul>
+<p>首先，MAC 模块会将包从缓冲区中取出，并在开头加上报头和起始帧分界符，在末尾加上用于检测错误的帧校验序列。</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404142318.png" style="zoom:80%;" /></p>
+<p>报头和起始帧分节符：</p>
+<p><img src="https://raw.githubusercontent.com/foursevenlove/gitResource/master/Typora20220404142823.png" style="zoom:80%;" /></p>
+<p>报头是一串像 10101010…这样 1 和 0 交替出现的比特序列，长度为 56比特，它的作用是确定包的读取时机。起始帧分界符是一个用来表示包起始位置的标记。</p>
+<p>末尾的 FCS（帧校验序列）用来检查包传输过程中因噪声导致的波形紊乱、数据错误，它是一串 32 比特的序列，是通过一个公式对包中从头到尾的所有内容进行计算而得出来的。</p>
+<p>略去如何根据电信号读取数据…</p>
+<ul>
+<li>向集线器发送网络包</li>
+</ul>
+<p>加上报头、起始帧分界符和 FCS 之后，我们就可以将包用电信号通过网线发送出去了。使用网卡中的PHY(MAU)模块。</p>
+<ul>
+<li>接收返回包：</li>
+</ul>
+<p>首先，PHY（MAU）模块会将信号转换成通用格式并发送给 MAC 模块，MAC 模块再头开始将信号转换为数字信息，并存放到缓冲区中。当到达信号的末尾时，还需要检查 FCS。如果 FCS 校验没有问题，接下来就要看一下 MAC 头部中接收方MAC 地址与网卡在初始化时分配给自己的 MAC 地址是否一致，以判断这个包是不是发给自己的。接下来网卡会通知计算机收到了一个包。</p>
+<p>网卡驱动程序发起中断，该中断被处理程序处理后，会从缓冲区取出收到的包。根据MAC头部中的以太类型判断协议栈的类型，然后发送给响应协议栈。</p>
+<ul>
+<li>将服务器的响应包从 IP 传递给 TCP</li>
+</ul>
+<p>现在来到了协议栈中，IP模块检查包的IP头部，确认格式，接着确定接收方IP地址是不是客户端网卡地址。如果一切没问题，IP模块处理分片的包，当属于同一个包的所有分片都到了，将其拼成完整的包然后交给TCP模块。</p>
+<p>TCP模块根据TCP头部信息来查找对应的套接字，找到对应的套接字之后，就可以根据套接字中记录的通信状态，执行相应的操作了。例如，如果包的内容是应用程序数据，则返回确认接收的包，并将数据放入缓冲区，等待应用程序来读取；如果是建立或断开连接的控制包，则返回相应的响应控制包，并告知应用程序建立和断开连接的操作状态。</p>
+<h2 id="2-6-UDP-协议的收发操作"><a href="#2-6-UDP-协议的收发操作" class="headerlink" title="2.6 UDP 协议的收发操作"></a>2.6 UDP 协议的收发操作</h2><ul>
+<li><p>不需要重发的数据用 UDP 发送更高效</p>
+</li>
+<li><p>控制用的短数据</p>
+</li>
+<li><p>音频和视频数据</p>
+</li>
+</ul>
+<p>以上情况比较适合用UDP协议来发送。</p>
+
+                
+            </div>
+            <hr/>
+
+            
+
+    <div class="reprint" id="reprint-statement">
+        
+            <div class="reprint__author">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-user">
+                        文章作者:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="/about" rel="external nofollow noreferrer">foursevenlove</a>
+                </span>
+            </div>
+            <div class="reprint__type">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-link">
+                        文章链接:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    <a href="https://foursevenlove.github.io/2022/11/11/wang-luo-shi-zen-yang-lian-jie-de-2-tan-suo-xie-yi-zhan-he-wang-qia/">https://foursevenlove.github.io/2022/11/11/wang-luo-shi-zen-yang-lian-jie-de-2-tan-suo-xie-yi-zhan-he-wang-qia/</a>
+                </span>
+            </div>
+            <div class="reprint__notice">
+                <span class="reprint-meta" style="font-weight: bold;">
+                    <i class="fas fa-copyright">
+                        版权声明:
+                    </i>
+                </span>
+                <span class="reprint-info">
+                    本博客所有文章除特別声明外，均采用
+                    <a href="https://creativecommons.org/licenses/by/4.0/deed.zh" rel="external nofollow noreferrer" target="_blank">CC BY 4.0</a>
+                    许可协议。转载请注明来源
+                    <a href="/about" target="_blank">foursevenlove</a>
+                    !
+                </span>
+            </div>
+        
+    </div>
+
+    <script async defer>
+      document.addEventListener("copy", function (e) {
+        let toastHTML = '<span>复制成功，请遵循本文的转载规则</span><button class="btn-flat toast-action" onclick="navToReprintStatement()" style="font-size: smaller">查看</a>';
+        M.toast({html: toastHTML})
+      });
+
+      function navToReprintStatement() {
+        $("html, body").animate({scrollTop: $("#reprint-statement").offset().top - 80}, 800);
+      }
+    </script>
+
+
+
+            <div class="tag_share" style="display: block;">
+                <div class="post-meta__tag-list" style="display: inline-block;">
+                    
+                        <div class="article-tag">
+                            
+                                <a href="/tags/Network/">
+                                    <span class="chip bg-color">Network</span>
+                                </a>
+                            
+                                <a href="/tags/%E7%BD%91%E7%BB%9C%E6%98%AF%E6%80%8E%E6%A0%B7%E8%BF%9E%E6%8E%A5%E7%9A%84/">
+                                    <span class="chip bg-color">网络是怎样连接的</span>
+                                </a>
+                            
+                        </div>
+                    
+                </div>
+                <div class="post_share" style="zoom: 80%; width: fit-content; display: inline-block; float: right; margin: -0.15rem 0;">
+                    <link rel="stylesheet" type="text/css" href="/libs/share/css/share.min.css">
+<div id="article-share">
+
+    
+    <div class="social-share" data-sites="twitter,facebook,google,qq,qzone,wechat,weibo,douban,linkedin" data-wechat-qrcode-helper="<p>微信扫一扫即可分享！</p>"></div>
+    <script src="/libs/share/js/social-share.min.js"></script>
+    
+
+    
+
+</div>
+
+                </div>
+            </div>
+            
+                <style>
+    #reward {
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    #reward .reward-link {
+        font-size: 1.4rem;
+        line-height: 38px;
+    }
+
+    #reward .btn-floating:hover {
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2), 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+    #rewardModal {
+        width: 320px;
+        height: 350px;
+    }
+
+    #rewardModal .reward-title {
+        margin: 15px auto;
+        padding-bottom: 5px;
+    }
+
+    #rewardModal .modal-content {
+        padding: 10px;
+    }
+
+    #rewardModal .close {
+        position: absolute;
+        right: 15px;
+        top: 15px;
+        color: rgba(0, 0, 0, 0.5);
+        font-size: 1.3rem;
+        line-height: 20px;
+        cursor: pointer;
+    }
+
+    #rewardModal .close:hover {
+        color: #ef5350;
+        transform: scale(1.3);
+        -moz-transform:scale(1.3);
+        -webkit-transform:scale(1.3);
+        -o-transform:scale(1.3);
+    }
+
+    #rewardModal .reward-tabs {
+        margin: 0 auto;
+        width: 210px;
+    }
+
+    .reward-tabs .tabs {
+        height: 38px;
+        margin: 10px auto;
+        padding-left: 0;
+    }
+
+    .reward-content ul {
+        padding-left: 0 !important;
+    }
+
+    .reward-tabs .tabs .tab {
+        height: 38px;
+        line-height: 38px;
+    }
+
+    .reward-tabs .tab a {
+        color: #fff;
+        background-color: #ccc;
+    }
+
+    .reward-tabs .tab a:hover {
+        background-color: #ccc;
+        color: #fff;
+    }
+
+    .reward-tabs .wechat-tab .active {
+        color: #fff !important;
+        background-color: #22AB38 !important;
+    }
+
+    .reward-tabs .alipay-tab .active {
+        color: #fff !important;
+        background-color: #019FE8 !important;
+    }
+
+    .reward-tabs .reward-img {
+        width: 210px;
+        height: 210px;
+    }
+</style>
+
+<div id="reward">
+    <a href="#rewardModal" class="reward-link modal-trigger btn-floating btn-medium waves-effect waves-light red">赏</a>
+
+    <!-- Modal Structure -->
+    <div id="rewardModal" class="modal">
+        <div class="modal-content">
+            <a class="close modal-close"><i class="fas fa-times"></i></a>
+            <h4 class="reward-title">你的赏识是我前进的动力</h4>
+            <div class="reward-content">
+                <div class="reward-tabs">
+                    <ul class="tabs row">
+                        <li class="tab col s6 alipay-tab waves-effect waves-light"><a href="#alipay">支付宝</a></li>
+                        <li class="tab col s6 wechat-tab waves-effect waves-light"><a href="#wechat">微 信</a></li>
+                    </ul>
+                    <div id="alipay">
+                        <img src="/medias/reward/alipay.jpg" class="reward-img" alt="支付宝打赏二维码">
+                    </div>
+                    <div id="wechat">
+                        <img src="/medias/reward/wechat.png" class="reward-img" alt="微信打赏二维码">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    $(function () {
+        $('.tabs').tabs();
+    });
+</script>
+
+            
+        </div>
+    </div>
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+<article id="prenext-posts" class="prev-next articles">
+    <div class="row article-row">
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge left-badge text-color">
+                <i class="fas fa-chevron-left"></i>&nbsp;上一篇</div>
+            <div class="card">
+                <a href="/2022/11/11/ji-suan-ji-wang-luo-1-ji-ben-gai-nian/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/16.jpg" class="responsive-img" alt="计算机网络-1.基本概念">
+                        
+                        <span class="card-title">计算机网络-1.基本概念</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            1.基本概念
+ISP (Internet Service Provider)：因特网服务提供者，国内如中国电信、中国移动、中国联通。
+
+因特网的组成：
+
+边缘部分：用户的主机
+核心部分：大量网络和路由器
+
+
+三种交换方式：
+
+电话交换
+分组
+                        
+                    </div>
+                    <div class="publish-info">
+                        <span class="publish-date">
+                            <i class="far fa-clock fa-fw icon-date"></i>2022-11-11
+                        </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/Network/" class="post-category">
+                                    Network
+                                </a>
+                            
+                            <a href="/categories/Network/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/" class="post-category">
+                                    计算机网络
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Network/">
+                        <span class="chip bg-color">Network</span>
+                    </a>
+                    
+                    <a href="/tags/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C/">
+                        <span class="chip bg-color">计算机网络</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+        
+        <div class="article col s12 m6" data-aos="fade-up">
+            <div class="article-badge right-badge text-color">
+                下一篇&nbsp;<i class="fas fa-chevron-right"></i>
+            </div>
+            <div class="card">
+                <a href="/2022/11/11/wang-luo-shi-zen-yang-lian-jie-de-1-liu-lan-qi-sheng-cheng-xiao-xi/">
+                    <div class="card-image">
+                        
+                        
+                        <img src="/medias/featureimages/21.jpg" class="responsive-img" alt="网络是怎样连接的-1.浏览器生成消息">
+                        
+                        <span class="card-title">网络是怎样连接的-1.浏览器生成消息</span>
+                    </div>
+                </a>
+                <div class="card-content article-content">
+                    <div class="summary block-with-text">
+                        
+                            第一章 浏览器生成消息
+本章讲的是HTTP消息长啥样、往哪里发消息、怎么发消息
+
+1.1 生成HTTP消息
+主要讲的是HTTP消息长啥样。
+HTTP是啥？
+
+Hypertext Transfer Protocol，超文本传送协议。
+
+
+UR
+                        
+                    </div>
+                    <div class="publish-info">
+                            <span class="publish-date">
+                                <i class="far fa-clock fa-fw icon-date"></i>2022-11-11
+                            </span>
+                        <span class="publish-author">
+                            
+                            <i class="fas fa-bookmark fa-fw icon-category"></i>
+                            
+                            <a href="/categories/Network/" class="post-category">
+                                    Network
+                                </a>
+                            
+                            <a href="/categories/Network/%E7%BD%91%E7%BB%9C%E6%98%AF%E6%80%8E%E6%A0%B7%E8%BF%9E%E6%8E%A5%E7%9A%84/" class="post-category">
+                                    网络是怎样连接的
+                                </a>
+                            
+                            
+                        </span>
+                    </div>
+                </div>
+                
+                <div class="card-action article-tags">
+                    
+                    <a href="/tags/Network/">
+                        <span class="chip bg-color">Network</span>
+                    </a>
+                    
+                    <a href="/tags/%E7%BD%91%E7%BB%9C%E6%98%AF%E6%80%8E%E6%A0%B7%E8%BF%9E%E6%8E%A5%E7%9A%84/">
+                        <span class="chip bg-color">网络是怎样连接的</span>
+                    </a>
+                    
+                </div>
+                
+            </div>
+        </div>
+        
+    </div>
+</article>
+
+</div>
+
+
+<script>
+    $('#articleContent').on('copy', function (e) {
+        // IE8 or earlier browser is 'undefined'
+        if (typeof window.getSelection === 'undefined') return;
+
+        var selection = window.getSelection();
+        // if the selection is short let's not annoy our users.
+        if (('' + selection).length < Number.parseInt('120')) {
+            return;
+        }
+
+        // create a div outside of the visible area and fill it with the selected text.
+        var bodyElement = document.getElementsByTagName('body')[0];
+        var newdiv = document.createElement('div');
+        newdiv.style.position = 'absolute';
+        newdiv.style.left = '-99999px';
+        bodyElement.appendChild(newdiv);
+        newdiv.appendChild(selection.getRangeAt(0).cloneContents());
+
+        // we need a <pre> tag workaround.
+        // otherwise the text inside "pre" loses all the line breaks!
+        if (selection.getRangeAt(0).commonAncestorContainer.nodeName === 'PRE') {
+            newdiv.innerHTML = "<pre>" + newdiv.innerHTML + "</pre>";
+        }
+
+        var url = document.location.href;
+        newdiv.innerHTML += '<br />'
+            + '来源: foursevenlove<br />'
+            + '文章作者: foursevenlove<br />'
+            + '文章链接: <a href="' + url + '">' + url + '</a><br />'
+            + '本文章著作权归作者所有，任何形式的转载都请注明出处。';
+
+        selection.selectAllChildren(newdiv);
+        window.setTimeout(function () {bodyElement.removeChild(newdiv);}, 200);
+    });
+</script>
+
+
+<!-- 代码块功能依赖 -->
+<script type="text/javascript" src="/libs/codeBlock/codeBlockFuction.js"></script>
+
+<!-- 代码语言 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeLang.js"></script>
+
+
+<!-- 代码块复制 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeCopy.js"></script>
+
+
+<!-- 代码块收缩 -->
+
+<script type="text/javascript" src="/libs/codeBlock/codeShrink.js"></script>
+
+
+    </div>
+    <div id="toc-aside" class="expanded col l3 hide-on-med-and-down">
+        <div class="toc-widget card" style="background-color: white;">
+            <div class="toc-title"><i class="far fa-list-alt"></i>&nbsp;&nbsp;目录</div>
+            <div id="toc-content"></div>
+        </div>
+    </div>
+</div>
+
+<!-- TOC 悬浮按钮. -->
+
+<div id="floating-toc-btn" class="hide-on-med-and-down">
+    <a class="btn-floating btn-large bg-color">
+        <i class="fas fa-list-ul"></i>
+    </a>
+</div>
+
+
+<script src="/libs/tocbot/tocbot.min.js"></script>
+<script>
+    $(function () {
+        tocbot.init({
+            tocSelector: '#toc-content',
+            contentSelector: '#articleContent',
+            headingsOffset: -($(window).height() * 0.4 - 45),
+            collapseDepth: Number('0'),
+            headingSelector: 'h2, h3, h4'
+        });
+
+        // modify the toc link href to support Chinese.
+        let i = 0;
+        let tocHeading = 'toc-heading-';
+        $('#toc-content a').each(function () {
+            $(this).attr('href', '#' + tocHeading + (++i));
+        });
+
+        // modify the heading title id to support Chinese.
+        i = 0;
+        $('#articleContent').children('h2, h3, h4').each(function () {
+            $(this).attr('id', tocHeading + (++i));
+        });
+
+        // Set scroll toc fixed.
+        let tocHeight = parseInt($(window).height() * 0.4 - 64);
+        let $tocWidget = $('.toc-widget');
+        $(window).scroll(function () {
+            let scroll = $(window).scrollTop();
+            /* add post toc fixed. */
+            if (scroll > tocHeight) {
+                $tocWidget.addClass('toc-fixed');
+            } else {
+                $tocWidget.removeClass('toc-fixed');
+            }
+        });
+
+        
+        /* 修复文章卡片 div 的宽度. */
+        let fixPostCardWidth = function (srcId, targetId) {
+            let srcDiv = $('#' + srcId);
+            if (srcDiv.length === 0) {
+                return;
+            }
+
+            let w = srcDiv.width();
+            if (w >= 450) {
+                w = w + 21;
+            } else if (w >= 350 && w < 450) {
+                w = w + 18;
+            } else if (w >= 300 && w < 350) {
+                w = w + 16;
+            } else {
+                w = w + 14;
+            }
+            $('#' + targetId).width(w);
+        };
+
+        // 切换TOC目录展开收缩的相关操作.
+        const expandedClass = 'expanded';
+        let $tocAside = $('#toc-aside');
+        let $mainContent = $('#main-content');
+        $('#floating-toc-btn .btn-floating').click(function () {
+            if ($tocAside.hasClass(expandedClass)) {
+                $tocAside.removeClass(expandedClass).hide();
+                $mainContent.removeClass('l9');
+            } else {
+                $tocAside.addClass(expandedClass).show();
+                $mainContent.addClass('l9');
+            }
+            fixPostCardWidth('artDetail', 'prenext-posts');
+        });
+        
+    });
+</script>
+
+    
+
+</main>
+
+
+
+
+    <footer class="page-footer bg-color">
+    
+        <link rel="stylesheet" href="/libs/aplayer/APlayer.min.css">
+<style>
+    .aplayer .aplayer-lrc p {
+        
+        display: none;
+        
+        font-size: 12px;
+        font-weight: 700;
+        line-height: 16px !important;
+    }
+
+    .aplayer .aplayer-lrc p.aplayer-lrc-current {
+        
+        display: none;
+        
+        font-size: 15px;
+        color: #42b983;
+    }
+
+    
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body {
+        left: -66px !important;
+    }
+
+    .aplayer.aplayer-fixed.aplayer-narrow .aplayer-body:hover {
+        left: 0px !important;
+    }
+
+    
+</style>
+<div class="">
+    
+    <div class="row">
+        <meting-js class="col l8 offset-l2 m10 offset-m1 s12"
+                   server="netease"
+                   type="playlist"
+                   id="503838841"
+                   fixed='true'
+                   autoplay='false'
+                   theme='#42b983'
+                   loop='all'
+                   order='random'
+                   preload='auto'
+                   volume='0.7'
+                   list-folded='true'
+        >
+        </meting-js>
+    </div>
+</div>
+
+<script src="/libs/aplayer/APlayer.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/meting@2/dist/Meting.min.js"></script>
+
+    
+    <div class="container row center-align" style="margin-bottom: 0px !important;">
+        <div class="col s12 m8 l8 copy-right">
+            Copyright&nbsp;&copy;
+            
+                <span id="year">2019-2023</span>
+            
+            <span id="year">2019</span>
+            <a href="/about" target="_blank">foursevenlove</a>
+            |&nbsp;Powered by&nbsp;<a href="https://hexo.io/" target="_blank">Hexo</a>
+            |&nbsp;Theme&nbsp;<a href="https://github.com/blinkfox/hexo-theme-matery" target="_blank">Matery</a>
+            <br>
+            
+            &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
+                class="white-color">73.6k</span>&nbsp;字
+            
+            
+            
+            
+            
+            
+            <span id="busuanzi_container_site_pv">
+                |&nbsp;<i class="far fa-eye"></i>&nbsp;总访问量:&nbsp;<span id="busuanzi_value_site_pv"
+                    class="white-color"></span>&nbsp;次
+            </span>
+            
+            
+            <span id="busuanzi_container_site_uv">
+                |&nbsp;<i class="fas fa-users"></i>&nbsp;总访问人数:&nbsp;<span id="busuanzi_value_site_uv"
+                    class="white-color"></span>&nbsp;人
+            </span>
+            
+            <br>
+            
+            <br>
+            
+        </div>
+        <div class="col s12 m4 l4 social-link social-statis">
+    <a href="https://github.com/foursevenlove" class="tooltipped" target="_blank" data-tooltip="访问我的GitHub" data-position="top" data-delay="50">
+        <i class="fab fa-github"></i>
+    </a>
+
+
+
+    <a href="mailto:foursevenlove@gmail.com" class="tooltipped" target="_blank" data-tooltip="邮件联系我" data-position="top" data-delay="50">
+        <i class="fas fa-envelope-open"></i>
+    </a>
+
+
+
+
+
+
+
+
+
+    <a class="tooltipped" target="_blank" data-tooltip="微信联系我: foursevenlove" data-position="top" data-delay="50">
+        <i class="fab fa-weixin"></i>
+    </a>
+
+
+
+
+
+
+
+    <a href="/atom.xml" class="tooltipped" target="_blank" data-tooltip="RSS 订阅" data-position="top" data-delay="50">
+        <i class="fas fa-rss"></i>
+    </a>
+
+</div>
+    </div>
+</footer>
+
+<div class="progress-bar"></div>
+
+
+    <!-- 搜索遮罩框 -->
+<div id="searchModal" class="modal">
+    <div class="modal-content">
+        <div class="search-header">
+            <span class="title"><i class="fas fa-search"></i>&nbsp;&nbsp;搜索</span>
+            <input type="search" id="searchInput" name="s" placeholder="请输入搜索的关键字"
+                   class="search-input">
+        </div>
+        <div id="searchResult"></div>
+    </div>
+</div>
+
+<script type="text/javascript">
+$(function () {
+    var searchFunc = function (path, search_id, content_id) {
+        'use strict';
+        $.ajax({
+            url: path,
+            dataType: "xml",
+            success: function (xmlResponse) {
+                // get the contents from search data
+                var datas = $("entry", xmlResponse).map(function () {
+                    return {
+                        title: $("title", this).text(),
+                        content: $("content", this).text(),
+                        url: $("url", this).text()
+                    };
+                }).get();
+                var $input = document.getElementById(search_id);
+                var $resultContent = document.getElementById(content_id);
+                $input.addEventListener('input', function () {
+                    var str = '<ul class=\"search-result-list\">';
+                    var keywords = this.value.trim().toLowerCase().split(/[\s\-]+/);
+                    $resultContent.innerHTML = "";
+                    if (this.value.trim().length <= 0) {
+                        return;
+                    }
+                    // perform local searching
+                    datas.forEach(function (data) {
+                        var isMatch = true;
+                        var data_title = data.title.trim().toLowerCase();
+                        var data_content = data.content.trim().replace(/<[^>]+>/g, "").toLowerCase();
+                        var data_url = data.url;
+                        data_url = data_url.indexOf('/') === 0 ? data.url : '/' + data_url;
+                        var index_title = -1;
+                        var index_content = -1;
+                        var first_occur = -1;
+                        // only match artiles with not empty titles and contents
+                        if (data_title !== '' && data_content !== '') {
+                            keywords.forEach(function (keyword, i) {
+                                index_title = data_title.indexOf(keyword);
+                                index_content = data_content.indexOf(keyword);
+                                if (index_title < 0 && index_content < 0) {
+                                    isMatch = false;
+                                } else {
+                                    if (index_content < 0) {
+                                        index_content = 0;
+                                    }
+                                    if (i === 0) {
+                                        first_occur = index_content;
+                                    }
+                                }
+                            });
+                        }
+                        // show search results
+                        if (isMatch) {
+                            str += "<li><a href='" + data_url + "' class='search-result-title'>" + data_title + "</a>";
+                            var content = data.content.trim().replace(/<[^>]+>/g, "");
+                            if (first_occur >= 0) {
+                                // cut out 100 characters
+                                var start = first_occur - 20;
+                                var end = first_occur + 80;
+                                if (start < 0) {
+                                    start = 0;
+                                }
+                                if (start === 0) {
+                                    end = 100;
+                                }
+                                if (end > content.length) {
+                                    end = content.length;
+                                }
+                                var match_content = content.substr(start, end);
+                                // highlight all keywords
+                                keywords.forEach(function (keyword) {
+                                    var regS = new RegExp(keyword, "gi");
+                                    match_content = match_content.replace(regS, "<em class=\"search-keyword\">" + keyword + "</em>");
+                                });
+
+                                str += "<p class=\"search-result\">" + match_content + "...</p>"
+                            }
+                            str += "</li>";
+                        }
+                    });
+                    str += "</ul>";
+                    $resultContent.innerHTML = str;
+                });
+            }
+        });
+    };
+
+    searchFunc('/search.xml', 'searchInput', 'searchResult');
+});
+</script>
+
+    <!-- 回到顶部按钮 -->
+<div id="backTop" class="top-scroll">
+    <a class="btn-floating btn-large waves-effect waves-light" href="#!">
+        <i class="fas fa-arrow-up"></i>
+    </a>
+</div>
+
+
+    <script src="/libs/materialize/materialize.min.js"></script>
+    <script src="/libs/masonry/masonry.pkgd.min.js"></script>
+    <script src="/libs/aos/aos.js"></script>
+    <script src="/libs/scrollprogress/scrollProgress.min.js"></script>
+    <script src="/libs/lightGallery/js/lightgallery-all.min.js"></script>
+    <script src="/js/matery.js"></script>
+
+    <!-- Baidu Analytics -->
+
+    <!-- Baidu Push -->
+
+<script>
+    (function () {
+        var bp = document.createElement('script');
+        var curProtocol = window.location.protocol.split(':')[0];
+        if (curProtocol === 'https') {
+            bp.src = 'https://zz.bdstatic.com/linksubmit/push.js';
+        } else {
+            bp.src = 'http://push.zhanzhang.baidu.com/push.js';
+        }
+        var s = document.getElementsByTagName("script")[0];
+        s.parentNode.insertBefore(bp, s);
+    })();
+</script>
+
+    
+    <script src="/libs/others/clicklove.js" async="async"></script>
+    
+    
+    <script async src="/libs/others/busuanzi.pure.mini.js"></script>
+    
+
+    
+
+    
+
+	
+    
+
+    
+
+    
+
+    
+    <script src="/libs/instantpage/instantpage.js" type="module"></script>
+    
+
+</body>
+
+</html>

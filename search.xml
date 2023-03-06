@@ -2,7 +2,7 @@
 <search>
   <entry>
     <title>快速导航</title>
-    <url>/2023/02/28/%E5%BF%AB%E9%80%9F%E5%AF%BC%E8%88%AA/</url>
+    <url>/2023/02/28/kuai-su-dao-hang/</url>
     <content><![CDATA[<ul>
 <li><a href="https://foursevenlove.github.io/categories/Operating-System/"><strong>操作系统</strong></a></li>
 <li><a href="https://foursevenlove.github.io/categories/k8s/"><strong>Kubernetes</strong></a></li>
@@ -17,8 +17,41 @@
 ]]></content>
   </entry>
   <entry>
+    <title>Golang-数组</title>
+    <url>/2023/03/06/golang-shu-zu/</url>
+    <content><![CDATA[<span id="more"></span>
+<h1 id="1-拷贝"><a href="#1-拷贝" class="headerlink" title="1. 拷贝"></a>1. 拷贝</h1><h2 id="1-1-append"><a href="#1-1-append" class="headerlink" title="1.1 append"></a>1.1 append</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    src := []<span class="type">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br><span class="line">    fmt.Println(<span class="string">&quot;source slice:&quot;</span>, src)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Using append</span></span><br><span class="line">    dst := <span class="built_in">append</span>([]<span class="type">int</span>(<span class="literal">nil</span>), src...)</span><br><span class="line">    fmt.Println(<span class="string">&quot;destination slice (using append):&quot;</span>, dst)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="1-2-copy"><a href="#1-2-copy" class="headerlink" title="1.2 copy"></a>1.2 copy</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    src := []<span class="type">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br><span class="line">    fmt.Println(<span class="string">&quot;source slice:&quot;</span>, src)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Copying all elements</span></span><br><span class="line">    dst1 := <span class="built_in">make</span>([]<span class="type">int</span>, <span class="built_in">len</span>(src))</span><br><span class="line">    n := <span class="built_in">copy</span>(dst1, src)</span><br><span class="line">    fmt.Println(<span class="string">&quot;destination slice (all elements):&quot;</span>, dst1)</span><br><span class="line">    fmt.Println(<span class="string">&quot;number of elements copied:&quot;</span>, n)</span><br><span class="line"></span><br><span class="line">    <span class="comment">// Copying only first two elements</span></span><br><span class="line">    dst2 := <span class="built_in">make</span>([]<span class="type">int</span>, <span class="number">2</span>)</span><br><span class="line">    n = <span class="built_in">copy</span>(dst2, src)</span><br><span class="line">    fmt.Println(<span class="string">&quot;destination slice (first two elements):&quot;</span>, dst2)</span><br><span class="line">    fmt.Println(<span class="string">&quot;number of elements copied:&quot;</span>, n)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="1-3-append-vs-copy"><a href="#1-3-append-vs-copy" class="headerlink" title="1.3 append vs. copy"></a>1.3 append vs. copy</h2><p>通过<code>append</code>和<code>copy</code>进行拷贝数组都是深拷贝，通过<code>=</code>拷贝是引用，浅拷贝。一般来讲<code>appeend</code>更常用一点，但是<code>copy()</code>可以通过cap指定拷贝元素数量。</p>
+<h2 id="1-4-s-low-high-max"><a href="#1-4-s-low-high-max" class="headerlink" title="1.4 s[low:high:max]"></a>1.4 <code>s[low:high:max]</code></h2><p>通过这种语法可以进行构造数组，数组的元素是<code>s[low:high]</code>，cap是<code>max-low</code>。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	s := []<span class="type">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>, <span class="number">4</span>&#125;</span><br><span class="line">	a := s[<span class="number">1</span>:<span class="number">3</span>:<span class="number">4</span>]</span><br><span class="line">	fmt.Println(<span class="built_in">cap</span>(a))  <span class="comment">// 3</span></span><br><span class="line">	fmt.Println(s) <span class="comment">// [2 3]</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h2 id="1-4-append的容量"><a href="#1-4-append的容量" class="headerlink" title="1.4 append的容量"></a>1.4 append的容量</h2><p>通过append进行拷贝，如果slice本身容量足够，就在slice末尾添加元素；如果容量不够，就会进行扩容，容量变成原来的2倍。</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	slice := []<span class="type">int</span>&#123;<span class="number">1</span>&#125;</span><br><span class="line">	fmt.Println(<span class="built_in">cap</span>(slice)) <span class="comment">// 1</span></span><br><span class="line">	slice = <span class="built_in">append</span>(slice, <span class="number">2</span>) </span><br><span class="line">	fmt.Println(<span class="built_in">cap</span>(slice)) <span class="comment">// 2</span></span><br><span class="line">	slice = <span class="built_in">append</span>(slice, <span class="number">3</span>) </span><br><span class="line">	fmt.Println(<span class="built_in">cap</span>(slice)) <span class="comment">// 4</span></span><br><span class="line">	x := <span class="built_in">append</span>(slice, <span class="number">4</span>)</span><br><span class="line">	fmt.Println(<span class="built_in">cap</span>(slice)) <span class="comment">// 4</span></span><br><span class="line">	y := <span class="built_in">append</span>(slice, <span class="number">5</span>)</span><br><span class="line">	fmt.Println(<span class="built_in">cap</span>(slice)) <span class="comment">//4</span></span><br><span class="line"></span><br><span class="line">	<span class="comment">// [1 2 3] [1 2 3 5] [1 2 3 5]</span></span><br><span class="line">	fmt.Println(slice, x, y)</span><br><span class="line"></span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h1 id="2-插入"><a href="#2-插入" class="headerlink" title="2.插入"></a>2.插入</h1><h2 id="2-1-在末尾插入"><a href="#2-1-在末尾插入" class="headerlink" title="2.1 在末尾插入"></a>2.1 在末尾插入</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    s := []<span class="type">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br><span class="line">    fmt.Println(s) <span class="comment">// [1 2 3]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Insert 4 at tail</span></span><br><span class="line">    s = <span class="built_in">append</span>(s, <span class="number">4</span>)</span><br><span class="line">    fmt.Println(s) <span class="comment">// [1 2 3 4]</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h2 id="2-2-在中间插入"><a href="#2-2-在中间插入" class="headerlink" title="2.2 在中间插入"></a>2.2 在中间插入</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;fmt&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    s := []<span class="type">int</span>&#123;<span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span>&#125;</span><br><span class="line">    fmt.Println(s) <span class="comment">// [1 2 3]</span></span><br><span class="line"></span><br><span class="line">    <span class="comment">// Insert 4 at index 1</span></span><br><span class="line">    index := <span class="number">1</span></span><br><span class="line">    s = <span class="built_in">append</span>(s[:index], <span class="built_in">append</span>([]<span class="type">int</span>&#123;<span class="number">4</span>&#125;, s[index:]...)...)</span><br><span class="line">    fmt.Println(s) <span class="comment">// [1 4 2 3]</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="1-3-自定义排序"><a href="#1-3-自定义排序" class="headerlink" title="1.3 自定义排序"></a>1.3 自定义排序</h1><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Person <span class="keyword">struct</span> &#123;</span><br><span class="line">    Name <span class="type">string</span></span><br><span class="line">    Age  <span class="type">int</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">type</span> ByAge []Person</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(a ByAge)</span></span> Len() <span class="type">int</span>           &#123; <span class="keyword">return</span> <span class="built_in">len</span>(a) &#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(a ByAge)</span></span> Swap(i, j <span class="type">int</span>)      &#123; a[i], a[j] = a[j], a[i] &#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(a ByAge)</span></span> Less(i, j <span class="type">int</span>) <span class="type">bool</span> &#123; <span class="keyword">return</span> a[i].Age &lt; a[j].Age &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">    people := []Person&#123;</span><br><span class="line">        &#123;<span class="string">&quot;Bob&quot;</span>, <span class="number">31</span>&#125;,</span><br><span class="line">        &#123;<span class="string">&quot;John&quot;</span>, <span class="number">42</span>&#125;,</span><br><span class="line">        &#123;<span class="string">&quot;Michael&quot;</span>, <span class="number">17</span>&#125;,</span><br><span class="line">        &#123;<span class="string">&quot;Jenny&quot;</span>, <span class="number">26</span>&#125;,</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">	<span class="comment">// [&#123;Bob 31&#125; &#123;John 42&#125; &#123;Michael 17&#125; &#123;Jenny 26&#125;]</span></span><br><span class="line">    fmt.Println(people)</span><br><span class="line">    sort.Sort(ByAge(people))</span><br><span class="line">    <span class="comment">// [&#123;Michael 17&#125; &#123;Jenny 26&#125; &#123;Bob 31&#125; &#123;John 42&#125;]</span></span><br><span class="line">    fmt.Println(people)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;sort&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 为了在 Go 中使用自定义函数进行排序，我们需要一个对应的类型。</span></span><br><span class="line"><span class="comment">// 我们在这里创建了一个 `byLength` 类型，它只是内建类型 `[]string` 的别名。</span></span><br><span class="line"><span class="keyword">type</span> byLength []<span class="type">string</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 我们为该类型实现了 `sort.Interface` 接口的 `Len`、`Less` 和 `Swap` 方法，</span></span><br><span class="line"><span class="comment">// 这样我们就可以使用 `sort` 包的通用 `Sort` 方法了，</span></span><br><span class="line"><span class="comment">// `Len` 和 `Swap` 在各个类型中的实现都差不多，</span></span><br><span class="line"><span class="comment">// `Less` 将控制实际的自定义排序逻辑。</span></span><br><span class="line"><span class="comment">// 在这个的例子中，我们想按字符串长度递增的顺序来排序，</span></span><br><span class="line"><span class="comment">// 所以这里使用了 `len(s[i])` 和 `len(s[j])` 来实现 `Less`。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s byLength)</span></span> Len() <span class="type">int</span> &#123; <span class="keyword">return</span> <span class="built_in">len</span>(s) &#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s byLength)</span></span> Swap(i, j <span class="type">int</span>) &#123; s[i], s[j] = s[j], s[i] &#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s byLength)</span></span> Less(i, j <span class="type">int</span>) <span class="type">bool</span> &#123; <span class="keyword">return</span> <span class="built_in">len</span>(s[i]) &lt; <span class="built_in">len</span>(s[j]) &#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 一切准备就绪后，我们就可以通过将切片 `fruits` 强转为 `byLength` 类型的切片，</span></span><br><span class="line"><span class="comment">// 然后对该切片使用 `sort.Sort` 来实现自定义排序。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fruits := []<span class="type">string</span>&#123;<span class="string">&quot;peach&quot;</span>, <span class="string">&quot;banana&quot;</span>, <span class="string">&quot;kiwi&quot;</span>&#125;</span><br><span class="line">	sort.Sort(byLength(fruits))</span><br><span class="line">	fmt.Println(fruits)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h1 id="1-4-大根堆-小根堆"><a href="#1-4-大根堆-小根堆" class="headerlink" title="1.4 大根堆/小根堆"></a>1.4 大根堆/小根堆</h1><h2 id="1-4-1-接口实现"><a href="#1-4-1-接口实现" class="headerlink" title="1.4.1 接口实现"></a>1.4.1 接口实现</h2><p>因为go中没有现成的堆可以用，只提供了heap的接口，所以需要自己实现相应的接口。</p>
+<p>需要实现这些接口：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Interface <span class="keyword">interface</span> &#123;</span><br><span class="line">    sort.Interface</span><br><span class="line">    Push(x <span class="keyword">interface</span>&#123;&#125;) <span class="comment">// add x as element Len()</span></span><br><span class="line">    Pop() <span class="keyword">interface</span>&#123;&#125;   <span class="comment">// remove and return element Len() - 1.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>接口实现如下：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> IntHeap <span class="keyword">struct</span> &#123;</span><br><span class="line">	heap []<span class="type">int</span></span><br><span class="line">	<span class="comment">// 是否小根堆</span></span><br><span class="line">	isMin <span class="type">bool</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h IntHeap)</span></span> Len() <span class="type">int</span> &#123; <span class="keyword">return</span> <span class="built_in">len</span>(h.heap) &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h IntHeap)</span></span> Swap(i, j <span class="type">int</span>) &#123; h.heap[i], h.heap[j] = h.heap[j], h.heap[i] &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h IntHeap)</span></span> Less(i, j <span class="type">int</span>) <span class="type">bool</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> h.isMin &#123;</span><br><span class="line">		<span class="keyword">return</span> h.heap[i] &lt; h.heap[j]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> h.heap[i] &gt; h.heap[j]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *IntHeap)</span></span> Push(x <span class="keyword">interface</span>&#123;&#125;) &#123; h.heap = <span class="built_in">append</span>(h.heap, x.(<span class="type">int</span>)) &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *IntHeap)</span></span> Pop() <span class="keyword">interface</span>&#123;&#125; &#123;</span><br><span class="line">	x := h.heap[h.Len()<span class="number">-1</span>]</span><br><span class="line">	h.heap = h.heap[<span class="number">0</span> : h.Len()<span class="number">-1</span>]</span><br><span class="line">	<span class="keyword">return</span> x</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>调用示例：</p>
+<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	minHeap := IntHeap&#123;</span><br><span class="line">		heap:  []<span class="type">int</span>&#123;<span class="number">2</span>, <span class="number">1</span>, <span class="number">5</span>&#125;,</span><br><span class="line">		isMin: <span class="literal">true</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	heap.Init(&amp;minHeap)</span><br><span class="line">	heap.Push(&amp;minHeap, <span class="number">3</span>)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;minimum: %d\n&quot;</span>, minHeap.heap[<span class="number">0</span>])</span><br><span class="line">	<span class="keyword">for</span> minHeap.Len() &gt; <span class="number">0</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;%d &quot;</span>, heap.Pop(&amp;minHeap))</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println()</span><br><span class="line"></span><br><span class="line">	maxHeap := IntHeap&#123;</span><br><span class="line">		heap:  []<span class="type">int</span>&#123;<span class="number">2</span>, <span class="number">1</span>, <span class="number">5</span>&#125;,</span><br><span class="line">		isMin: <span class="literal">false</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	heap.Init(&amp;maxHeap)</span><br><span class="line">	heap.Push(&amp;maxHeap, <span class="number">3</span>)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;maximum: %d\n&quot;</span>, maxHeap.heap[<span class="number">0</span>])</span><br><span class="line">	<span class="keyword">for</span> maxHeap.Len() &gt; <span class="number">0</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;%d &quot;</span>, heap.Pop(&amp;maxHeap))</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>输出结果如下：</p>
+<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">minimum: 1</span><br><span class="line">1 2 3 5 </span><br><span class="line">maximum: 5</span><br><span class="line">5 3 2 1 </span><br></pre></td></tr></table></figure>
+<h2 id="1-4-2-源码"><a href="#1-4-2-源码" class="headerlink" title="1.4.2 源码"></a>1.4.2 源码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Copyright 2009 The Go Authors. All rights reserved.</span></span><br><span class="line"><span class="comment">// Use of this source code is governed by a BSD-style</span></span><br><span class="line"><span class="comment">// license that can be found in the LICENSE file.</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Package heap provides heap operations for any type that implements</span></span><br><span class="line"><span class="comment">// heap.Interface. A heap is a tree with the property that each node is the</span></span><br><span class="line"><span class="comment">// minimum-valued node in its subtree.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// The minimum element in the tree is the root, at index 0.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// A heap is a common way to implement a priority queue. To build a priority</span></span><br><span class="line"><span class="comment">// queue, implement the Heap interface with the (negative) priority as the</span></span><br><span class="line"><span class="comment">// ordering for the Less method, so Push adds items while Pop removes the</span></span><br><span class="line"><span class="comment">// highest-priority item from the queue. The Examples include such an</span></span><br><span class="line"><span class="comment">// implementation; the file example_pq_test.go has the complete source.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="keyword">package</span> heap</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;sort&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// The Interface type describes the requirements</span></span><br><span class="line"><span class="comment">// for a type using the routines in this package.</span></span><br><span class="line"><span class="comment">// Any type that implements it may be used as a</span></span><br><span class="line"><span class="comment">// min-heap with the following invariants (established after</span></span><br><span class="line"><span class="comment">// Init has been called or if the data is empty or sorted):</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//	!h.Less(j, i) for 0 &lt;= i &lt; h.Len() and 2*i+1 &lt;= j &lt;= 2*i+2 and j &lt; h.Len()</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Note that Push and Pop in this interface are for package heap&#x27;s</span></span><br><span class="line"><span class="comment">// implementation to call. To add and remove things from the heap,</span></span><br><span class="line"><span class="comment">// use heap.Push and heap.Pop.</span></span><br><span class="line"><span class="keyword">type</span> Interface <span class="keyword">interface</span> &#123;</span><br><span class="line">	sort.Interface</span><br><span class="line">	Push(x any) <span class="comment">// add x as element Len()</span></span><br><span class="line">	Pop() any   <span class="comment">// remove and return element Len() - 1.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Init establishes the heap invariants required by the other routines in this package.</span></span><br><span class="line"><span class="comment">// Init is idempotent with respect to the heap invariants</span></span><br><span class="line"><span class="comment">// and may be called whenever the heap invariants may have been invalidated.</span></span><br><span class="line"><span class="comment">// The complexity is O(n) where n = h.Len().</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Init</span><span class="params">(h Interface)</span></span> &#123;</span><br><span class="line">	<span class="comment">// heapify</span></span><br><span class="line">	n := h.Len()</span><br><span class="line">	<span class="keyword">for</span> i := n/<span class="number">2</span> - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">		down(h, i, n)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Push pushes the element x onto the heap.</span></span><br><span class="line"><span class="comment">// The complexity is O(log n) where n = h.Len().</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Push</span><span class="params">(h Interface, x any)</span></span> &#123;</span><br><span class="line">	h.Push(x)</span><br><span class="line">	up(h, h.Len()<span class="number">-1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Pop removes and returns the minimum element (according to Less) from the heap.</span></span><br><span class="line"><span class="comment">// The complexity is O(log n) where n = h.Len().</span></span><br><span class="line"><span class="comment">// Pop is equivalent to Remove(h, 0).</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Pop</span><span class="params">(h Interface)</span></span> any &#123;</span><br><span class="line">	n := h.Len() - <span class="number">1</span></span><br><span class="line">	h.Swap(<span class="number">0</span>, n)</span><br><span class="line">	down(h, <span class="number">0</span>, n)</span><br><span class="line">	<span class="keyword">return</span> h.Pop()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Remove removes and returns the element at index i from the heap.</span></span><br><span class="line"><span class="comment">// The complexity is O(log n) where n = h.Len().</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Remove</span><span class="params">(h Interface, i <span class="type">int</span>)</span></span> any &#123;</span><br><span class="line">	n := h.Len() - <span class="number">1</span></span><br><span class="line">	<span class="keyword">if</span> n != i &#123;</span><br><span class="line">		h.Swap(i, n)</span><br><span class="line">		<span class="keyword">if</span> !down(h, i, n) &#123;</span><br><span class="line">			up(h, i)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> h.Pop()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Fix re-establishes the heap ordering after the element at index i has changed its value.</span></span><br><span class="line"><span class="comment">// Changing the value of the element at index i and then calling Fix is equivalent to,</span></span><br><span class="line"><span class="comment">// but less expensive than, calling Remove(h, i) followed by a Push of the new value.</span></span><br><span class="line"><span class="comment">// The complexity is O(log n) where n = h.Len().</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Fix</span><span class="params">(h Interface, i <span class="type">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> !down(h, i, h.Len()) &#123;</span><br><span class="line">		up(h, i)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">up</span><span class="params">(h Interface, j <span class="type">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		i := (j - <span class="number">1</span>) / <span class="number">2</span> <span class="comment">// parent</span></span><br><span class="line">		<span class="keyword">if</span> i == j || !h.Less(j, i) &#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">		h.Swap(i, j)</span><br><span class="line">		j = i</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">down</span><span class="params">(h Interface, i0, n <span class="type">int</span>)</span></span> <span class="type">bool</span> &#123;</span><br><span class="line">	i := i0</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		j1 := <span class="number">2</span>*i + <span class="number">1</span></span><br><span class="line">		<span class="keyword">if</span> j1 &gt;= n || j1 &lt; <span class="number">0</span> &#123; <span class="comment">// j1 &lt; 0 after int overflow</span></span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">		j := j1 <span class="comment">// left child</span></span><br><span class="line">		<span class="keyword">if</span> j2 := j1 + <span class="number">1</span>; j2 &lt; n &amp;&amp; h.Less(j2, j1) &#123;</span><br><span class="line">			j = j2 <span class="comment">// = 2*i + 2  // right child</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> !h.Less(j, i) &#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">		h.Swap(i, j)</span><br><span class="line">		i = j</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> i &gt; i0</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>Golang</category>
+      </categories>
+      <tags>
+        <tag>数组</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>Golang-Reader和Writer</title>
-    <url>/2023/03/01/Golang-Reader%E5%92%8CWriter/</url>
+    <url>/2023/03/01/golang-reader-he-writer/</url>
     <content><![CDATA[<p>Go语言的<code>io</code>包提供了读写操作的接口，其中最常用的就是<code>Reader</code>和<code>Writer</code>接口。<code>Reader</code>和<code>Writer</code>接口可以用来从一个数据源读取数据，或者向一个目标写入数据，不同的实现方式可以适用于不同的数据源和目标。<br><span id="more"></span></p>
 <h1 id="1-Reader"><a href="#1-Reader" class="headerlink" title="1. Reader"></a>1. Reader</h1><p><code>Reader</code>接口定义了一个<code>Read</code>方法，用来从数据源中读取数据。具体来说，<code>Read</code>方法接收一个字节数组<code>b</code>，并返回读取到的字节数<code>n</code>和可能出现的错误<code>err</code>。如果读取完毕，<code>Read</code>方法将返回一个<code>io.EOF</code>错误。</p>
 <figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Reader <span class="keyword">interface</span> &#123;</span><br><span class="line">    Read(p []<span class="type">byte</span>) (n <span class="type">int</span>, err <span class="type">error</span>)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
@@ -41,7 +74,7 @@
   </entry>
   <entry>
     <title>Golang-输入与输出</title>
-    <url>/2023/03/01/Golang-%E8%BE%93%E5%85%A5%E4%B8%8E%E8%BE%93%E5%87%BA/</url>
+    <url>/2023/03/01/golang-shu-ru-yu-shu-chu/</url>
     <content><![CDATA[<h1 id="1-输出"><a href="#1-输出" class="headerlink" title="1. 输出"></a>1. 输出</h1><h2 id="1-1-Print类"><a href="#1-1-Print类" class="headerlink" title="1.1 Print类"></a>1.1 Print类</h2><ul>
 <li><code>func Print(a ...any) (n int, err error)</code></li>
 </ul>
@@ -138,20 +171,8 @@
       </tags>
   </entry>
   <entry>
-    <title>Golang-数组的自定义排序</title>
-    <url>/2023/01/29/Golang-%E6%95%B0%E7%BB%84%E7%9A%84%E8%87%AA%E5%AE%9A%E4%B9%89%E6%8E%92%E5%BA%8F/</url>
-    <content><![CDATA[<p>在Golang中有sort包有排序函数，比如sort.Ints可以对整数数组进行升序排序。但是遇到多维数组或者字符串数组的时候，需要采用自定义排序。Golang的自定义排序需要对一种数据结构实现三种方法：Swap(), Less(), Len()，具体方法如下：<br><span id="more"></span><br><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 有时候，我们可能想根据自然顺序以外的方式来对集合进行排序。</span></span><br><span class="line"><span class="comment">// 例如，假设我们要按字符串的长度而不是按字母顺序对它们进行排序。</span></span><br><span class="line"><span class="comment">// 这儿有一个在 Go 中自定义排序的示例。</span></span><br><span class="line"></span><br><span class="line"><span class="keyword">package</span> main</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> (</span><br><span class="line">	<span class="string">&quot;fmt&quot;</span></span><br><span class="line">	<span class="string">&quot;sort&quot;</span></span><br><span class="line">)</span><br><span class="line"></span><br><span class="line"><span class="comment">// 为了在 Go 中使用自定义函数进行排序，我们需要一个对应的类型。</span></span><br><span class="line"><span class="comment">// 我们在这里创建了一个 `byLength` 类型，它只是内建类型 `[]string` 的别名。</span></span><br><span class="line"><span class="keyword">type</span> byLength []<span class="type">string</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// 我们为该类型实现了 `sort.Interface` 接口的 `Len`、`Less` 和 `Swap` 方法，</span></span><br><span class="line"><span class="comment">// 这样我们就可以使用 `sort` 包的通用 `Sort` 方法了，</span></span><br><span class="line"><span class="comment">// `Len` 和 `Swap` 在各个类型中的实现都差不多，</span></span><br><span class="line"><span class="comment">// `Less` 将控制实际的自定义排序逻辑。</span></span><br><span class="line"><span class="comment">// 在这个的例子中，我们想按字符串长度递增的顺序来排序，</span></span><br><span class="line"><span class="comment">// 所以这里使用了 `len(s[i])` 和 `len(s[j])` 来实现 `Less`。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s byLength)</span></span> Len() <span class="type">int</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">len</span>(s)</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s byLength)</span></span> Swap(i, j <span class="type">int</span>) &#123;</span><br><span class="line">	s[i], s[j] = s[j], s[i]</span><br><span class="line">&#125;</span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(s byLength)</span></span> Less(i, j <span class="type">int</span>) <span class="type">bool</span> &#123;</span><br><span class="line">	<span class="keyword">return</span> <span class="built_in">len</span>(s[i]) &lt; <span class="built_in">len</span>(s[j])</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 一切准备就绪后，我们就可以通过将切片 `fruits` 强转为 `byLength` 类型的切片，</span></span><br><span class="line"><span class="comment">// 然后对该切片使用 `sort.Sort` 来实现自定义排序。</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	fruits := []<span class="type">string</span>&#123;<span class="string">&quot;peach&quot;</span>, <span class="string">&quot;banana&quot;</span>, <span class="string">&quot;kiwi&quot;</span>&#125;</span><br><span class="line">	sort.Sort(byLength(fruits))</span><br><span class="line">	fmt.Println(fruits)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-]]></content>
-      <categories>
-        <category>Golang</category>
-      </categories>
-      <tags>
-        <tag>Golang</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>科研实用网站</title>
-    <url>/2023/01/07/%E7%A7%91%E7%A0%94%E5%AE%9E%E7%94%A8%E7%BD%91%E7%AB%99/</url>
+    <url>/2023/01/07/ke-yan-shi-yong-wang-zhan/</url>
     <content><![CDATA[<h1 id="科研实用网站"><a href="#科研实用网站" class="headerlink" title="科研实用网站"></a>科研实用网站</h1><h2 id="论文发现"><a href="#论文发现" class="headerlink" title="论文发现"></a>论文发现</h2><p>用于相似论文发现，快速找到某关键词下的文章。</p>
 <ul>
 <li>researchrabbit <a href="https://researchrabbitapp.com/home">https://researchrabbitapp.com/home</a></li>
@@ -197,7 +218,7 @@
   </entry>
   <entry>
     <title>Docker必会知识点</title>
-    <url>/2023/01/03/Docker%E5%BF%85%E4%BC%9A%E7%9F%A5%E8%AF%86%E7%82%B9/</url>
+    <url>/2023/01/03/docker-bi-hui-zhi-shi-dian/</url>
     <content><![CDATA[<h1 id="Docker必会知识点"><a href="#Docker必会知识点" class="headerlink" title="Docker必会知识点"></a>Docker必会知识点</h1><h2 id="1-常用命令"><a href="#1-常用命令" class="headerlink" title="1.常用命令"></a>1.常用命令</h2><h3 id="1-1-服务"><a href="#1-1-服务" class="headerlink" title="1.1 服务"></a>1.1 服务</h3><ul>
 <li>查看Docker版本信息</li>
 </ul>
@@ -409,7 +430,7 @@
   </entry>
   <entry>
     <title>🐑新冠应对指南</title>
-    <url>/2022/12/12/%F0%9F%90%91%E6%96%B0%E5%86%A0%E5%BA%94%E5%AF%B9%E6%8C%87%E5%8D%97/</url>
+    <url>/2022/12/12/xin-guan-ying-dui-zhi-nan/</url>
     <content><![CDATA[<h1 id="🐑新冠应对指南"><a href="#🐑新冠应对指南" class="headerlink" title="🐑新冠应对指南"></a>🐑新冠应对指南</h1><span id="more"></span>
 <h2 id="💊用药篇"><a href="#💊用药篇" class="headerlink" title="💊用药篇"></a>💊用药篇</h2><h3 id="发烧"><a href="#发烧" class="headerlink" title="发烧"></a>发烧</h3><ol>
 <li>体温38.5度以下不建议用药</li>
@@ -472,27 +493,8 @@
       </tags>
   </entry>
   <entry>
-    <title>Golang-实现大根堆/小根堆</title>
-    <url>/2022/11/23/Golang-%E5%AE%9E%E7%8E%B0%E5%A4%A7%E6%A0%B9%E5%A0%86-%E5%B0%8F%E6%A0%B9%E5%A0%86/</url>
-    <content><![CDATA[<h1 id="Golang-实现大根堆-小根堆"><a href="#Golang-实现大根堆-小根堆" class="headerlink" title="Golang-实现大根堆/小根堆"></a>Golang-实现大根堆/小根堆</h1><h2 id="接口实现"><a href="#接口实现" class="headerlink" title="接口实现"></a>接口实现</h2><p>因为go中没有现成的堆可以用，只提供了heap的接口，所以需要自己实现相应的接口。<br><span id="more"></span><br>需要实现这些接口：</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> Interface <span class="keyword">interface</span> &#123;</span><br><span class="line">    sort.Interface</span><br><span class="line">    Push(x <span class="keyword">interface</span>&#123;&#125;) <span class="comment">// add x as element Len()</span></span><br><span class="line">    Pop() <span class="keyword">interface</span>&#123;&#125;   <span class="comment">// remove and return element Len() - 1.</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>接口实现如下：</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="keyword">type</span> IntHeap <span class="keyword">struct</span> &#123;</span><br><span class="line">	heap []<span class="type">int</span></span><br><span class="line">	<span class="comment">// 是否小根堆</span></span><br><span class="line">	isMin <span class="type">bool</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h IntHeap)</span></span> Len() <span class="type">int</span> &#123; <span class="keyword">return</span> <span class="built_in">len</span>(h.heap) &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h IntHeap)</span></span> Swap(i, j <span class="type">int</span>) &#123; h.heap[i], h.heap[j] = h.heap[j], h.heap[i] &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h IntHeap)</span></span> Less(i, j <span class="type">int</span>) <span class="type">bool</span> &#123;</span><br><span class="line">	<span class="keyword">if</span> h.isMin &#123;</span><br><span class="line">		<span class="keyword">return</span> h.heap[i] &lt; h.heap[j]</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> h.heap[i] &gt; h.heap[j]</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *IntHeap)</span></span> Push(x <span class="keyword">interface</span>&#123;&#125;) &#123; h.heap = <span class="built_in">append</span>(h.heap, x.(<span class="type">int</span>)) &#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="params">(h *IntHeap)</span></span> Pop() <span class="keyword">interface</span>&#123;&#125; &#123;</span><br><span class="line">	x := h.heap[h.Len()<span class="number">-1</span>]</span><br><span class="line">	h.heap = h.heap[<span class="number">0</span> : h.Len()<span class="number">-1</span>]</span><br><span class="line">	<span class="keyword">return</span> x</span><br><span class="line">&#125;</span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<p>调用示例：</p>
-<figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">main</span><span class="params">()</span></span> &#123;</span><br><span class="line">	minHeap := IntHeap&#123;</span><br><span class="line">		heap:  []<span class="type">int</span>&#123;<span class="number">2</span>, <span class="number">1</span>, <span class="number">5</span>&#125;,</span><br><span class="line">		isMin: <span class="literal">true</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	heap.Init(&amp;minHeap)</span><br><span class="line">	heap.Push(&amp;minHeap, <span class="number">3</span>)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;minimum: %d\n&quot;</span>, minHeap.heap[<span class="number">0</span>])</span><br><span class="line">	<span class="keyword">for</span> minHeap.Len() &gt; <span class="number">0</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;%d &quot;</span>, heap.Pop(&amp;minHeap))</span><br><span class="line">	&#125;</span><br><span class="line">	fmt.Println()</span><br><span class="line"></span><br><span class="line">	maxHeap := IntHeap&#123;</span><br><span class="line">		heap:  []<span class="type">int</span>&#123;<span class="number">2</span>, <span class="number">1</span>, <span class="number">5</span>&#125;,</span><br><span class="line">		isMin: <span class="literal">false</span>,</span><br><span class="line">	&#125;</span><br><span class="line">	heap.Init(&amp;maxHeap)</span><br><span class="line">	heap.Push(&amp;maxHeap, <span class="number">3</span>)</span><br><span class="line">	fmt.Printf(<span class="string">&quot;maximum: %d\n&quot;</span>, maxHeap.heap[<span class="number">0</span>])</span><br><span class="line">	<span class="keyword">for</span> maxHeap.Len() &gt; <span class="number">0</span> &#123;</span><br><span class="line">		fmt.Printf(<span class="string">&quot;%d &quot;</span>, heap.Pop(&amp;maxHeap))</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>输出结果如下：</p>
-<figure class="highlight shell"><table><tr><td class="code"><pre><span class="line">minimum: 1</span><br><span class="line">1 2 3 5 </span><br><span class="line">maximum: 5</span><br><span class="line">5 3 2 1 </span><br></pre></td></tr></table></figure>
-<h2 id="源码"><a href="#源码" class="headerlink" title="源码"></a>源码</h2><figure class="highlight go"><table><tr><td class="code"><pre><span class="line"><span class="comment">// Copyright 2009 The Go Authors. All rights reserved.</span></span><br><span class="line"><span class="comment">// Use of this source code is governed by a BSD-style</span></span><br><span class="line"><span class="comment">// license that can be found in the LICENSE file.</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// Package heap provides heap operations for any type that implements</span></span><br><span class="line"><span class="comment">// heap.Interface. A heap is a tree with the property that each node is the</span></span><br><span class="line"><span class="comment">// minimum-valued node in its subtree.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// The minimum element in the tree is the root, at index 0.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// A heap is a common way to implement a priority queue. To build a priority</span></span><br><span class="line"><span class="comment">// queue, implement the Heap interface with the (negative) priority as the</span></span><br><span class="line"><span class="comment">// ordering for the Less method, so Push adds items while Pop removes the</span></span><br><span class="line"><span class="comment">// highest-priority item from the queue. The Examples include such an</span></span><br><span class="line"><span class="comment">// implementation; the file example_pq_test.go has the complete source.</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="keyword">package</span> heap</span><br><span class="line"></span><br><span class="line"><span class="keyword">import</span> <span class="string">&quot;sort&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">// The Interface type describes the requirements</span></span><br><span class="line"><span class="comment">// for a type using the routines in this package.</span></span><br><span class="line"><span class="comment">// Any type that implements it may be used as a</span></span><br><span class="line"><span class="comment">// min-heap with the following invariants (established after</span></span><br><span class="line"><span class="comment">// Init has been called or if the data is empty or sorted):</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">//	!h.Less(j, i) for 0 &lt;= i &lt; h.Len() and 2*i+1 &lt;= j &lt;= 2*i+2 and j &lt; h.Len()</span></span><br><span class="line"><span class="comment">//</span></span><br><span class="line"><span class="comment">// Note that Push and Pop in this interface are for package heap&#x27;s</span></span><br><span class="line"><span class="comment">// implementation to call. To add and remove things from the heap,</span></span><br><span class="line"><span class="comment">// use heap.Push and heap.Pop.</span></span><br><span class="line"><span class="keyword">type</span> Interface <span class="keyword">interface</span> &#123;</span><br><span class="line">	sort.Interface</span><br><span class="line">	Push(x any) <span class="comment">// add x as element Len()</span></span><br><span class="line">	Pop() any   <span class="comment">// remove and return element Len() - 1.</span></span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Init establishes the heap invariants required by the other routines in this package.</span></span><br><span class="line"><span class="comment">// Init is idempotent with respect to the heap invariants</span></span><br><span class="line"><span class="comment">// and may be called whenever the heap invariants may have been invalidated.</span></span><br><span class="line"><span class="comment">// The complexity is O(n) where n = h.Len().</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Init</span><span class="params">(h Interface)</span></span> &#123;</span><br><span class="line">	<span class="comment">// heapify</span></span><br><span class="line">	n := h.Len()</span><br><span class="line">	<span class="keyword">for</span> i := n/<span class="number">2</span> - <span class="number">1</span>; i &gt;= <span class="number">0</span>; i-- &#123;</span><br><span class="line">		down(h, i, n)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Push pushes the element x onto the heap.</span></span><br><span class="line"><span class="comment">// The complexity is O(log n) where n = h.Len().</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Push</span><span class="params">(h Interface, x any)</span></span> &#123;</span><br><span class="line">	h.Push(x)</span><br><span class="line">	up(h, h.Len()<span class="number">-1</span>)</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Pop removes and returns the minimum element (according to Less) from the heap.</span></span><br><span class="line"><span class="comment">// The complexity is O(log n) where n = h.Len().</span></span><br><span class="line"><span class="comment">// Pop is equivalent to Remove(h, 0).</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Pop</span><span class="params">(h Interface)</span></span> any &#123;</span><br><span class="line">	n := h.Len() - <span class="number">1</span></span><br><span class="line">	h.Swap(<span class="number">0</span>, n)</span><br><span class="line">	down(h, <span class="number">0</span>, n)</span><br><span class="line">	<span class="keyword">return</span> h.Pop()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Remove removes and returns the element at index i from the heap.</span></span><br><span class="line"><span class="comment">// The complexity is O(log n) where n = h.Len().</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Remove</span><span class="params">(h Interface, i <span class="type">int</span>)</span></span> any &#123;</span><br><span class="line">	n := h.Len() - <span class="number">1</span></span><br><span class="line">	<span class="keyword">if</span> n != i &#123;</span><br><span class="line">		h.Swap(i, n)</span><br><span class="line">		<span class="keyword">if</span> !down(h, i, n) &#123;</span><br><span class="line">			up(h, i)</span><br><span class="line">		&#125;</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> h.Pop()</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// Fix re-establishes the heap ordering after the element at index i has changed its value.</span></span><br><span class="line"><span class="comment">// Changing the value of the element at index i and then calling Fix is equivalent to,</span></span><br><span class="line"><span class="comment">// but less expensive than, calling Remove(h, i) followed by a Push of the new value.</span></span><br><span class="line"><span class="comment">// The complexity is O(log n) where n = h.Len().</span></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">Fix</span><span class="params">(h Interface, i <span class="type">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">if</span> !down(h, i, h.Len()) &#123;</span><br><span class="line">		up(h, i)</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">up</span><span class="params">(h Interface, j <span class="type">int</span>)</span></span> &#123;</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		i := (j - <span class="number">1</span>) / <span class="number">2</span> <span class="comment">// parent</span></span><br><span class="line">		<span class="keyword">if</span> i == j || !h.Less(j, i) &#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">		h.Swap(i, j)</span><br><span class="line">		j = i</span><br><span class="line">	&#125;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">func</span> <span class="title">down</span><span class="params">(h Interface, i0, n <span class="type">int</span>)</span></span> <span class="type">bool</span> &#123;</span><br><span class="line">	i := i0</span><br><span class="line">	<span class="keyword">for</span> &#123;</span><br><span class="line">		j1 := <span class="number">2</span>*i + <span class="number">1</span></span><br><span class="line">		<span class="keyword">if</span> j1 &gt;= n || j1 &lt; <span class="number">0</span> &#123; <span class="comment">// j1 &lt; 0 after int overflow</span></span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">		j := j1 <span class="comment">// left child</span></span><br><span class="line">		<span class="keyword">if</span> j2 := j1 + <span class="number">1</span>; j2 &lt; n &amp;&amp; h.Less(j2, j1) &#123;</span><br><span class="line">			j = j2 <span class="comment">// = 2*i + 2  // right child</span></span><br><span class="line">		&#125;</span><br><span class="line">		<span class="keyword">if</span> !h.Less(j, i) &#123;</span><br><span class="line">			<span class="keyword">break</span></span><br><span class="line">		&#125;</span><br><span class="line">		h.Swap(i, j)</span><br><span class="line">		i = j</span><br><span class="line">	&#125;</span><br><span class="line">	<span class="keyword">return</span> i &gt; i0</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>]]></content>
-      <categories>
-        <category>Golang</category>
-      </categories>
-      <tags>
-        <tag>Golang</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>GitLab CI/CD之Runner</title>
-    <url>/2022/11/14/GitLab-CI-CD%E4%B9%8BRunner/</url>
+    <url>/2022/11/14/gitlab-ci-cd-zhi-runner/</url>
     <content><![CDATA[<h1 id="GitLab-CI-CD之Runner"><a href="#GitLab-CI-CD之Runner" class="headerlink" title="GitLab CI/CD之Runner"></a>GitLab CI/CD之Runner</h1><h2 id="1-什么是Runner以及为什么需要Runner？"><a href="#1-什么是Runner以及为什么需要Runner？" class="headerlink" title="1.什么是Runner以及为什么需要Runner？"></a>1.什么是Runner以及为什么需要Runner？</h2><ul>
 <li><a href="https://docs.gitlab.com/runner/">官方解释</a>：</li>
 </ul>
@@ -566,7 +568,7 @@
   </entry>
   <entry>
     <title>K8S修炼之路-2.筑基期-kube-apiserver</title>
-    <url>/2022/11/14/K8S%E4%BF%AE%E7%82%BC%E4%B9%8B%E8%B7%AF-2-%E7%AD%91%E5%9F%BA%E6%9C%9F-kube-apiserver/</url>
+    <url>/2022/11/14/k8s-xiu-lian-zhi-lu-2-zhu-ji-qi-kube-apiserver/</url>
     <content><![CDATA[<h1 id="kube-apiserver"><a href="#kube-apiserver" class="headerlink" title="kube-apiserver"></a>kube-apiserver</h1><p>在kubernetes架构里，分为master节点和worker节点，在不同节点上有不同的组件。<br><span id="more"></span><br>master节点的主要组件：</p>
 <ul>
 <li>etcd</li>
@@ -616,7 +618,7 @@
   </entry>
   <entry>
     <title>K8S修炼之路-2.筑基期-Etcd in Kubernetes</title>
-    <url>/2022/11/14/K8S%E4%BF%AE%E7%82%BC%E4%B9%8B%E8%B7%AF-2-%E7%AD%91%E5%9F%BA%E6%9C%9F-Etcd-in-Kubernetes/</url>
+    <url>/2022/11/14/k8s-xiu-lian-zhi-lu-2-zhu-ji-qi-etcd-in-kubernetes/</url>
     <content><![CDATA[<h1 id="Etcd-in-Kubernetes"><a href="#Etcd-in-Kubernetes" class="headerlink" title="Etcd in Kubernetes"></a>Etcd in Kubernetes</h1><p>本阶段学习etcd与kubernetes，简单来说kubernetes可以看作一个应用，任何一个应用都要有数据库，kubernetes也不例外，而etcd就是kubernetes的数据库。</p>
 <p>虽然etcd作为数据库是kubernetes的核心，但是在生产环境中并不直接和etcd打交道，而是通过API来操作资源。</p>
 <p>这篇心法将介绍，etcd是如何工作的、工作流程及原理如何，以及在kubernetes中如何用到了etcd。<br><span id="more"></span></p>
@@ -813,7 +815,7 @@
   </entry>
   <entry>
     <title>K8S修炼之路-1. 炼气期</title>
-    <url>/2022/11/14/K8S%E4%BF%AE%E7%82%BC%E4%B9%8B%E8%B7%AF-1-%E7%82%BC%E6%B0%94%E6%9C%9F/</url>
+    <url>/2022/11/14/k8s-xiu-lian-zhi-lu-1-lian-qi-qi/</url>
     <content><![CDATA[<h1 id="K8S修炼之路-1-炼气期"><a href="#K8S修炼之路-1-炼气期" class="headerlink" title="K8S修炼之路-1. 炼气期"></a>K8S修炼之路-1. 炼气期</h1><h2 id="修炼须知及目标"><a href="#修炼须知及目标" class="headerlink" title="修炼须知及目标"></a>修炼须知及目标</h2><p>本阶段为k8s修炼之路的开始阶段，不求学会太深奥的原理，只要明白为啥需要k8s以及k8s的基本使用即可。目标如下：</p>
 <ul>
 <li>安装 Kubernetes 环境</li>
@@ -1029,7 +1031,7 @@
   </entry>
   <entry>
     <title>计算机网络-6.应用层</title>
-    <url>/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-6-%E5%BA%94%E7%94%A8%E5%B1%82/</url>
+    <url>/2022/11/11/ji-suan-ji-wang-luo-6-ying-yong-ceng/</url>
     <content><![CDATA[<h1 id="6-应用层"><a href="#6-应用层" class="headerlink" title="6.应用层"></a>6.应用层</h1><h2 id="6-1-概述"><a href="#6-1-概述" class="headerlink" title="6.1 概述"></a>6.1 概述</h2><ul>
 <li>各层解决的问题：</li>
 </ul>
@@ -1126,7 +1128,7 @@
   </entry>
   <entry>
     <title>计算机网络-5.运输层</title>
-    <url>/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-5-%E8%BF%90%E8%BE%93%E5%B1%82/</url>
+    <url>/2022/11/11/ji-suan-ji-wang-luo-5-yun-shu-ceng/</url>
     <content><![CDATA[<h1 id="5-运输层"><a href="#5-运输层" class="headerlink" title="5.运输层"></a>5.运输层</h1><h2 id="5-1-概述"><a href="#5-1-概述" class="headerlink" title="5.1 概述"></a>5.1 概述</h2><ul>
 <li>之前的物理层、数据链路层以及网络层它们共同解决了主机通过异构网络互联所面临的问题，实现了主机到主机的通信。但实际上计算机网络中的通信时位于通信两段主机中的进程。</li>
 <li><p>运输层任务：为运行在不同主机上的应用进程提供直接的通信服务。运输层协议又称端到端协议。</p>
@@ -1227,7 +1229,7 @@
   </entry>
   <entry>
     <title>计算机网络-4. 网络层</title>
-    <url>/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-4-%E7%BD%91%E7%BB%9C%E5%B1%82/</url>
+    <url>/2022/11/11/ji-suan-ji-wang-luo-4-wang-luo-ceng/</url>
     <content><![CDATA[<h1 id="4-网络层"><a href="#4-网络层" class="headerlink" title="4. 网络层"></a>4. 网络层</h1><h2 id="4-1-概述"><a href="#4-1-概述" class="headerlink" title="4.1 概述"></a>4.1 概述</h2><ul>
 <li>主要任务：实现网络互连，进而实现数据包在各网络之间的传输。</li>
 <li>需要解决的问题：<ul>
@@ -1359,7 +1361,7 @@
   </entry>
   <entry>
     <title>计算机网络-3.数据链路层</title>
-    <url>/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-3-%E6%95%B0%E6%8D%AE%E9%93%BE%E8%B7%AF%E5%B1%82/</url>
+    <url>/2022/11/11/ji-suan-ji-wang-luo-3-shu-ju-lian-lu-ceng/</url>
     <content><![CDATA[<h1 id="3-数据链路层"><a href="#3-数据链路层" class="headerlink" title="3.数据链路层"></a>3.数据链路层</h1><h2 id="3-1-概述"><a href="#3-1-概述" class="headerlink" title="3.1 概述"></a>3.1 概述</h2><ul>
 <li>链路：从一个结点到相邻结点的一段物理线路，而中间没有任何其他的交换结点。</li>
 <li>数据链路：把实现通信协议的硬件和软件加到链路上。</li>
@@ -1524,7 +1526,7 @@
   </entry>
   <entry>
     <title>计算机网络-2.物理层</title>
-    <url>/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-2-%E7%89%A9%E7%90%86%E5%B1%82/</url>
+    <url>/2022/11/11/ji-suan-ji-wang-luo-2-wu-li-ceng/</url>
     <content><![CDATA[<h1 id="2-物理层"><a href="#2-物理层" class="headerlink" title="2.物理层"></a>2.物理层</h1><h2 id="2-1-基本概念"><a href="#2-1-基本概念" class="headerlink" title="2.1 基本概念"></a>2.1 基本概念</h2><ul>
 <li>传输媒体：</li>
 </ul>
@@ -1598,7 +1600,7 @@
   </entry>
   <entry>
     <title>计算机网络-1.基本概念</title>
-    <url>/2022/11/11/%E8%AE%A1%E7%AE%97%E6%9C%BA%E7%BD%91%E7%BB%9C-1-%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</url>
+    <url>/2022/11/11/ji-suan-ji-wang-luo-1-ji-ben-gai-nian/</url>
     <content><![CDATA[<h1 id="1-基本概念"><a href="#1-基本概念" class="headerlink" title="1.基本概念"></a>1.基本概念</h1><ul>
 <li><p><strong>ISP</strong> (Internet Service Provider)：因特网服务提供者，国内如中国电信、中国移动、中国联通。</p>
 </li>
@@ -1702,7 +1704,7 @@
   </entry>
   <entry>
     <title>网络是怎样连接的-2.探索协议栈和网卡</title>
-    <url>/2022/11/11/%E7%BD%91%E7%BB%9C%E6%98%AF%E6%80%8E%E6%A0%B7%E8%BF%9E%E6%8E%A5%E7%9A%84-2-%E6%8E%A2%E7%B4%A2%E5%8D%8F%E8%AE%AE%E6%A0%88%E5%92%8C%E7%BD%91%E5%8D%A1/</url>
+    <url>/2022/11/11/wang-luo-shi-zen-yang-lian-jie-de-2-tan-suo-xie-yi-zhan-he-wang-qia/</url>
     <content><![CDATA[<h1 id="第二章-探索协议栈和网卡"><a href="#第二章-探索协议栈和网卡" class="headerlink" title="第二章 探索协议栈和网卡"></a>第二章 探索协议栈和网卡</h1><ul>
 <li>这章主要讲的是在收发数据过程中的具体工作流程，比如怎么创建套接字、怎么建立连接、怎么将数据发送出去等等。</li>
 </ul>
@@ -1922,7 +1924,7 @@
   </entry>
   <entry>
     <title>网络是怎样连接的-1.浏览器生成消息</title>
-    <url>/2022/11/11/%E7%BD%91%E7%BB%9C%E6%98%AF%E6%80%8E%E6%A0%B7%E8%BF%9E%E6%8E%A5%E7%9A%84-1-%E6%B5%8F%E8%A7%88%E5%99%A8%E7%94%9F%E6%88%90%E6%B6%88%E6%81%AF/</url>
+    <url>/2022/11/11/wang-luo-shi-zen-yang-lian-jie-de-1-liu-lan-qi-sheng-cheng-xiao-xi/</url>
     <content><![CDATA[<h1 id="第一章-浏览器生成消息"><a href="#第一章-浏览器生成消息" class="headerlink" title="第一章 浏览器生成消息"></a>第一章 浏览器生成消息</h1><ul>
 <li>本章讲的是HTTP消息长啥样、往哪里发消息、怎么发消息</li>
 </ul>
@@ -2148,7 +2150,7 @@
   </entry>
   <entry>
     <title>Git命令使用</title>
-    <url>/2022/11/02/Git%E5%91%BD%E4%BB%A4%E4%BD%BF%E7%94%A8/</url>
+    <url>/2022/11/02/git-ming-ling-shi-yong/</url>
     <content><![CDATA[<h1 id="Git命令使用"><a href="#Git命令使用" class="headerlink" title="Git命令使用"></a>Git命令使用</h1><h2 id="git-cherry-pick"><a href="#git-cherry-pick" class="headerlink" title="git cherry-pick"></a>git cherry-pick</h2><p><a href="https://blog.csdn.net/FightFightFight/article/details/81039050">https://blog.csdn.net/FightFightFight/article/details/81039050</a></p>
 <p>通常用于在两个分支之间，比如master和prod，想把master分支上的部分commit合并到prod上。<br><span id="more"></span><br>git cherry-pick将某一个commit合并到当前本地所在分支上。</p>
 <figure class="highlight sh"><table><tr><td class="code"><pre><span class="line">$ git cherry-pick commit-ish</span><br></pre></td></tr></table></figure>
@@ -2183,7 +2185,7 @@
   </entry>
   <entry>
     <title>DRL-3.Policy Gradient with Baseline</title>
-    <url>/2022/10/30/DRL-3-Policy-Gradient-with-Baseline/</url>
+    <url>/2022/10/30/drl-3-policy-gradient-with-baseline/</url>
     <content><![CDATA[<h1 id="DRL-3-Policy-Gradient-with-Baseline"><a href="#DRL-3-Policy-Gradient-with-Baseline" class="headerlink" title="DRL-3.Policy Gradient with Baseline"></a>DRL-3.Policy Gradient with Baseline</h1><h2 id="1-Policy-Gradient-with-Baseline"><a href="#1-Policy-Gradient-with-Baseline" class="headerlink" title="1. Policy Gradient with Baseline"></a>1. Policy Gradient with Baseline</h2><h3 id="1-1-Policy-Gradient"><a href="#1-1-Policy-Gradient" class="headerlink" title="1.1 Policy Gradient"></a>1.1 Policy Gradient</h3><p>recall：使用策略函数$\pi(a|s;\theta)$来控制agent的行为；</p>
 <p>状态价值函数：</p>
 <p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209162106947.png" style="zoom:33%;" /></p>
@@ -2287,7 +2289,7 @@
   </entry>
   <entry>
     <title>DRL-2.Advanced Topics on Value-Based Learning</title>
-    <url>/2022/10/30/DRL-2-Advanced-Topics-on-Value-Based-Learning/</url>
+    <url>/2022/10/30/drl-2-advanced-topics-on-value-based-learning/</url>
     <content><![CDATA[<h1 id="DRL-2-Advanced-Topics-on-Value-Based-Learning"><a href="#DRL-2-Advanced-Topics-on-Value-Based-Learning" class="headerlink" title="DRL-2.Advanced Topics on Value-Based Learning"></a>DRL-2.Advanced Topics on Value-Based Learning</h1><h2 id="1-Experience-Replay-ER-amp-Prioritized-ER"><a href="#1-Experience-Replay-ER-amp-Prioritized-ER" class="headerlink" title="1. Experience Replay (ER) &amp; Prioritized ER"></a>1. Experience Replay (ER) &amp; Prioritized ER</h2><h3 id="1-1-Experience-Replay"><a href="#1-1-Experience-Replay" class="headerlink" title="1.1 Experience Replay"></a>1.1 Experience Replay</h3><ul>
 <li>A transition：$(s_t, a_t,r_t,s_{t+1})$</li>
 </ul>
@@ -2386,7 +2388,7 @@
   </entry>
   <entry>
     <title>DRL-1.Overview</title>
-    <url>/2022/10/30/DRL-1-Overview/</url>
+    <url>/2022/10/30/drl-1-overview/</url>
     <content><![CDATA[<h1 id="DRL-1-Overview"><a href="#DRL-1-Overview" class="headerlink" title="DRL-1.Overview"></a>DRL-1.Overview</h1><h2 id="1-RL-Basics"><a href="#1-RL-Basics" class="headerlink" title="1.RL Basics"></a>1.RL Basics</h2><h3 id="1-1-Terminology"><a href="#1-1-Terminology" class="headerlink" title="1.1 Terminology"></a>1.1 Terminology</h3><ul>
 <li>State：当前环境的状态空间</li>
 <li>Action：Agent当前可以采取的动作空间</li>
@@ -2546,7 +2548,7 @@
   </entry>
   <entry>
     <title>32. Common Concurrency Problems</title>
-    <url>/2022/10/27/32-Common-Concurrency-Problems/</url>
+    <url>/2022/10/27/32-common-concurrency-problems/</url>
     <content><![CDATA[<h1 id="32-Common-Concurrency-Problems"><a href="#32-Common-Concurrency-Problems" class="headerlink" title="32. Common Concurrency Problems"></a>32. Common Concurrency Problems</h1><h2 id="32-1-What-Types-Of-Bugs-Exist"><a href="#32-1-What-Types-Of-Bugs-Exist" class="headerlink" title="32.1 What Types Of Bugs Exist?"></a>32.1 What Types Of Bugs Exist?</h2><ul>
 <li>并发中有哪些类型的bug？大致分为两种：<strong>non-deadlock bugs</strong>和<strong>deadlock bugs</strong>。</li>
 </ul>
@@ -2623,7 +2625,7 @@
   </entry>
   <entry>
     <title>31. Semaphores</title>
-    <url>/2022/10/27/31-Semaphores/</url>
+    <url>/2022/10/27/31-semaphores/</url>
     <content><![CDATA[<h1 id="31-Semaphores"><a href="#31-Semaphores" class="headerlink" title="31. Semaphores"></a>31. Semaphores</h1><ul>
 <li>前面已经学习了使用lock和condition varivable来实现并发，这一节学习<strong>semaphore</strong>信号量。有了semaphore，就只有统一的原语操作了，可以用semaphore来实现lock和condition variavle的功能。问题来了：如何使用semaphore来代替lock和condition variable？semaphore的定义是怎样的？Binary semaphore是怎样的？</li>
 </ul>
@@ -2734,7 +2736,7 @@
   </entry>
   <entry>
     <title>30. Condition Variables</title>
-    <url>/2022/10/27/30-Condition-Variables/</url>
+    <url>/2022/10/27/30-condition-variables/</url>
     <content><![CDATA[<h1 id="30-Condition-Variables"><a href="#30-Condition-Variables" class="headerlink" title="30. Condition Variables"></a>30. Condition Variables</h1><ul>
 <li>之前介绍了lock，以及使用lock构建的一些线程安全的数据结构。但是那并不是所有并发的内容，说到并发，怎么能不谈谈同步呢？并发中，一个线程等待另一个线程是很常见的事情。举个栗子，父线程要等待子线程结束才能结束：</li>
 </ul>
@@ -2808,7 +2810,7 @@
   </entry>
   <entry>
     <title>29. Lock-based Concurrent Data Structures</title>
-    <url>/2022/10/27/29-Lock-based-Concurrent-Data-Structures/</url>
+    <url>/2022/10/27/29-lock-based-concurrent-data-structures/</url>
     <content><![CDATA[<h1 id="29-Lock-based-Concurrent-Data-Structures"><a href="#29-Lock-based-Concurrent-Data-Structures" class="headerlink" title="29. Lock-based Concurrent Data Structures"></a>29. Lock-based Concurrent Data Structures</h1><ul>
 <li>有了lock之后，就可以用在一些数据结构中，使其变得<strong>thread safe</strong>线程安全。问题来了：给定一个数据结构时，如何加入lock使其能够正常工作？如何加入lock才能有好的性能，使得多线程可以尽可能多地并发访问结构？</li>
 </ul>
@@ -2882,7 +2884,7 @@
   </entry>
   <entry>
     <title>28. Locks</title>
-    <url>/2022/10/27/28-Locks/</url>
+    <url>/2022/10/27/28-locks/</url>
     <content><![CDATA[<h1 id="28-Locks"><a href="#28-Locks" class="headerlink" title="28. Locks"></a>28. Locks</h1><ul>
 <li>并发中最基本的问题就是如何保证一段代码执行的原子性，这一章的<strong>lock</strong>就是用来解决这个问题的。<span id="more"></span>
 </li>
@@ -3027,7 +3029,7 @@
   </entry>
   <entry>
     <title>26. Concurrency: An Introduction</title>
-    <url>/2022/10/27/26-Concurrency-An-Introduction/</url>
+    <url>/2022/10/27/26-concurrency-an-introduction/</url>
     <content><![CDATA[<h1 id="26-Concurrency-An-Introduction"><a href="#26-Concurrency-An-Introduction" class="headerlink" title="26. Concurrency: An Introduction"></a>26. Concurrency: An Introduction</h1><ul>
 <li>在前面很长的部分里我们讨论了虚拟化的问题，主要是对CPU和内存的虚拟化。在接下来的部分里，我们将学习一个进程（process）的抽象，那就是线程（thread）。一个进程可以包含多个线程，也是就<strong>multi-thread</strong> program，每个线程像一个单独的进程，但是区别在于同一进程的线程之间共享地址空间，因此可以访问相同的数据。</li>
 <li>线程和进程十分相似。线程有自己的PC来表明当前指令的地址；线程有自己的寄存器用来做计算；因此如果有两个线程在一个处理器上运行，就会面临<strong>context switch</strong>的问题。对于进程来说，context switch时将进程信息保存在<strong>process control block（PCB）</strong>中；而对于线程来说，context switch时将线程信息保存在<strong>thread control block（TCB）</strong>中。但是有一点不同，对于线程来说，context switch时并不会改变地址空间，也就是说使用的page table不需要改变。</li>
@@ -3098,7 +3100,7 @@
   </entry>
   <entry>
     <title>22. Beyond Physical Memory: Policies</title>
-    <url>/2022/10/27/22-Beyond-Physical-Memory-Policies/</url>
+    <url>/2022/10/27/22-beyond-physical-memory-policies/</url>
     <content><![CDATA[<h1 id="22-Beyond-Physical-Memory-Policies"><a href="#22-Beyond-Physical-Memory-Policies" class="headerlink" title="22. Beyond Physical Memory: Policies"></a>22. Beyond Physical Memory: Policies</h1><ul>
 <li>接着上一节的内容来学习replacement policy，问题：OS如何决定从内存中替换哪些page？<span id="more"></span>
 </li>
@@ -3180,7 +3182,7 @@
   </entry>
   <entry>
     <title>21. Beyond Physical Memory: Mechanisms</title>
-    <url>/2022/10/27/21-Beyond-Physical-Memory-Mechanisms/</url>
+    <url>/2022/10/27/21-beyond-physical-memory-mechanisms/</url>
     <content><![CDATA[<h1 id="21-Beyond-Physical-Memory-Mechanisms"><a href="#21-Beyond-Physical-Memory-Mechanisms" class="headerlink" title="21. Beyond Physical Memory: Mechanisms"></a>21. Beyond Physical Memory: Mechanisms</h1><ul>
 <li>目前为止，我们一直假设page是全部保存在内存中的。但是，由于内存有限的原因，再加上可能运行的进程数很多导致有许多page，实际上内存往往还保存在 <strong>hard disk</strong>中。那么问题来了，OS如何通过像hard disk之类的低速设备，来提供一个很大的地址空间的假象？</li>
 </ul>
@@ -3228,7 +3230,7 @@
   </entry>
   <entry>
     <title>20. Paging: Smaller Tables</title>
-    <url>/2022/10/27/20-Paging-Smaller-Tables/</url>
+    <url>/2022/10/27/20-paging-smaller-tables/</url>
     <content><![CDATA[<h1 id="20-Paging-Smaller-Tables"><a href="#20-Paging-Smaller-Tables" class="headerlink" title="20. Paging: Smaller Tables"></a>20. Paging: Smaller Tables</h1><ul>
 <li>继续之前的问题，page table可能过大，上一节采用了TLB缓存的方法，这一节来看看不同的方法。问题来了，如何让page table 变小呢？有哪些方法？这些方法又会带来哪些问题？</li>
 </ul>
@@ -3322,7 +3324,7 @@
   </entry>
   <entry>
     <title>19. Paging: Faster Translations (TLBs)</title>
-    <url>/2022/10/27/19-Paging-Faster-Translations-TLBs/</url>
+    <url>/2022/10/27/19-paging-faster-translations-tlbs/</url>
     <content><![CDATA[<h1 id="19-Paging-Faster-Translations-TLBs"><a href="#19-Paging-Faster-Translations-TLBs" class="headerlink" title="19. Paging: Faster Translations (TLBs)"></a>19. Paging: Faster Translations (TLBs)</h1><ul>
 <li>Page table存在内存中，因此使用paging的方法需要额外的内存访问，因此比较耗时。问题：如何加速地址翻译并且避免额外的内存访问？需要哪些硬件支持？OS又需要做什么？</li>
 <li>方法叫<strong>translation-lookaside buffer</strong>或者<strong>TLB</strong>，是MMU的一个部分。其实就是对于经常访问的page frame的一个缓存，因此也叫做<strong>address-translation cache</strong>。每次进行地址翻译时，先去TLB中找，如果没有再去内存中找。<span id="more"></span>
@@ -3411,7 +3413,7 @@
   </entry>
   <entry>
     <title>18. Paging: Introduction</title>
-    <url>/2022/10/27/18-Paging-Introduction/</url>
+    <url>/2022/10/27/18-paging-introduction/</url>
     <content><![CDATA[<h2 id="18-Paging-Introduction"><a href="#18-Paging-Introduction" class="headerlink" title="18. Paging: Introduction"></a>18. Paging: Introduction</h2><ul>
 <li>内存管理有两种，一种是采用变长的chunk，也就是之前讲的segmentation。这章来讲一讲第二种方法，采用定长的chunk，这种方法叫做<strong>paging</strong>。我们把地址空间分成大小相等unit，每个unit叫做一个<strong>page</strong>；把物理内存也分成相同大小的slot，每个slot叫做 <strong>page frame</strong>。问题来了：如何使用page来虚拟化内存，从而避免外部碎片的问题？有哪些基本方法？如何用最小的空间和时间开销来实现这些方法？</li>
 </ul>
@@ -3506,7 +3508,7 @@
   </entry>
   <entry>
     <title>17. Free-Space Management</title>
-    <url>/2022/10/27/17-Free-Space-Management/</url>
+    <url>/2022/10/27/17-free-space-management/</url>
     <content><![CDATA[<h1 id="17-Free-Space-Management"><a href="#17-Free-Space-Management" class="headerlink" title="17. Free-Space Management"></a>17. Free-Space Management</h1><ul>
 <li>这节就接着上节来讲讲怎么进行内存管理。具体来说，我们要讨论的就是<strong>paging</strong>的概念。简单点的话，把内存分成固定大小的块，管理这些块即可。复杂点来说，当这些块的大小不固定时，变长时该如何管理？比如一个进程可能通过malloc()和free()来分配或销毁内存。还可能存在<strong>外部碎片</strong>的问题。</li>
 <li><p>问题来了：如何在满足变长内存块的情况下进行内存管理？有什么策略可以用来最小化外部碎片？这些可用方法的时间和空间开销是多少？</p>
@@ -3603,7 +3605,7 @@
   </entry>
   <entry>
     <title>16. Segmentation</title>
-    <url>/2022/10/27/16-Segmentation/</url>
+    <url>/2022/10/27/16-segmentation/</url>
     <content><![CDATA[<h1 id="16-Segmentation"><a href="#16-Segmentation" class="headerlink" title="16. Segmentation"></a>16. Segmentation</h1><ul>
 <li>接上一节的问题，当我们把地址空间放到物理内存中的时候，stack和heap中会出现内部碎片，存在空间浪费。再如下图：</li>
 </ul>
@@ -3699,7 +3701,7 @@
   </entry>
   <entry>
     <title>15. Mechanism: Address Translation</title>
-    <url>/2022/10/27/15-Mechanism-Address-Translation/</url>
+    <url>/2022/10/27/15-mechanism-address-translation/</url>
     <content><![CDATA[<h1 id="15-Mechanism-Address-Translation"><a href="#15-Mechanism-Address-Translation" class="headerlink" title="15. Mechanism: Address Translation"></a>15. Mechanism: Address Translation</h1><ul>
 <li>提供即高效又能保持OS控制的虚拟化内存方法。</li>
 <li>高效需要硬件的支持；控制意味着OS必须保证一个程序不能访问别的程序的内存空间，也不能访问OS的内存空间；最后还要灵活，也就是说一个程序想怎么使用地址空间都可以。</li>
@@ -3782,7 +3784,7 @@
   </entry>
   <entry>
     <title>13. The Abstraction: Address Spaces</title>
-    <url>/2022/10/27/13-The-Abstraction-Address-Spaces/</url>
+    <url>/2022/10/27/13-the-abstraction-address-spaces/</url>
     <content><![CDATA[<h1 id="13-The-Abstraction-Address-Spaces"><a href="#13-The-Abstraction-Address-Spaces" class="headerlink" title="13. The Abstraction: Address Spaces"></a>13. The Abstraction: Address Spaces</h1><h2 id="13-1-Early-Systems"><a href="#13-1-Early-Systems" class="headerlink" title="13.1 Early Systems"></a>13.1 Early Systems</h2><ul>
 <li>从内存的角度来说，早期的机器并没有提供很多的抽象给用户，因此比较简单，如下图：</li>
 </ul>
@@ -3841,7 +3843,7 @@
   </entry>
   <entry>
     <title>8.Scheduling: The Multi-Level Feedback Queue</title>
-    <url>/2022/10/27/8-Scheduling-The-Multi-Level-Feedback-Queue/</url>
+    <url>/2022/10/27/8-scheduling-the-multi-level-feedback-queue/</url>
     <content><![CDATA[<h2 id="8-Scheduling-The-Multi-Level-Feedback-Queue"><a href="#8-Scheduling-The-Multi-Level-Feedback-Queue" class="headerlink" title="8.Scheduling: The Multi-Level Feedback Queue"></a>8.Scheduling: The Multi-Level Feedback Queue</h2><ul>
 <li>书接上回，我们来看看如何平衡两个调度指标，即周转时间和响应时间。</li>
 <li>采用 <strong>Multi-level Feedback Queue (MLFQ)</strong>，解决了两个问题：<ul>
@@ -3952,7 +3954,7 @@
   </entry>
   <entry>
     <title>7.Scheduling: Introduction</title>
-    <url>/2022/10/27/7-Scheduling-Introduction/</url>
+    <url>/2022/10/27/7-scheduling-introduction/</url>
     <content><![CDATA[<h2 id="7-Scheduling-Introduction"><a href="#7-Scheduling-Introduction" class="headerlink" title="7.Scheduling: Introduction"></a>7.Scheduling: Introduction</h2><ul>
 <li>前面我们了解了低层的用于运行进程的机制，现在该来谈一谈高层的policy来决定如何调度进程上CPU了。这章就来学习下调度进程的算法。</li>
 </ul>
@@ -4062,7 +4064,7 @@
   </entry>
   <entry>
     <title>6.Mechanism: Limited Direct Execution</title>
-    <url>/2022/10/27/6-Mechanism-Limited-Direct-Execution/</url>
+    <url>/2022/10/27/6-mechanism-limited-direct-execution/</url>
     <content><![CDATA[<h2 id="6-Mechanism-Limited-Direct-Execution"><a href="#6-Mechanism-Limited-Direct-Execution" class="headerlink" title="6.Mechanism: Limited Direct Execution"></a>6.Mechanism: Limited Direct Execution</h2><ul>
 <li>受限制的直接执行。</li>
 <li>虚拟化CPU的基本思想：让一个线程上CPU运行一会，下来再让另一个上CPU运行，通过<strong>time sharing</strong>的方法来实现。</li>
@@ -4162,7 +4164,7 @@
   </entry>
   <entry>
     <title>4.The Abstraction:The Process</title>
-    <url>/2022/10/27/4-The-Abstraction-The-Process/</url>
+    <url>/2022/10/27/4-the-abstraction-the-process/</url>
     <content><![CDATA[<h2 id="4-The-Abstraction-The-Process"><a href="#4-The-Abstraction-The-Process" class="headerlink" title="4.The Abstraction: The Process"></a>4.The Abstraction: The Process</h2><ul>
 <li>线程的定义：正在运行的程序。</li>
 <li>问题来了：如何提供有许多CPU的假象？</li>
