@@ -2218,7 +2218,7 @@
 <ul>
 <li>$b$ 是state value</li>
 </ul>
-<p>因为$s_t$已经被观测到了，因此$b=V_{\pi}(s_t)$独立与$A_t$。</p>
+<p>因为$s<em>t$已经被观测到了，因此$b=V</em>{\pi}(s_t)$独立与$A_t$。</p>
 <h2 id="2-REINFORCE-with-Baseline"><a href="#2-REINFORCE-with-Baseline" class="headerlink" title="2. REINFORCE with Baseline"></a>2. REINFORCE with Baseline</h2><h3 id="2-1-Approximations"><a href="#2-1-Approximations" class="headerlink" title="2.1 Approximations"></a>2.1 Approximations</h3><p>上一节学习了随机策略梯度，在其中有一项$Q_\pi$，还记得：</p>
 <p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191447542.png" style="zoom:33%;" /></p>
 <p>如果采用蒙特卡洛近似$Q\pi$，这种做法就叫做REINFORCE：</p>
@@ -2257,7 +2257,7 @@
 <p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211422041.png" style="zoom:33%;" /></p>
 <h3 id="3-5-Updating-Policy-Network"><a href="#3-5-Updating-Policy-Network" class="headerlink" title="3.5 Updating Policy Network"></a>3.5 Updating Policy Network</h3><p>还记得之前的随机策略梯度：</p>
 <p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211426589.png" style="zoom:33%;" /></p>
-<p>由于优势函数是不知道的，所以还不能计算随机策略梯度，但是当我们有了关于$Q_{\pi}$和$V_{\pi}$的近似后，就可以估计随机策略梯度了。</p>
+<p>由于优势函数是不知道的，所以还不能计算随机策略梯度，但是当我们有了关于$Q<em>{\pi}$和$V</em>{\pi}$的近似后，就可以估计随机策略梯度了。</p>
 <p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211432052.png" style="zoom:33%;" /></p>
 <p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211433250.png" style="zoom:33%;" /></p>
 <p>再用$v(s;w)$来近似估计$V_{\pi}(s)$：</p>
@@ -2291,7 +2291,7 @@
     <title>DRL-2.Advanced Topics on Value-Based Learning</title>
     <url>/2022/10/30/drl-2-advanced-topics-on-value-based-learning/</url>
     <content><![CDATA[<h1 id="DRL-2-Advanced-Topics-on-Value-Based-Learning"><a href="#DRL-2-Advanced-Topics-on-Value-Based-Learning" class="headerlink" title="DRL-2.Advanced Topics on Value-Based Learning"></a>DRL-2.Advanced Topics on Value-Based Learning</h1><h2 id="1-Experience-Replay-ER-amp-Prioritized-ER"><a href="#1-Experience-Replay-ER-amp-Prioritized-ER" class="headerlink" title="1. Experience Replay (ER) &amp; Prioritized ER"></a>1. Experience Replay (ER) &amp; Prioritized ER</h2><h3 id="1-1-Experience-Replay"><a href="#1-1-Experience-Replay" class="headerlink" title="1.1 Experience Replay"></a>1.1 Experience Replay</h3><ul>
-<li>A transition：$(s_t, a_t,r_t,s_{t+1})$</li>
+<li>A transition：$(s<em>t, a_t,r_t,s</em>{t+1})$</li>
 </ul>
 <p>重复使用之前已经利用过的transition。将n个transition保存到replay buffer中，n是一个可调节超参数，通常取$10^5 - 10^6$。</p>
 <p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209151641708.png" style="zoom: 25%;" /></p>
@@ -2434,7 +2434,7 @@
 <h3 id="1-5-Value-Function"><a href="#1-5-Value-Function" class="headerlink" title="1.5 Value Function"></a>1.5 Value Function</h3><h4 id="1-5-1-Action-value-function-Q-pi-s-a"><a href="#1-5-1-Action-value-function-Q-pi-s-a" class="headerlink" title="1.5.1 Action value function $Q_{\pi}(s,a)$"></a>1.5.1 Action value function $Q_{\pi}(s,a)$</h4><p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209042258491.png" style="zoom:33%;" /></p>
 <p>$Q_{\pi}(s,a)$是对随机变量$U_t$求期望求出来的，所以是一个值。</p>
 <h4 id="1-5-2-State-Value-Function-V-pi-s"><a href="#1-5-2-State-Value-Function-V-pi-s" class="headerlink" title="1.5.2 State Value Function $V_{\pi}(s)$"></a>1.5.2 State Value Function $V_{\pi}(s)$</h4><p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209042303189.png" style="zoom:33%;" /></p>
-<p>对于 $Q_{\pi}(s,a)$  函数，确定state为$s_t$的情况下，就变成了$Q_{\pi}(s,A)$，是一个随机变量，因此可以对其求期望，就得到了$V_{\pi}(s_t)$。</p>
+<p>对于 $Q<em>{\pi}(s,a)$  函数，确定state为$s_t$的情况下，就变成了$Q</em>{\pi}(s,A)$，是一个随机变量，因此可以对其求期望，就得到了$V_{\pi}(s_t)$。</p>
 <ul>
 <li>如果action是离散的，求期望就是用概率乘以随机变量的值再求和。</li>
 </ul>
@@ -2472,7 +2472,7 @@
 <p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209061021070.png" style="zoom:33%;" /></p>
 <ul>
 <li>$Q(s_t,a_t;w)$，是对$U_t$的估计</li>
-<li>$Q(s_{t+1},a_{t+1};w)$，是对$U_{t+1}$的估计</li>
+<li>$Q(s<em>{t+1},a</em>{t+1};w)$，是对$U_{t+1}$的估计</li>
 </ul>
 <p>因此</p>
 <p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209061104099.png" style="zoom:33%;" /></p>
@@ -2512,7 +2512,7 @@
 <p>使用policy gradient更新policy network的一次迭代：</p>
 <p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209061622646.png" style="zoom:33%;" /></p>
 <h2 id="4-Actor-Critic-Methods"><a href="#4-Actor-Critic-Methods" class="headerlink" title="4. Actor-Critic Methods"></a>4. Actor-Critic Methods</h2><p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209061716941.png" style="zoom:33%;" /></p>
-<p>在Policy-Based RL的迭代过程中，$Q_{\pi}$是不知道的，如果在加上对$Q_{\pi}$的近似估计就得倒了AC。</p>
+<p>在Policy-Based RL的迭代过程中，$Q<em>{\pi}$是不知道的，如果在加上对$Q</em>{\pi}$的近似估计就得倒了AC。</p>
 <h3 id="4-1-Value-Network-and-Policy-Network"><a href="#4-1-Value-Network-and-Policy-Network" class="headerlink" title="4.1 Value Network and Policy Network"></a>4.1 Value Network and Policy Network</h3><ul>
 <li>Policy network (actor)：使用神经网络$\pi(a|s;\theta)$来近似$\pi(a|s)$</li>
 </ul>

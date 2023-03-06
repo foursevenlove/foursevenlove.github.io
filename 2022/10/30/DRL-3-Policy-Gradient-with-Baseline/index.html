@@ -501,7 +501,7 @@
 <ul>
 <li>$b$ 是state value</li>
 </ul>
-<p>因为$s_t$已经被观测到了，因此$b=V_{\pi}(s_t)$独立与$A_t$。</p>
+<p>因为$s<em>t$已经被观测到了，因此$b=V</em>{\pi}(s_t)$独立与$A_t$。</p>
 <h2 id="2-REINFORCE-with-Baseline"><a href="#2-REINFORCE-with-Baseline" class="headerlink" title="2. REINFORCE with Baseline"></a>2. REINFORCE with Baseline</h2><h3 id="2-1-Approximations"><a href="#2-1-Approximations" class="headerlink" title="2.1 Approximations"></a>2.1 Approximations</h3><p>上一节学习了随机策略梯度，在其中有一项$Q_\pi$，还记得：</p>
 <p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209191447542.png" style="zoom:33%;" /></p>
 <p>如果采用蒙特卡洛近似$Q\pi$，这种做法就叫做REINFORCE：</p>
@@ -540,7 +540,7 @@
 <p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211422041.png" style="zoom:33%;" /></p>
 <h3 id="3-5-Updating-Policy-Network"><a href="#3-5-Updating-Policy-Network" class="headerlink" title="3.5 Updating Policy Network"></a>3.5 Updating Policy Network</h3><p>还记得之前的随机策略梯度：</p>
 <p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211426589.png" style="zoom:33%;" /></p>
-<p>由于优势函数是不知道的，所以还不能计算随机策略梯度，但是当我们有了关于$Q_{\pi}$和$V_{\pi}$的近似后，就可以估计随机策略梯度了。</p>
+<p>由于优势函数是不知道的，所以还不能计算随机策略梯度，但是当我们有了关于$Q<em>{\pi}$和$V</em>{\pi}$的近似后，就可以估计随机策略梯度了。</p>
 <p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211432052.png" style="zoom:33%;" /></p>
 <p><img src="https://foursevenlove.oss-cn-hongkong.aliyuncs.com/pics/202209211433250.png" style="zoom:33%;" /></p>
 <p>再用$v(s;w)$来近似估计$V_{\pi}(s)$：</p>
