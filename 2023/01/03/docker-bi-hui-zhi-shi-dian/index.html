@@ -454,7 +454,7 @@
                 
                 <div class="info-break-policy">
                     <i class="far fa-clock fa-fw"></i>阅读时长:&nbsp;&nbsp;
-                    17 分
+                    18 分
                 </div>
                 
 
@@ -464,6 +464,9 @@
         <hr class="clearfix">
 
         
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
 
         
 
@@ -472,56 +475,57 @@
                 <h1 id="Docker必会知识点"><a href="#Docker必会知识点" class="headerlink" title="Docker必会知识点"></a>Docker必会知识点</h1><h2 id="1-常用命令"><a href="#1-常用命令" class="headerlink" title="1.常用命令"></a>1.常用命令</h2><h3 id="1-1-服务"><a href="#1-1-服务" class="headerlink" title="1.1 服务"></a>1.1 服务</h3><ul>
 <li>查看Docker版本信息</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker version</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> version<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <ul>
 <li>查看docker简要信息</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker -v</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> <span class="token parameter variable">-v</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <span id="more"></span>
 <ul>
 <li>启动Docker</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl start docker</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">systemctl start <span class="token function">docker</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <ul>
 <li>关闭docker</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl stop docker</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">systemctl stop <span class="token function">docker</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <ul>
 <li>设置开机启动</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">systemctl enable docker</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">systemctl <span class="token builtin class-name">enable</span> <span class="token function">docker</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <ul>
 <li>重启docker服务</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service docker restart</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">service</span> <span class="token function">docker</span> restart<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <ul>
 <li>关闭docker服务</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">service docker stop</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">service</span> <span class="token function">docker</span> stop<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <h3 id="1-2-镜像"><a href="#1-2-镜像" class="headerlink" title="1.2 镜像"></a>1.2 镜像</h3><ul>
 <li>检索镜像</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker search 关键字</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> search 关键字<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <ul>
 <li>拉取镜像</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker pull [选项] [Docker Registry 地址[:端口号]/]仓库名[:标签]</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> pull <span class="token punctuation">[</span>选项<span class="token punctuation">]</span> <span class="token punctuation">[</span>Docker Registry 地址<span class="token punctuation">[</span>:端口号<span class="token punctuation">]</span>/<span class="token punctuation">]</span>仓库名<span class="token punctuation">[</span>:标签<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <ul>
 <li>列出镜像</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker image ls</span><br><span class="line">docker images</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> image <span class="token function">ls</span>
+<span class="token function">docker</span> images<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <ul>
 <li>删除镜像</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker rmi &lt;镜像Id&gt;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> rmi <span class="token operator">&lt;</span>镜像Id<span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <ul>
 <li>导出镜像</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker save</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> save<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <ul>
 <li>导入镜像</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker load</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> load<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <ul>
 <li><p>Dockerfile常见指令</p>
 <p>FROM：指定基础镜像 </p>
@@ -535,66 +539,95 @@
 </ul>
 <p>其它的指令还有ENTRYPOINT、ARG、VOLUME、WORKDIR、USER、HEALTHCHECK、ONBUILD、LABEL等等。</p>
 <p>以下是一个Dockerfile实例：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">FROM java:8</span><br><span class="line">MAINTAINER &quot;jinshw&quot;&lt;jinshw@qq.com&gt;</span><br><span class="line">ADD mapcharts-0.0.1-SNAPSHOT.jar mapcharts.jar</span><br><span class="line">EXPOSE 8080</span><br><span class="line">CMD java -jar mapcharts.jar</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">FROM java:8
+MAINTAINER <span class="token string">"jinshw"</span><span class="token operator">&lt;</span>jinshw@qq.com<span class="token operator">></span>
+ADD mapcharts-0.0.1-SNAPSHOT.jar mapcharts.jar
+EXPOSE <span class="token number">8080</span>
+CMD <span class="token function">java</span> <span class="token parameter variable">-jar</span> mapcharts.jar<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <ul>
 <li>镜像构建</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker build</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> build<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <h3 id="1-3-容器"><a href="#1-3-容器" class="headerlink" title="1.3 容器"></a>1.3 容器</h3><h4 id="1-3-1-容器生命周期"><a href="#1-3-1-容器生命周期" class="headerlink" title="1.3.1 容器生命周期"></a>1.3.1 容器生命周期</h4><ul>
 <li>启动：启动容器有两种方式，一种是基于镜像新建一个容器并启动，另外一个是将在终止状态（stopped）的容器重新启动。</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">新建并启动</span></span><br><span class="line">docker run [镜像名/镜像ID]</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">启动已终止容器</span></span><br><span class="line">docker start [容器ID]</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 新建并启动</span>
+<span class="token function">docker</span> run <span class="token punctuation">[</span>镜像名/镜像ID<span class="token punctuation">]</span>
+<span class="token comment"># 启动已终止容器</span>
+<span class="token function">docker</span> start <span class="token punctuation">[</span>容器ID<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <ul>
 <li>查看容器</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">列出本机运行的容器</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">docker ps</span> </span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">列出本机所有的容器（包括停止和运行）</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">docker ps -a</span></span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 列出本机运行的容器</span>
+$ <span class="token function">docker</span> <span class="token function">ps</span> 
+<span class="token comment"># 列出本机所有的容器（包括停止和运行）</span>
+$ <span class="token function">docker</span> <span class="token function">ps</span> <span class="token parameter variable">-a</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <ul>
 <li>停止容器</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">停止运行的容器</span></span><br><span class="line">docker stop [容器ID]</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">杀死容器进程</span></span><br><span class="line">docker  kill [容器ID] </span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 停止运行的容器</span>
+<span class="token function">docker</span> stop <span class="token punctuation">[</span>容器ID<span class="token punctuation">]</span>
+<span class="token comment"># 杀死容器进程</span>
+<span class="token function">docker</span>  <span class="token function">kill</span> <span class="token punctuation">[</span>容器ID<span class="token punctuation">]</span> <span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <ul>
 <li>重启容器</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker restart [容器ID] </span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> restart <span class="token punctuation">[</span>容器ID<span class="token punctuation">]</span> <span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <ul>
 <li>删除容器</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker  rm [容器ID]</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span>  <span class="token function">rm</span> <span class="token punctuation">[</span>容器ID<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <h4 id="1-3-2-进入容器"><a href="#1-3-2-进入容器" class="headerlink" title="1.3.2 进入容器"></a>1.3.2 进入容器</h4><p>进入容器有两种方式：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">如果从这个 stdin 中 <span class="built_in">exit</span>，会导致容器的停止</span></span><br><span class="line">docker attach [容器ID]</span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">交互式进入容器</span></span><br><span class="line">docker exec [容器ID]</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 如果从这个 stdin 中 exit，会导致容器的停止</span>
+<span class="token function">docker</span> attach <span class="token punctuation">[</span>容器ID<span class="token punctuation">]</span>
+<span class="token comment"># 交互式进入容器</span>
+<span class="token function">docker</span> <span class="token builtin class-name">exec</span> <span class="token punctuation">[</span>容器ID<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <p>进入容器通常使用第二种方式，<code>docker exec</code>后面跟的常见参数如下：</p>
 <p>-d, —detach 在容器中后台执行命令； － i, —interactive=true I false ：打开标准输入接受用户输入命令；-t :分配一个伪终端</p>
 <h4 id="1-3-3-导出和导入"><a href="#1-3-3-导出和导入" class="headerlink" title="1.3.3 导出和导入"></a>1.3.3 导出和导入</h4><ul>
 <li>导出容器</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">导出一个已经创建的容器到一个文件</span></span><br><span class="line">docker export [容器ID]</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment">#导出一个已经创建的容器到一个文件</span>
+<span class="token function">docker</span> <span class="token builtin class-name">export</span> <span class="token punctuation">[</span>容器ID<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <ul>
 <li>导入容器</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">导出的容器快照文件可以再导入为镜像</span></span><br><span class="line">docker import [路径]</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 导出的容器快照文件可以再导入为镜像</span>
+<span class="token function">docker</span> <span class="token function">import</span> <span class="token punctuation">[</span>路径<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <h3 id="1-4-其它"><a href="#1-4-其它" class="headerlink" title="1.4 其它"></a>1.4 其它</h3><ul>
 <li>查看日志</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker logs [容器ID]</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> logs <span class="token punctuation">[</span>容器ID<span class="token punctuation">]</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>这个命令有以下常用参数 -f : 跟踪日志输出</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">--since :显示某个开始时间的所有日志</span><br><span class="line"></span><br><span class="line">-t : 显示时间戳</span><br><span class="line"></span><br><span class="line">--tail :仅列出最新N条容器日志</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token parameter variable">--since</span> :显示某个开始时间的所有日志
+
+<span class="token parameter variable">-t</span> <span class="token builtin class-name">:</span> 显示时间戳
+
+<span class="token parameter variable">--tail</span> :仅列出最新N条容器日志<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <ul>
 <li>复制文件</li>
 </ul>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_"># </span><span class="language-bash">从主机复制到容器</span></span><br><span class="line">sudo docker cp host_path containerID:container_path </span><br><span class="line"><span class="meta prompt_"># </span><span class="language-bash">从容器复制到主机</span></span><br><span class="line">sudo docker cp containerID:container_path host_path</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token comment"># 从主机复制到容器</span>
+<span class="token function">sudo</span> <span class="token function">docker</span> <span class="token function">cp</span> host_path containerID:container_path 
+<span class="token comment"># 从容器复制到主机</span>
+<span class="token function">sudo</span> <span class="token function">docker</span> <span class="token function">cp</span> containerID:container_path host_path<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <h2 id="2-容器技术"><a href="#2-容器技术" class="headerlink" title="2. 容器技术"></a>2. 容器技术</h2><h3 id="2-1-从进程说起"><a href="#2-1-从进程说起" class="headerlink" title="2.1 从进程说起"></a>2.1 从进程说起</h3><p><strong>什么是进程？</strong></p>
 <p>从OS的层面来说，进程就是程序的运行时，代码和数据静态的保存在磁盘上的时候就是程序，一旦这个程序真正运行起来了，那么就成了进程。</p>
 <p>而容器技术的核心就是通过<strong>约束和修改进程的动态表现</strong>，为其创造一个“边界”。对于Docker这种Linux容器来说，通过CGroup技术来制造约束，通过Namespace来修改进程视图。</p>
 <p>从一个例子看一下Namespace可以完成什么事情：</p>
 <p>先创建一个容器：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">docker run -it busybox /bin/sh</span><br><span class="line">/ #</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-it</span> busybox /bin/sh
+/ <span class="token comment">#</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <p>现在在容器中执行ps命令：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">/ # ps</span><br><span class="line">PID   USER     TIME  COMMAND</span><br><span class="line">    1 root      0:00 /bin/sh</span><br><span class="line">    7 root      0:00 ps</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">/ <span class="token comment"># ps</span>
+PID   <span class="token environment constant">USER</span>     TIME  COMMAND
+    <span class="token number">1</span> root      <span class="token number">0</span>:00 /bin/sh
+    <span class="token number">7</span> root      <span class="token number">0</span>:00 <span class="token function">ps</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <p>可以看到进程号是从pid=1开始的，并且只有两个进程，这跟在宿主机上的结果一定是不一样的。事实上在宿主机中/bin/sh这条命令一定不是pid=1的，但是Docker通过障眼法让该进程看不到在它之前的进程，这就是利用了Namespace技术。</p>
 <p>Namaspace其实只是Linux创建新进程的一个可选参数。在Linux中创建进程通过clone()：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> pid = <span class="built_in">clone</span>(main_functino, stack_size, SIGCHID, <span class="literal">NULL</span>);</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">int pid &#x3D; clone(main_functino, stack_size, SIGCHID, NULL);<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>这样系统调用就会为我们创建一个进程并且返回pid，如果我们指定CLONE_NEWPID参数：</p>
-<figure class="highlight c++"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="type">int</span> pid = <span class="built_in">clone</span>(main_functino, stack_size, CLONE_NEWPID ｜ SIGCHID, <span class="literal">NULL</span>);</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-c++" data-language="c++"><code class="language-c++">int pid &#x3D; clone(main_functino, stack_size, CLONE_NEWPID ｜ SIGCHID, NULL);<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>这样一来该进程就被骗了，它将看到一个船新版本的进程空间，在这个进程空间中它的pid是1，但是在宿主机中它的pid有可能是100。这就是简单的Namespace的使用，用来修改进程视图。当然，Linux还提供了其他的namespace参数选项：MOUNT、UTS、IPC、Network和User，用来做各种障眼法。比如MOUNT用来让当前进程看到当前Namespace的挂载点信息，Network用来来进程只看到当前Namespace的网络设备和配置。</p>
 <p>实际上对于Docker来说，用于做容器隔离的手段其实就是在创建容器进程的时候，指定了该进程启动所需要的一组Namespace参数。这样一来，该容器就只能看到当前Namespace下的资源、文件、设备、状态或者配置。</p>
 <p>所以么，容器这个高大上的概念的本质其实还是进程。</p>
@@ -603,24 +636,77 @@
 <p>虽然容器内的第1号进程可能实际上是宿主机上的第100号进程，并且只能看到容器内的进程空间，但是该进程作为宿主机上的第100号进程与其他进程之间依然是平等的竞争关系。也就是，第100号进程所能用到的资源（比如cpu、内存），可以随时被宿主机上的其他进程或其他容器占用。当然，第100号进程也有可能自己用光宿主机上的所有资源。这些显然都不是一个容器的合理行为。</p>
 <p>而Linux Cgoupgs(Linux control groups)就是Linux内核中为进程设置资源限制的一种技术。其最主要的功能就是限制一个进程组能够使用的资源上限，包括CPU、内存、磁盘、网络带宽等等。此外，Cgroup还能对进程进行优先级设置、审计，以及将进程挂起和恢复等操作。这里我们主要说说它的限制功能。</p>
 <p>在Linux中，Cgroups向用户暴露出来的操作接口是文件系统，即它以文件和目录的方式组织在操作系统的/sys/fs/cgroups路径下。可以用mount命令将其显示：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line">mount -t cgroup</span><br><span class="line">cgroup on /sys/fs/cgroup/systemd type cgroup (rw,nosuid,nodev,noexec,relatime,xattr,release_agent=/usr/lib/systemd/systemd-cgroups-agent,name=systemd)</span><br><span class="line">cgroup on /sys/fs/cgroup/pids type cgroup (rw,nosuid,nodev,noexec,relatime,pids)</span><br><span class="line">cgroup on /sys/fs/cgroup/devices type cgroup (rw,nosuid,nodev,noexec,relatime,devices)</span><br><span class="line">cgroup on /sys/fs/cgroup/net_cls,net_prio type cgroup (rw,nosuid,nodev,noexec,relatime,net_prio,net_cls)</span><br><span class="line">cgroup on /sys/fs/cgroup/blkio type cgroup (rw,nosuid,nodev,noexec,relatime,blkio)</span><br><span class="line">cgroup on /sys/fs/cgroup/cpu,cpuacct type cgroup (rw,nosuid,nodev,noexec,relatime,cpuacct,cpu)</span><br><span class="line">cgroup on /sys/fs/cgroup/memory type cgroup (rw,nosuid,nodev,noexec,relatime,memory)</span><br><span class="line">cgroup on /sys/fs/cgroup/freezer type cgroup (rw,nosuid,nodev,noexec,relatime,freezer)</span><br><span class="line">cgroup on /sys/fs/cgroup/hugetlb type cgroup (rw,nosuid,nodev,noexec,relatime,hugetlb)</span><br><span class="line">cgroup on /sys/fs/cgroup/perf_event type cgroup (rw,nosuid,nodev,noexec,relatime,perf_event)</span><br><span class="line">cgroup on /sys/fs/cgroup/cpuset type cgroup (rw,nosuid,nodev,noexec,relatime,cpuset)</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">mount</span> <span class="token parameter variable">-t</span> cgroup
+cgroup on /sys/fs/cgroup/systemd <span class="token builtin class-name">type</span> cgroup <span class="token punctuation">(</span>rw,nosuid,nodev,noexec,relatime,xattr,release_agent<span class="token operator">=</span>/usr/lib/systemd/systemd-cgroups-agent,name<span class="token operator">=</span>systemd<span class="token punctuation">)</span>
+cgroup on /sys/fs/cgroup/pids <span class="token builtin class-name">type</span> cgroup <span class="token punctuation">(</span>rw,nosuid,nodev,noexec,relatime,pids<span class="token punctuation">)</span>
+cgroup on /sys/fs/cgroup/devices <span class="token builtin class-name">type</span> cgroup <span class="token punctuation">(</span>rw,nosuid,nodev,noexec,relatime,devices<span class="token punctuation">)</span>
+cgroup on /sys/fs/cgroup/net_cls,net_prio <span class="token builtin class-name">type</span> cgroup <span class="token punctuation">(</span>rw,nosuid,nodev,noexec,relatime,net_prio,net_cls<span class="token punctuation">)</span>
+cgroup on /sys/fs/cgroup/blkio <span class="token builtin class-name">type</span> cgroup <span class="token punctuation">(</span>rw,nosuid,nodev,noexec,relatime,blkio<span class="token punctuation">)</span>
+cgroup on /sys/fs/cgroup/cpu,cpuacct <span class="token builtin class-name">type</span> cgroup <span class="token punctuation">(</span>rw,nosuid,nodev,noexec,relatime,cpuacct,cpu<span class="token punctuation">)</span>
+cgroup on /sys/fs/cgroup/memory <span class="token builtin class-name">type</span> cgroup <span class="token punctuation">(</span>rw,nosuid,nodev,noexec,relatime,memory<span class="token punctuation">)</span>
+cgroup on /sys/fs/cgroup/freezer <span class="token builtin class-name">type</span> cgroup <span class="token punctuation">(</span>rw,nosuid,nodev,noexec,relatime,freezer<span class="token punctuation">)</span>
+cgroup on /sys/fs/cgroup/hugetlb <span class="token builtin class-name">type</span> cgroup <span class="token punctuation">(</span>rw,nosuid,nodev,noexec,relatime,hugetlb<span class="token punctuation">)</span>
+cgroup on /sys/fs/cgroup/perf_event <span class="token builtin class-name">type</span> cgroup <span class="token punctuation">(</span>rw,nosuid,nodev,noexec,relatime,perf_event<span class="token punctuation">)</span>
+cgroup on /sys/fs/cgroup/cpuset <span class="token builtin class-name">type</span> cgroup <span class="token punctuation">(</span>rw,nosuid,nodev,noexec,relatime,cpuset<span class="token punctuation">)</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>在/sys/fs/cgrouops目录下的子目录，比如cpu、cpuset、memory，也叫子系统。这些是当前机器可以被Cgroups限制的资源种类。在子系统对应的资源种类下，可以看到这类资源具体可以被限制的方法。</p>
 <p>查看cpu目录下：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">ls</span> /sys/fs/cgroup/cpu</span></span><br><span class="line">aegis   cgroup.clone_children  cgroup.procs          cpuacct.stat   cpuacct.usage_percpu  cpu.cfs_quota_us  cpu.rt_runtime_us  cpu.stat  kubepods           release_agent  tasks</span><br><span class="line">assist  cgroup.event_control   cgroup.sane_behavior  cpuacct.usage  cpu.cfs_period_us     cpu.rt_period_us  cpu.shares         docker    notify_on_release  system.slice   user.slice</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">$ <span class="token function">ls</span> /sys/fs/cgroup/cpu
+aegis   cgroup.clone_children  cgroup.procs          cpuacct.stat   cpuacct.usage_percpu  cpu.cfs_quota_us  cpu.rt_runtime_us  cpu.stat  kubepods           release_agent  tasks
+assist  cgroup.event_control   cgroup.sane_behavior  cpuacct.usage  cpu.cfs_period_us     cpu.rt_period_us  cpu.shares         <span class="token function">docker</span>    notify_on_release  system.slice   user.slice<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <p>其中有两个文件cpu.cfs_period_us和cpu.cfs_quota_us，用来限制进程在cpu.cfs_period_us的一段时间内，只能被分配到总量为cpu.cfs_quota_us的cpu时间。</p>
 <p>那么要如何使用这样的配置文件呢？只需要在对应的子系统下面创建一个目录，比如在/sys/fs/cgroup/cpu创建一个test文件夹：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br></pre></td><td class="code"><pre><span class="line">mkdir test</span><br><span class="line">cd test/</span><br><span class="line">ll</span><br><span class="line">总用量 0</span><br><span class="line">-rw-r--r-- 1 root root 0 12月  6 17:30 cgroup.clone_children</span><br><span class="line">--w--w--w- 1 root root 0 12月  6 17:30 cgroup.event_control</span><br><span class="line">-rw-r--r-- 1 root root 0 12月  6 17:30 cgroup.procs</span><br><span class="line">-r--r--r-- 1 root root 0 12月  6 17:30 cpuacct.stat</span><br><span class="line">-rw-r--r-- 1 root root 0 12月  6 17:30 cpuacct.usage</span><br><span class="line">-r--r--r-- 1 root root 0 12月  6 17:30 cpuacct.usage_percpu</span><br><span class="line">-rw-r--r-- 1 root root 0 12月  6 17:30 cpu.cfs_period_us</span><br><span class="line">-rw-r--r-- 1 root root 0 12月  6 17:30 cpu.cfs_quota_us</span><br><span class="line">-rw-r--r-- 1 root root 0 12月  6 17:30 cpu.rt_period_us</span><br><span class="line">-rw-r--r-- 1 root root 0 12月  6 17:30 cpu.rt_runtime_us</span><br><span class="line">-rw-r--r-- 1 root root 0 12月  6 17:30 cpu.shares</span><br><span class="line">-r--r--r-- 1 root root 0 12月  6 17:30 cpu.stat</span><br><span class="line">-rw-r--r-- 1 root root 0 12月  6 17:30 notify_on_release</span><br><span class="line">-rw-r--r-- 1 root root 0 12月  6 17:30 tasks</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">mkdir</span> <span class="token builtin class-name">test</span>
+<span class="token builtin class-name">cd</span> test/
+ll
+总用量 <span class="token number">0</span>
+-rw-r--r-- <span class="token number">1</span> root root <span class="token number">0</span> <span class="token number">12</span>月  <span class="token number">6</span> <span class="token number">17</span>:30 cgroup.clone_children
+--w--w--w- <span class="token number">1</span> root root <span class="token number">0</span> <span class="token number">12</span>月  <span class="token number">6</span> <span class="token number">17</span>:30 cgroup.event_control
+-rw-r--r-- <span class="token number">1</span> root root <span class="token number">0</span> <span class="token number">12</span>月  <span class="token number">6</span> <span class="token number">17</span>:30 cgroup.procs
+-r--r--r-- <span class="token number">1</span> root root <span class="token number">0</span> <span class="token number">12</span>月  <span class="token number">6</span> <span class="token number">17</span>:30 cpuacct.stat
+-rw-r--r-- <span class="token number">1</span> root root <span class="token number">0</span> <span class="token number">12</span>月  <span class="token number">6</span> <span class="token number">17</span>:30 cpuacct.usage
+-r--r--r-- <span class="token number">1</span> root root <span class="token number">0</span> <span class="token number">12</span>月  <span class="token number">6</span> <span class="token number">17</span>:30 cpuacct.usage_percpu
+-rw-r--r-- <span class="token number">1</span> root root <span class="token number">0</span> <span class="token number">12</span>月  <span class="token number">6</span> <span class="token number">17</span>:30 cpu.cfs_period_us
+-rw-r--r-- <span class="token number">1</span> root root <span class="token number">0</span> <span class="token number">12</span>月  <span class="token number">6</span> <span class="token number">17</span>:30 cpu.cfs_quota_us
+-rw-r--r-- <span class="token number">1</span> root root <span class="token number">0</span> <span class="token number">12</span>月  <span class="token number">6</span> <span class="token number">17</span>:30 cpu.rt_period_us
+-rw-r--r-- <span class="token number">1</span> root root <span class="token number">0</span> <span class="token number">12</span>月  <span class="token number">6</span> <span class="token number">17</span>:30 cpu.rt_runtime_us
+-rw-r--r-- <span class="token number">1</span> root root <span class="token number">0</span> <span class="token number">12</span>月  <span class="token number">6</span> <span class="token number">17</span>:30 cpu.shares
+-r--r--r-- <span class="token number">1</span> root root <span class="token number">0</span> <span class="token number">12</span>月  <span class="token number">6</span> <span class="token number">17</span>:30 cpu.stat
+-rw-r--r-- <span class="token number">1</span> root root <span class="token number">0</span> <span class="token number">12</span>月  <span class="token number">6</span> <span class="token number">17</span>:30 notify_on_release
+-rw-r--r-- <span class="token number">1</span> root root <span class="token number">0</span> <span class="token number">12</span>月  <span class="token number">6</span> <span class="token number">17</span>:30 tasks<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>这样一个目录称为一个“控制组”，可以看到系统自动在该文件夹下创建了一堆对应资源限制的文件。cpu.cfs_quota_us为-1代表没有限制。</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">cat cpu.cfs_quota_us</span><br><span class="line">-1</span><br><span class="line">cat cpu.cfs_period_us</span><br><span class="line">100000</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">cat</span> cpu.cfs_quota_us
+<span class="token parameter variable">-1</span>
+<span class="token function">cat</span> cpu.cfs_period_us
+<span class="token number">100000</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <p>现在后台执行脚本启动一个死循环：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line">while : ; do : ; done &amp;</span><br><span class="line">[1] 20600</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token keyword">while</span> <span class="token builtin class-name">:</span> <span class="token punctuation">;</span> <span class="token keyword">do</span> <span class="token builtin class-name">:</span> <span class="token punctuation">;</span> <span class="token keyword">done</span> <span class="token operator">&amp;</span>
+<span class="token punctuation">[</span><span class="token number">1</span><span class="token punctuation">]</span> <span class="token number">20600</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span></span></code></pre>
 <p>使用top命令查看该进程：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">top</span><br><span class="line">top - 17:38:50 up 46 days, 17:38,  3 users,  load average: 0.82, 0.32, 0.14</span><br><span class="line">Tasks: 187 total,   2 running, 185 sleeping,   0 stopped,   0 zombie</span><br><span class="line"><span class="meta prompt_">%</span><span class="language-bash">Cpu(s): 13.1 us,  0.3 sy,  0.0 ni, 86.6 <span class="built_in">id</span>,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st</span></span><br><span class="line">KiB Mem : 32245888 total, 12814256 free,  3753912 used, 15677720 buff/cache</span><br><span class="line">KiB Swap:        0 total,        0 free,        0 used. 28089768 avail Mem</span><br><span class="line"></span><br><span class="line">  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND</span><br><span class="line">20600 root      20   0  115680    708    160 R  99.7  0.0   1:37.50 bash</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">top</span>
+<span class="token function">top</span> - <span class="token number">17</span>:38:50 up <span class="token number">46</span> days, <span class="token number">17</span>:38,  <span class="token number">3</span> users,  load average: <span class="token number">0.82</span>, <span class="token number">0.32</span>, <span class="token number">0.14</span>
+Tasks: <span class="token number">187</span> total,   <span class="token number">2</span> running, <span class="token number">185</span> sleeping,   <span class="token number">0</span> stopped,   <span class="token number">0</span> zombie
+%Cpu<span class="token punctuation">(</span>s<span class="token punctuation">)</span>: <span class="token number">13.1</span> us,  <span class="token number">0.3</span> sy,  <span class="token number">0.0</span> ni, <span class="token number">86.6</span> id,  <span class="token number">0.0</span> wa,  <span class="token number">0.0</span> hi,  <span class="token number">0.0</span> si,  <span class="token number">0.0</span> st
+KiB Mem <span class="token builtin class-name">:</span> <span class="token number">32245888</span> total, <span class="token number">12814256</span> free,  <span class="token number">3753912</span> used, <span class="token number">15677720</span> buff/cache
+KiB Swap:        <span class="token number">0</span> total,        <span class="token number">0</span> free,        <span class="token number">0</span> used. <span class="token number">28089768</span> avail Mem
+
+  PID <span class="token environment constant">USER</span>      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
+<span class="token number">20600</span> root      <span class="token number">20</span>   <span class="token number">0</span>  <span class="token number">115680</span>    <span class="token number">708</span>    <span class="token number">160</span> R  <span class="token number">99.7</span>  <span class="token number">0.0</span>   <span class="token number">1</span>:37.50 <span class="token function">bash</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>可以看到该进程的cpu使用率是100%，假如现在想要限制改进程的cpu使用率怎么办？</p>
 <p>现在写入文件：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">echo 20000 &gt; /sys/fs/cgroup/cpu/test/cpu.cfs_quota_us</span><br><span class="line">cat cpu.cfs_quota_us</span><br><span class="line">20000</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">echo</span> <span class="token number">20000</span> <span class="token operator">></span> /sys/fs/cgroup/cpu/test/cpu.cfs_quota_us
+<span class="token function">cat</span> cpu.cfs_quota_us
+<span class="token number">20000</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span></span></code></pre>
 <p>这样一来就可以限制某个进程最多只能使用20%的cpu。但是还没有对改进程生效，要将此限制和进程绑定一下：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">echo 20600 &gt; /sys/fs/cgroup/cpu/test/task</span><br><span class="line">top</span><br><span class="line">top - 17:40:59 up 46 days, 17:40,  3 users,  load average: 0.90, 0.54, 0.25</span><br><span class="line">Tasks: 187 total,   2 running, 185 sleeping,   0 stopped,   0 zombie</span><br><span class="line"><span class="meta prompt_">%</span><span class="language-bash">Cpu(s):  3.0 us,  0.2 sy,  0.0 ni, 96.8 <span class="built_in">id</span>,  0.0 wa,  0.0 hi,  0.0 si,  0.0 st</span></span><br><span class="line">KiB Mem : 32245888 total, 12814508 free,  3753508 used, 15677872 buff/cache</span><br><span class="line">KiB Swap:        0 total,        0 free,        0 used. 28090172 avail Mem</span><br><span class="line"></span><br><span class="line">  PID USER      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND</span><br><span class="line">20600 root      20   0  115680    708    160 R  19.9  0.0   3:42.78 bash</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">echo</span> <span class="token number">20600</span> <span class="token operator">></span> /sys/fs/cgroup/cpu/test/task
+<span class="token function">top</span>
+<span class="token function">top</span> - <span class="token number">17</span>:40:59 up <span class="token number">46</span> days, <span class="token number">17</span>:40,  <span class="token number">3</span> users,  load average: <span class="token number">0.90</span>, <span class="token number">0.54</span>, <span class="token number">0.25</span>
+Tasks: <span class="token number">187</span> total,   <span class="token number">2</span> running, <span class="token number">185</span> sleeping,   <span class="token number">0</span> stopped,   <span class="token number">0</span> zombie
+%Cpu<span class="token punctuation">(</span>s<span class="token punctuation">)</span>:  <span class="token number">3.0</span> us,  <span class="token number">0.2</span> sy,  <span class="token number">0.0</span> ni, <span class="token number">96.8</span> id,  <span class="token number">0.0</span> wa,  <span class="token number">0.0</span> hi,  <span class="token number">0.0</span> si,  <span class="token number">0.0</span> st
+KiB Mem <span class="token builtin class-name">:</span> <span class="token number">32245888</span> total, <span class="token number">12814508</span> free,  <span class="token number">3753508</span> used, <span class="token number">15677872</span> buff/cache
+KiB Swap:        <span class="token number">0</span> total,        <span class="token number">0</span> free,        <span class="token number">0</span> used. <span class="token number">28090172</span> avail Mem
+
+  PID <span class="token environment constant">USER</span>      PR  NI    VIRT    RES    SHR S  %CPU %MEM     TIME+ COMMAND
+<span class="token number">20600</span> root      <span class="token number">20</span>   <span class="token number">0</span>  <span class="token number">115680</span>    <span class="token number">708</span>    <span class="token number">160</span> R  <span class="token number">19.9</span>  <span class="token number">0.0</span>   <span class="token number">3</span>:42.78 <span class="token function">bash</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>再次查看该进程会发现cpu使用率只有20%。</p>
 <p>除了cpu子系统之外，Cgroups的每一项子系统都有其独有的资源限制能力，比如：</p>
 <ul>
@@ -630,9 +716,13 @@
 </ul>
 <p>Cgroups使用总结：一个子系统目录加上一组资源限制文件的组合。对于Docker等Linux容器，只需要在每个子系统下面为每个容器创建一个资源组（创建一个新目录），然后在启动容器进程之后，把这个进程的PID填写到对应控制组的tasks文件中即可。</p>
 <p>其实用户在使用docker容器的使用想要限制资源非常简单：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -it --cpu-period=100000 --cpu-quota=20000 ubuntu /bin/bash</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-it</span> --cpu-period<span class="token operator">=</span><span class="token number">100000</span> --cpu-quota<span class="token operator">=</span><span class="token number">20000</span> ubuntu /bin/bash<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>查看对应的资源限制文件：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line">cd /sys/fs/cgroup/cpu/docker/b95b0a18ae7eaadcd395a32379aeeeec717ff0b1bdeb5c26697b6566e8ca8e</span><br><span class="line">cat cpu.cfs_quota_us</span><br><span class="line">20000</span><br><span class="line">cat cpu.cfs_period_us</span><br><span class="line">100000</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token builtin class-name">cd</span> /sys/fs/cgroup/cpu/docker/b95b0a18ae7eaadcd395a32379aeeeec717ff0b1bdeb5c26697b6566e8ca8e
+<span class="token function">cat</span> cpu.cfs_quota_us
+<span class="token number">20000</span>
+<span class="token function">cat</span> cpu.cfs_period_us
+<span class="token number">100000</span><span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <h3 id="2-3-容器镜像"><a href="#2-3-容器镜像" class="headerlink" title="2.3 容器镜像"></a>2.3 容器镜像</h3><p>通过Namespace做隔离，通过Cgroups做限制，那么一个容器进程看到的文件系统是怎么样的？你可能会说，如果创建进程时指定了Mount参数，那么就可以让容器进程看到一个新的文件系统。但事实是，即便开启了Mount参数，容器看到的文件系统也和宿主机的文件系统一致，这是为什么？因为Mount Namespace和其他Namespace不一样，它对容器进程视图的改变一定要伴随着挂载操作才能生效。因此，在容器进程启动之前要重新挂载整个根目录”/“，这样一来容器内的挂载对宿主机不可见，因此容器进程可以在里面随便折腾。</p>
 <p>在Linux中，可以通过<code>chroot</code>命令来执行挂载操作，顾名思义：“change  root file system”，改变进程的根路径到任何地方。</p>
 <p>为了让容器的根目录看起来更加真实，一般会在容器的根目录下挂载我一个完整操作系统的文件系统，比如Ubuntu16.04的ISO。这样在容器启动以后，在容器里执行ls /命令看到的就是Ubuntu 16.04的所有目录和文件。这个挂载在容器根目录上用来为容器进程提供隔离后执行环境的文件系统，就是“容器镜像”。它还有一个更专业的名字叫：rootfs(根文件系统)。</p>
@@ -645,16 +735,33 @@
 <p>由于rootfs的存在，容器就有了一个十分重要的特性：一致性。有个rootfs之后，应用打包的不只是应用，而是整个操作系统的文件和目录，这就意味着，应用以及它所需要运行的所有依赖都被封装到一起了。也就是说，有了容器镜像，不管在本地还是云端还是任何一台机器，只要解压打包好的容器镜像，应用以及所需的执行环境就能被重现。</p>
 <p>在制作一个rootfs的时候，为了简化制作、不需要重复制作，rootfs是基于增量修改的。这也就是Docker镜像中<strong>层（layer）</strong>的概念。也就是说，用户制作镜像的每一步操作都会生成一个层，也就是一个增量rootfs。这里主要用到了<strong>UnionFS（联合文件系统）</strong>的能力，其最主要的功能是将不同位置的目录<strong>联合挂载（union mount</strong>）到同一个目录下。</p>
 <p>假设文件结构如下：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">tree</span><br><span class="line">.</span><br><span class="line">├── A</span><br><span class="line">│   ├── a</span><br><span class="line">│   └── x</span><br><span class="line">└── B</span><br><span class="line">    ├── b</span><br><span class="line">    └── x</span><br><span class="line"></span><br><span class="line">2 directories, 4 files</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">tree
+<span class="token builtin class-name">.</span>
+├── A
+│   ├── a
+│   └── x
+└── B
+    ├── b
+    └── x
+
+<span class="token number">2</span> directories, <span class="token number">4</span> files<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>通过联合挂载的方式将这两个目录挂载到一个公共得分目录C上(Centos 7)：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line">mkdir</span><br><span class="line">mount -t overlay overlay -o lowerdir=A:B ~/test2/C</span><br><span class="line">tree ./C</span><br><span class="line">./C</span><br><span class="line">├── a</span><br><span class="line">├── b</span><br><span class="line">└── x</span><br><span class="line"></span><br><span class="line">0 directories, 3 files</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">mkdir</span>
+<span class="token function">mount</span> <span class="token parameter variable">-t</span> overlay overlay <span class="token parameter variable">-o</span> <span class="token assign-left variable">lowerdir</span><span class="token operator">=</span>A:B ~/test2/C
+tree ./C
+./C
+├── a
+├── b
+└── x
+
+<span class="token number">0</span> directories, <span class="token number">3</span> files<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></span></code></pre>
 <p>此时C文件夹下就能看到A和B文件夹的文件被合并到了一起。并且如果修改C文件夹中的文件，原本文件夹中的文件也会相应修改。</p>
 <p>下面以Ubuntu16.04和Docker CE18.05来说明Docker是如何使用这种UnionFS的，在这个环境配置下使用的是Another UnionFS，后来叫Alternative UnionFS，再后来叫Advanced UnionFS。对AuFS来说，最关键的目录结构在/var/lib/docker路径下的diff目录：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">/var/lib/docker/aufs/diff/&lt;layer_id&gt;</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash">/var/lib/docker/aufs/diff/<span class="token operator">&lt;</span>layer_id<span class="token operator">></span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>启动一个容器：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run -d ubuntu:latest sleep 3600</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-d</span> ubuntu:latest <span class="token function">sleep</span> <span class="token number">3600</span><span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>查看镜像：</p>
-<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker inspect image ubuntu:latest</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> inspect image ubuntu:latest<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <p>会发现这个镜像由5个层组成，这5层就是5个增量rootfs，每一层都是Ubuntu操作系统文件与目录的一部分；而在使用的时候，Docker会把这些增量联合挂载到一个统一的挂载点上（相当于之前的C目录）。这个挂载点就是/var/lib/docker/aufs/mnt/<ID>。</p>
 <p>容器的rootfs一般由3部分组成：可读可写层（rw）、Init层（ro+wh）、只读层（ro+wh）。</p>
 <ol>
@@ -1236,7 +1343,7 @@ Connected papers https://www.connect
             <br>
             
             &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                class="white-color">73.6k</span>&nbsp;字
+                class="white-color">73.3k</span>&nbsp;字
             
             
             

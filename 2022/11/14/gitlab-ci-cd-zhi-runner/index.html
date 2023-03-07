@@ -472,6 +472,9 @@
         <hr class="clearfix">
 
         
+        <!-- 是否加载使用自带的 prismjs. -->
+        <link rel="stylesheet" href="/libs/prism/prism.css">
+        
 
         
 
@@ -506,11 +509,14 @@
 <h3 id="3-1-拉镜像、启容器"><a href="#3-1-拉镜像、启容器" class="headerlink" title="3.1 拉镜像、启容器"></a>3.1 拉镜像、启容器</h3><ul>
 <li>这一步是为了在服务器上安装Runner，以配置本地volume为例：</li>
 </ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">docker run -d --name gitlab-runner --restart always \</span><br><span class="line">  -v /srv/gitlab-runner/config:/etc/gitlab-runner \</span><br><span class="line">  -v /var/run/docker.sock:/var/run/docker.sock \</span><br><span class="line">  gitlab/gitlab-runner:latest</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">-d</span> <span class="token parameter variable">--name</span> gitlab-runner <span class="token parameter variable">--restart</span> always <span class="token punctuation">\</span>
+  <span class="token parameter variable">-v</span> /srv/gitlab-runner/config:/etc/gitlab-runner <span class="token punctuation">\</span>
+  <span class="token parameter variable">-v</span> /var/run/docker.sock:/var/run/docker.sock <span class="token punctuation">\</span>
+  gitlab/gitlab-runner:latest<span aria-hidden="true" class="line-numbers-rows"><span></span><span></span><span></span><span></span></span></code></pre>
 <h2 id="3-2-注册Runner"><a href="#3-2-注册Runner" class="headerlink" title="3.2 注册Runner"></a>3.2 注册Runner</h2><ul>
 <li>这一步是为了将服务器上的Runner和项目绑定。</li>
 </ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker run --<span class="built_in">rm</span> -it -v /srv/gitlab-runner/config:/etc/gitlab-runner gitlab/gitlab-runner register</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> run <span class="token parameter variable">--rm</span> <span class="token parameter variable">-it</span> <span class="token parameter variable">-v</span> /srv/gitlab-runner/config:/etc/gitlab-runner gitlab/gitlab-runner register<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <ul>
 <li><p>输入命令后依次输入如下内容：</p>
 <ul>
@@ -531,7 +537,7 @@
 <h3 id="3-3-重启容器"><a href="#3-3-重启容器" class="headerlink" title="3.3 重启容器"></a>3.3 重启容器</h3><ul>
 <li>这一步是为了使配置生效。</li>
 </ul>
-<figure class="highlight sh"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">docker restart gitlab-runner</span><br></pre></td></tr></table></figure>
+<pre class="line-numbers language-bash" data-language="bash"><code class="language-bash"><span class="token function">docker</span> restart gitlab-runner<span aria-hidden="true" class="line-numbers-rows"><span></span></span></code></pre>
 <h1 id="参考链接"><a href="#参考链接" class="headerlink" title="参考链接"></a>参考链接</h1><p><a target="_blank" rel="noopener" href="https://docs.gitlab.com/runner/">https://docs.gitlab.com/runner/</a></p>
 <p><a target="_blank" rel="noopener" href="https://docs.gitlab.com/runner/install/index.html">https://docs.gitlab.com/runner/install/index.html</a></p>
 <p><a target="_blank" rel="noopener" href="https://docs.gitlab.com/ee/ci/runners/runners_scope.html">https://docs.gitlab.com/ee/ci/runners/runners_scope.html</a></p>
@@ -1113,7 +1119,7 @@
             <br>
             
             &nbsp;<i class="fas fa-chart-area"></i>&nbsp;站点总字数:&nbsp;<span
-                class="white-color">73.6k</span>&nbsp;字
+                class="white-color">73.3k</span>&nbsp;字
             
             
             
