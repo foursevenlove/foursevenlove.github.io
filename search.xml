@@ -5392,7 +5392,7 @@ $ <span class="token function">git</span> fetch origin master:tmp<span aria-hidd
   </entry>
   <entry>
     <title>7.Scheduling: Introduction</title>
-    <url>/2022/10/27/7-scheduling-introduction/</url>
+    <url>/2022/10/27/os-7-scheduling-introduction/</url>
     <content><![CDATA[<h2 id="7-Scheduling-Introduction"><a href="#7-Scheduling-Introduction" class="headerlink" title="7.Scheduling: Introduction"></a>7.Scheduling: Introduction</h2><ul>
 <li>前面我们了解了低层的用于运行进程的机制，现在该来谈一谈高层的policy来决定如何调度进程上CPU了。这章就来学习下调度进程的算法。</li>
 </ul>
@@ -5502,7 +5502,7 @@ $ <span class="token function">git</span> fetch origin master:tmp<span aria-hidd
   </entry>
   <entry>
     <title>6.Mechanism: Limited Direct Execution</title>
-    <url>/2022/10/27/6-mechanism-limited-direct-execution/</url>
+    <url>/2022/10/27/os-6-mechanism-limited-direct-execution/</url>
     <content><![CDATA[<h2 id="6-Mechanism-Limited-Direct-Execution"><a href="#6-Mechanism-Limited-Direct-Execution" class="headerlink" title="6.Mechanism: Limited Direct Execution"></a>6.Mechanism: Limited Direct Execution</h2><ul>
 <li>受限制的直接执行。</li>
 <li>虚拟化CPU的基本思想：让一个线程上CPU运行一会，下来再让另一个上CPU运行，通过<strong>time sharing</strong>的方法来实现。</li>
@@ -5602,7 +5602,7 @@ $ <span class="token function">git</span> fetch origin master:tmp<span aria-hidd
   </entry>
   <entry>
     <title>The Abstraction:The Process</title>
-    <url>/2022/10/27/the-abstraction-the-process/</url>
+    <url>/2022/10/27/os-4-the-abstraction-the-process/</url>
     <content><![CDATA[<h2 id="4-The-Abstraction-The-Process"><a href="#4-The-Abstraction-The-Process" class="headerlink" title="4.The Abstraction: The Process"></a>4.The Abstraction: The Process</h2><ul>
 <li>线程的定义：正在运行的程序。</li>
 <li>问题来了：如何提供有许多CPU的假象？</li>
@@ -5672,6 +5672,8 @@ $ <span class="token function">git</span> fetch origin master:tmp<span aria-hidd
 ]]></content>
       <categories>
         <category>Operating System</category>
+        <category>Virtualization</category>
+        <category>Cpu</category>
       </categories>
       <tags>
         <tag>Operating System</tag>
